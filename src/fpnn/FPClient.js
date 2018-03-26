@@ -157,7 +157,7 @@ function onData(chunk){
         this._peekData = peekHead.call(this, this._buffer);
 
         if (!this._peekData){
-            this.conn.close({ code:FPConfig.ERROR_CODE.FPNN_EC_CORE_CONNECTION_CLOSED, ex:'FPNN_EC_CORE_CONNECTION_CLOSED' });
+            this._conn.close({ code:FPConfig.ERROR_CODE.FPNN_EC_CORE_CONNECTION_CLOSED, ex:'FPNN_EC_CORE_CONNECTION_CLOSED' });
             return;
         }
     }
