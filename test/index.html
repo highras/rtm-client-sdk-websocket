@@ -1,0 +1,112 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Getting Started</title>
+    </head>
+    <body>
+        <script src="../lib/int64-buffer.min.js"></script>
+        <script src="../lib/msgpack.min.js"></script>
+
+        <script src="../dist/rtm.min.js"></script>
+
+        <script src="./test-rtm.js"></script>
+
+        <script type="text/javascript">
+            function checkInput() {
+                var inputFrom = document.getElementById("rtmInfoFrom");
+            
+                if (inputFrom.endpoint.value == '') {
+                    alert('RTM Dispatch Endpoint is empty!');
+                    return;
+                }
+            
+                if (inputFrom.pid.value == '') {
+                    alert('Project ID is empty!');
+                    return;
+                }
+            
+                if (inputFrom.token.value == '') {
+                    alert('Project token is empty!');
+                    return;
+                }
+            
+                if (inputFrom.from.value == '') {
+                    alert('From ID is empty!');
+                    return;
+                }
+
+                if (inputFrom.to.value == '') {
+                    alert('To ID is empty!');
+                    return;
+                }
+            
+                var pid = parseInt(inputFrom.pid.value);
+                if (pid == NaN) {
+                    alert('Project ID is not number!');
+                    return;
+                }
+                var from = parseInt(inputFrom.from.value);
+                if (from == NaN) {
+                    alert('From ID is not number!');
+                    return;
+                }
+                var to = parseInt(inputFrom.to.value);
+                if (to == NaN) {
+                    alert('To ID is not number!');
+                    return;
+                }
+            
+                inputFrom.endpoint.disabled = true;
+                inputFrom.pid.disabled = true;
+                inputFrom.token.disabled = true;
+                inputFrom.from.disabled = true;
+                inputFrom.to.disabled = true;
+                inputFrom.login.disabled = true;
+            
+                test(inputFrom.endpoint.value, pid, inputFrom.token.value, from, to);
+            }
+        </script>
+            
+        <form id="rtmInfoFrom">
+            RTM Dispatch Endpoint: <input type="text" name="endpoint" value="35.167.185.139:13325">&nbsp;&nbsp;&nbsp;&nbsp; Project ID: <input type="text" name="pid" value="1000012"><br>
+            Login token: <input type="text" name="token" value="231E4295CFFBE9017EC6CA8B37E0B3CD">&nbsp;&nbsp;&nbsp;&nbsp; From ID: <input type="text" name="from" value="654321">&nbsp;&nbsp;&nbsp;&nbsp; To ID: <input type="text" name="to" value="123789"><br>
+            <input type="button" name="login" value="login" onclick="checkInput()">
+        </form>
+        
+        <!-- <textarea id="rtmInfos" readonly rows="20" cols="100">
+        </textarea> -->
+
+
+        <input type="file" id="files" name="files[]" multiple />
+        <output id="list"></output>
+
+        <script>
+            function handleFileSelect(evt){
+                var files = evt.target.files;
+                var output = [];
+                for (var i = 0, f; f = files[i]; i++) {
+                    output.push('<li><strong>', f.name, '</strong> (', f.type || 'n/a', ') - ',
+                                f.size, ' bytes, last modified: ',
+                                f.lastModifiedDate.toLocaleDateString(), '</li>');
+
+                    if (client.authed){
+                        client.sendFile(8, new Int64BE(0, 778899), f, (err, data) => {
+                            if (data){
+                                console.log('\n[DATA] sendFile:\n', data);
+                            }
+                            if (err){
+                                console.error('\n[ERR] sendFile:\n', err)
+                            }
+                        });
+                    }else{
+                        console.log('do not authed!');
+                    }
+                }
+
+                document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+            }
+
+            document.getElementById('files').addEventListener('change', handleFileSelect, false);
+        </script>
+    </body>
+</html>
