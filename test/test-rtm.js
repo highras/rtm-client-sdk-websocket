@@ -6,7 +6,7 @@ function test(endpoint, pid, token, from, to){
     from = new Int64BE(from);
     to = new Int64BE(to);
 
-    client = new RTMClient({ 
+    client = new RTMClient({
         dispatch: endpoint,
         uid: from,
         token: token,
@@ -15,14 +15,14 @@ function test(endpoint, pid, token, from, to){
         pid: pid,
         version: undefined,
         recvUnreadMsgStatus: false,
-        ssl: false
+        ssl: true 
     });
 
     client.on('error', (err) => {
         console.error(err);
     });
 
-    client.login(null, false);
+    client.login('localhost:3000');
 
 
     client.on('login', (data) => {

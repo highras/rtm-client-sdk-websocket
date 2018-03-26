@@ -43,7 +43,7 @@ client.on('error', (err) => {
     console.error(err);
 });
 
-client.login(null, false);
+client.login();
 
 client.on('login', (data) => {
     //send to server
@@ -196,7 +196,7 @@ client.on('login', (data) => {
     * `options.connectionTimeout`: **(Optional | number)** 超时时间(ms), 默认: `30 * 1000`
     * `options.version`: **(Optional | string)** 服务器版本号, RTM提供
     * `options.recvUnreadMsgStatus`: **(Optional | bool)** 是否接收未读消息状态信息, 默认: `true`
-    * `options.ssl`: **(Optional | string)** 是否开启SSL加密, 默认: `false`
+    * `options.ssl`: **(Optional | string)** 是否开启SSL加密, 默认: `true`
 
 * `authed`: 是否处于登陆状态
     * `return`: **(bool)**
@@ -240,12 +240,6 @@ client.on('login', (data) => {
     * `mtype`: **(Required | number)** 消息类型
     * `msg`: **(Required | string)** 消息内容
     * `attrs`: **(Required | string)** 消息附加信息, 可传`''`
-    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
-        * `data`: **(object)** 
-    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `5 * 1000`
-
-* `ping(callback, timeout)`: ping TRMGate
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
         * `err`: **(object)** 
         * `data`: **(object)** 

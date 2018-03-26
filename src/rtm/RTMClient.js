@@ -31,9 +31,9 @@ class RTMClient{
         this._uid = options.uid;
         this._token = options.token;
         this._version = options.version;
-        this._recvUnreadMsgStatus = options.recvUnreadMsgStatus ? options.recvUnreadMsgStatus : true;
-        this._ssl = options.ssl ? options.ssl : false;
-        this._autoReconnect = options.autoReconnect ? options.autoReconnect : true;
+        this._recvUnreadMsgStatus = options.recvUnreadMsgStatus !== undefined ? options.recvUnreadMsgStatus : true;
+        this._ssl = options.ssl !== undefined ? options.ssl : true;
+        this._autoReconnect = options.autoReconnect !== undefined ? options.autoReconnect : true;
         this._connectionTimeout = options.connectionTimeout ? options.connectionTimeout : 30 * 1000;
 
         this._midSeq = 0;
@@ -75,7 +75,7 @@ class RTMClient{
         }
 
         this._endpoint = endpoint ? endpoint : null;
-        this._ipv6 = ipv6 ? ipv6 : false;
+        this._ipv6 = ipv6 !== undefined ? ipv6 : false;
         this._isClose = false;
 
         if (this._endpoint){
@@ -242,27 +242,6 @@ class RTMClient{
         let options = {
             flag: 1,
             method: 'sendroommsg',
-            payload: msgpack.encode(payload, this._msgOptions)
-        };
-
-        sendQuest.call(this, this._client, options, callback, timeout);
-    }
-
-    /**
-     * 
-     * @param {function} callback 
-     * @param {number} timeout 
-     * 
-     * @callback
-     * @param {object} err
-     * @param {object} data
-     */
-    ping(callback, timeout){
-        let payload = {};
-
-        let options = {
-            flag: 1,
-            method: 'ping',
             payload: msgpack.encode(payload, this._msgOptions)
         };
 
@@ -1653,13 +1632,6 @@ function onClose(){
             self.login(self._endpoint, self._ipv6);
         }, FPConfig.SEND_TIMEOUT);
     }
-}
-
-function delayPing(){
-    let self = this;
-    this._timeID = setInterval(()=> {
-        self.ping( (err, data)=> {}, RTMConfig.PING_INTERVAL);
-    }, RTMConfig.PING_INTERVAL);
 }
 
 module.exports = RTMClient;
