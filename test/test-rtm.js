@@ -15,7 +15,8 @@ function test(endpoint, pid, token, from, to){
         pid: pid,
         version: undefined,
         recvUnreadMsgStatus: false,
-        ssl: false 
+        ssl: false,
+        proxyEndpoint: null
     });
 
     client.on('error', (err) => {

@@ -15,6 +15,13 @@ class FPClient{
 
         this._buffer = Buffer.allocUnsafe(16);
         this._autoReconnect = options ? options.autoReconnect : false;
+        this._proxy = options ? options.proxy : null;
+
+        if (this._proxy){
+            this._proxy.targetEndpoint = options.endpoint;
+            options.endpoint = this._proxy.endpoint;
+        }
+
         this._conn = new FPSocket(options);
 
         this._conn.on('connect', () => {
@@ -82,6 +89,11 @@ class FPClient{
         if (callback) this._cbs.addCb(this._pkg.cbKey(data), callback, timeout);
 
         let buf = this._pkg.enCode(data);
+
+        if (this._proxy){
+            buf = this._proxy.buildProxyData(buf);
+        }
+
         this._conn.write(buf);
     }
 
@@ -103,6 +115,11 @@ class FPClient{
 
         data = this._pkg.buildPkgData(data);
         let buf = this._pkg.enCode(data);
+
+        if (this._proxy){
+            buf = this._proxy.buildProxyData(buf);
+        }
+
         this._conn.write(buf);
     }
 

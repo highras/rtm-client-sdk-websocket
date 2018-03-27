@@ -13,8 +13,6 @@
 * 编译内置的模块[`buffer`]
 ```
 yarn run build
-// or
-npm run buld
 ```
 
 

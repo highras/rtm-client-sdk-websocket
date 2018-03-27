@@ -5,6 +5,7 @@ const FPEvent = require('../fpnn/FPEvent');
 const FPClient = require('../fpnn/FPClient');
 const RTMConfig = require('./RTMConfig');
 const RTMProcessor = require('./RTMProcessor');
+const RTMProxy = require('./RTMProxy');
 const MD5 = require('../lib/md5');
 
 class RTMClient{
@@ -22,6 +23,7 @@ class RTMClient{
      * {string} options.version
      * {bool} options.recvUnreadMsgStatus
      * {bool} options.ssl
+     * {string} options.proxyEndpoint
      */
     constructor(options){
         FPEvent.assign(this);
@@ -35,6 +37,8 @@ class RTMClient{
         this._ssl = options.ssl !== undefined ? options.ssl : true;
         this._autoReconnect = options.autoReconnect !== undefined ? options.autoReconnect : true;
         this._connectionTimeout = options.connectionTimeout ? options.connectionTimeout : 30 * 1000;
+
+        this._proxyEndpoint = options.proxyEndpoint; 
 
         this._midSeq = 0;
         this._saltSeq = 0;
@@ -58,6 +62,11 @@ class RTMClient{
         this._authed = false;
 
         this._processor = new RTMProcessor(this._msgOptions);
+
+        if (this._proxyEndpoint){
+            let endpoint = buildEndpoint.call(this, this._proxyEndpoint);
+            this._proxy = new RTMProxy(endpoint);
+        }
     }
 
     get authed(){
@@ -1363,7 +1372,8 @@ function fileSendProcess(ops, callback, timeout){
             let client = new FPClient({ 
                 endpoint: buildEndpoint.call(self, endpoint),
                 autoReconnect: false,
-                connectionTimeout: timeout
+                connectionTimeout: timeout,
+                proxy: self._proxy
             });
 
             client.connect();
@@ -1497,7 +1507,8 @@ function getRTMGate(service, callback){
 	let client = new FPClient({
         endpoint: buildEndpoint.call(this, this._dispatch),
         autoReconnect: false,
-        connectionTimeout: this._connectionTimeout 
+        connectionTimeout: this._connectionTimeout,
+        proxy: this._proxy
     });
 
     client.connect();
@@ -1526,6 +1537,10 @@ function getRTMGate(service, callback){
 }
 
 function buildEndpoint(endpoint){
+    if (this._proxy){
+        return endpoint;
+    }
+
     let protol = 'ws://';
 
     if (this._ssl){
@@ -1539,7 +1554,8 @@ function connectRTMGate(){
     this._client = new FPClient({ 
         endpoint: buildEndpoint.call(this, this._endpoint), 
         autoReconnect: false,
-        connectionTimeout: this._connectionTimeout
+        connectionTimeout: this._connectionTimeout,
+        proxy: this._proxy
     });
 
     let self = this;
