@@ -1628,7 +1628,7 @@ function onClose(){
 
     if (this._autoReconnect){
         let self = this;
-        setTimeout(() => {
+        this._timeID = setTimeout(() => {
             self.login(self._endpoint, self._ipv6);
         }, FPConfig.SEND_TIMEOUT);
     }

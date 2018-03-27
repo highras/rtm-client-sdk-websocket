@@ -15,14 +15,14 @@ function test(endpoint, pid, token, from, to){
         pid: pid,
         version: undefined,
         recvUnreadMsgStatus: false,
-        ssl: true 
+        ssl: false 
     });
 
     client.on('error', (err) => {
         console.error(err);
     });
 
-    client.login('localhost:3000');
+    client.login();
 
 
     client.on('login', (data) => {
