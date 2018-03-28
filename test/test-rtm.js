@@ -15,8 +15,8 @@ function test(endpoint, pid, token, from, to){
         pid: pid,
         version: undefined,
         recvUnreadMsgStatus: false,
-        ssl: false,
-        proxyEndpoint: null
+        ssl: true,
+        proxyEndpoint: 'highras.ifunplus.cn:13550'
     });
 
     client.on('error', (err) => {

@@ -1,7 +1,6 @@
 # FPNN RTM WebJs SDK #
 
-* 当前仅支持`ws`协议，不支持`wss`协议。
-* 当前不支持`FPNN`加密链接。
+* 不支持`FPNN`加密链接。
 
 #### 关于三方包依赖 ####
 * [int64-buffer](https://github.com/kawanet/int64-buffer) `./lib/int64-buffer.min.js`
@@ -194,7 +193,8 @@ client.on('login', (data) => {
     * `options.connectionTimeout`: **(Optional | number)** 超时时间(ms), 默认: `30 * 1000`
     * `options.version`: **(Optional | string)** 服务器版本号, RTM提供
     * `options.recvUnreadMsgStatus`: **(Optional | bool)** 是否接收未读消息状态信息, 默认: `true`
-    * `options.ssl`: **(Optional | string)** 是否开启SSL加密, 默认: `true`
+    * `options.ssl`: **(Optional | string)** 是否开启SSL加密, 若开启需设置代理地址 默认: `true`
+    * `options.proxyEndpoint`: **(Optional | string)** 若开启SSL加密, 需设置代理地址, 测试代理: `highras.ifunplus.cn:13550`
 
 * `authed`: 是否处于登陆状态
     * `return`: **(bool)**
