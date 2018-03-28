@@ -33,7 +33,8 @@ let client = new RTMClient({
     pid: 1000001,
     version: undefined,
     recvUnreadMsgStatus: false,
-    ssl: false
+    ssl: true,
+    proxyEndpoint: 'highras.ifunplus.cn:13550'
 });
 
 client.on('error', (err) => {
