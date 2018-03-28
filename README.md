@@ -185,7 +185,7 @@ client.on('login', function(data){
     * `data.attrs`: **(string)** 发送时附加的自定义内容
 
 #### API ####
-* constructor(options)`: 构造RTMClient
+* `constructor(options)`: 构造RTMClient
     * `options.dispatch`: **(Optional | string)** Dispatch服务地址, RTM提供
     * `options.pid`: **(Required | number)** 应用编号, RTM提供
     * `options.uid`: **(Required | Int64BE)** 用户ID
