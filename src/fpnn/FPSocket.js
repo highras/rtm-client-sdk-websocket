@@ -58,26 +58,26 @@ class FPSocket{
 
         this._client.binaryType = 'arraybuffer';
 
-        this._timoutID = setTimeout(() => {
+        this._timoutID = setTimeout(function(){
             if (self.isConnecting){
                 onError.call(self, { code:FPConfig.ERROR_CODE.FPNN_EC_CORE_TIMEOUT, ex:'FPNN_EC_CORE_TIMEOUT' }); 
                 onClose.call(self);
             }
         }, this._connectionTimeout);
 
-        this._client.onopen = (evt) => { 
+        this._client.onopen = function(evt){ 
             onConnect.call(self);
         };
           
-        this._client.onmessage = (evt) => {
+        this._client.onmessage = function(evt){
             onData.call(self, evt.data);
         };
           
-        this._client.onclose = (evt) => {
+        this._client.onclose = function(evt){
             onClose.call(self);
         };      
 
-        this._client.onerror = (evt) => {
+        this._client.onerror = function(evt){
             onError.call(self, evt);
         };
     }

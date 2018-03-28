@@ -320,7 +320,7 @@ class RTMProcessor{
     pushunread(data){
         if (data.p2p){
             let bp2p = [];
-            data.p2p.forEach((item, index) => {
+            data.p2p.forEach(function(item, index){
                 bp2p[index] = new Int64BE(item);
             });
 
@@ -329,7 +329,7 @@ class RTMProcessor{
 
         if (data.group){
             let bgroup = [];
-            data.group.forEach((item, index) => {
+            data.group.forEach(function(item, index){
                 bgroup[index] = new Int64BE(item);
             });
 
@@ -363,7 +363,7 @@ function checkMid(mid){
 
 function checkExpire(){
     let self = this;
-    setInterval(() => {
+    setInterval(function(){
         for (let key in self._map){
             if (self._map[key] > Date.now()){
                 continue;
@@ -375,7 +375,7 @@ function checkExpire(){
 
 function delayRemove(key){
     let self = this;
-    setTimeout(() => {
+    setTimeout(function(){
         delete self._map[key];
     }, 0);
 }

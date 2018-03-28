@@ -40,7 +40,7 @@ class FPCallback{
 
 function checkExpire(){
     let self = this;
-    setInterval(() => {
+    setInterval(function(){
         for (let key in self._exMap){
             if (self._exMap[key] > Date.now()){
                 continue;
@@ -52,7 +52,7 @@ function checkExpire(){
 
 function delayExec(key, data){
     let self = this;
-    setTimeout(() => {
+    setTimeout(function(){
         cbExec.call(self, key, data);
     }, 0);
 }
@@ -66,7 +66,7 @@ function cbExec(key, data){
 
 function delayRemove(key){
     let self = this;
-    setTimeout(() => {
+    setTimeout(function(){
         cbRemove.call(self, key);
     }, 0);
 }

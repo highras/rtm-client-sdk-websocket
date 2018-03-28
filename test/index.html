@@ -90,7 +90,7 @@
                                 f.lastModifiedDate.toLocaleDateString(), '</li>');
 
                     if (client.authed){
-                        client.sendFile(8, new Int64BE(0, 778899), f, (err, data) => {
+                        client.sendFile(8, new Int64BE(0, 778899), f, function(err, data){
                             if (data){
                                 console.log('\n[DATA] sendFile:\n', data);
                             }

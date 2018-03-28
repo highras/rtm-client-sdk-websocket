@@ -37,15 +37,15 @@ let client = new RTMClient({
     proxyEndpoint: 'highras.ifunplus.cn:13550'
 });
 
-client.on('error', (err) => {
+client.on('error', function(err){
     console.error(err);
 });
 
 client.login();
 
-client.on('login', (data) => {
+client.on('login', function(data){
     //send to server
-    client.sendMessage(to, 8, 'hello !', '', (err, data) => {
+    client.sendMessage(to, 8, 'hello !', '', function(err, data){
         if (err){
             console.error('\n[ERR] ' + name + ':\n', err)
         }
@@ -56,7 +56,7 @@ client.on('login', (data) => {
 
     //push service
     let pushName = data.services.recvMessage;
-    data.processor.on(pushName, (data) => {
+    data.processor.on(pushName, function(data){
         console.log('\n[PUSH] ' + pushName + ':\n', data);
     });
 });
