@@ -38,7 +38,9 @@ class RTMClient{
         this._autoReconnect = options.autoReconnect !== undefined ? options.autoReconnect : true;
         this._connectionTimeout = options.connectionTimeout ? options.connectionTimeout : 30 * 1000;
 
-        this._proxyEndpoint = options.proxyEndpoint; 
+        if (this._ssl){
+            this._proxyEndpoint = options.proxyEndpoint; 
+        }
 
         this._midSeq = 0;
         this._saltSeq = 0;
