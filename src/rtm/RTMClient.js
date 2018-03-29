@@ -50,7 +50,7 @@ class RTMClient{
 
         this._client = null;
         this._loginOptions = null; 
-        this._timeID = 0;
+        this._timeoutID = 0;
 
         this._isClose = false;
 
@@ -1606,11 +1606,17 @@ function auth(){
                 self._isClose = true;
             });
 
+            if (self._timeoutID){
+                clearInterval(self._timeoutID);
+                self._timeoutID = 0;
+            }
+
             self.emit('login', { 
                 endpoint: self._endpoint, 
                 processor: self._processor, 
                 services: RTMConfig.SERVER_PUSH
             });
+
             return;
         }
 
@@ -1634,9 +1640,13 @@ function auth(){
 }
 
 function onClose(){
-    clearInterval(this._timeID);
     this._logining = false;
     this._authed = false;
+
+    if (this._timeoutID){
+        clearInterval(this._timeoutID);
+        this._timeoutID = 0;
+    }
 
     this.emit('close');
 
@@ -1646,7 +1656,7 @@ function onClose(){
 
     if (this._autoReconnect){
         let self = this;
-        this._timeID = setTimeout(function(){
+        this._timeoutID = setTimeout(function(){
             self.login(self._endpoint, self._ipv6);
         }, FPConfig.SEND_TIMEOUT);
     }

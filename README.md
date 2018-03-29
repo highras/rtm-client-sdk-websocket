@@ -68,13 +68,13 @@ client.on('login', function(data){
     * `login`: 登陆成功
         * `data.endpoint`: **(string)** 当前连接的RTMGate地址, 可在本地缓存, 下次登陆可使用该地址以加速登陆过程, **每次登陆成功需更新本地缓存**
         * `data.processor`: **(RTMProcessor)** 监听PushService的句柄
-        * `data.services`: **(object)** 支持的PushService定义
+        * `data.services`: **(object)** 支持的PushService定义, 请参考 `RTMConfig.SERVER_PUSH` 成员
     * `error`: 发生异常
         * `err`: **(object)**
     * `close`: 连接关闭
 
 #### PushService ####
- 关于 `services` 列表可参考: `RTMConfig.SERVER_PUSH`
+请参考 `RTMConfig.SERVER_PUSH` 成员
 
 * `kickout`: RTMGate主动断开
     * `data`: **(object)**
@@ -153,7 +153,7 @@ client.on('login', function(data){
 * `pushfile`: RTMGate主动推送P2P文件
     * `data.from`: **(Int64BE)** 发送者 id
     * `data.mtype`: **(number)** 消息类型
-    * `data.ftype`: **(number)** 文件类型, 请参考 RTMConfig.FILE_TYPE成员
+    * `data.ftype`: **(number)** 文件类型, 请参考 `RTMConfig.FILE_TYPE` 成员
     * `data.mid`: **(Int64BE)** 消息 id, 当前链接会话内唯一
     * `data.msg`: **(string)** 文件获取地址(url)
     * `data.attrs`: **(string)** 发送时附加的自定义内容
@@ -162,7 +162,7 @@ client.on('login', function(data){
     * `data.from`: **(Int64BE)** 发送者 id
     * `data.gid`: **(Int64BE)** Group id
     * `data.mtype`: **(number)** 消息类型
-    * `data.ftype`: **(number)** 文件类型, 请参考 RTMConfig.FILE_TYPE成员
+    * `data.ftype`: **(number)** 文件类型, 请参考 `RTMConfig.FILE_TYPE` 成员
     * `data.mid`: **(Int64BE)** 消息 id, 当前链接会话内唯一
     * `data.msg`: **(string)** 文件获取地址(url)
     * `data.attrs`: **(string)** 发送时附加的自定义内容
@@ -171,7 +171,7 @@ client.on('login', function(data){
     * `data.from`: **(Int64BE)** 发送者 id
     * `data.rid`: **(Int64BE)** Room id
     * `data.mtype`: **(number)** 消息类型
-    * `data.ftype`: **(number)** 文件类型, 请参考 RTMConfig.FILE_TYPE成员
+    * `data.ftype`: **(number)** 文件类型, 请参考 `RTMConfig.FILE_TYPE` 成员
     * `data.mid`: **(Int64BE)** 消息 id, 当前链接会话内唯一
     * `data.msg`: **(string)** 文件获取地址(url)
     * `data.attrs`: **(string)** 发送时附加的自定义内容
@@ -179,7 +179,7 @@ client.on('login', function(data){
 * `pushbroadcastfile`: RTMGate主动推送广播文件
     * `data.from`: **(Int64BE)** 发送者 id
     * `data.mtype`: **(number)** 消息类型
-    * `data.ftype`: **(number)** 文件类型, 请参考 RTMConfig.FILE_TYPE成员
+    * `data.ftype`: **(number)** 文件类型, 请参考 `RTMConfig.FILE_TYPE` 成员
     * `data.mid`: **(Int64BE)** 消息 id, 当前链接会话内唯一
     * `data.msg`: **(string)** 文件获取地址(url)
     * `data.attrs`: **(string)** 发送时附加的自定义内容
