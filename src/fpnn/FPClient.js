@@ -210,7 +210,7 @@ function onData(chunk){
 }
 
 function sendAnswer(flag, seq, payload, exception){
-    if (!exception){
+    if (exception === undefined){
         exception = false;
     }
 

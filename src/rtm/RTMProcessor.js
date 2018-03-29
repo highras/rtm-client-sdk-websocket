@@ -344,7 +344,7 @@ class RTMProcessor{
      * @param {object} data 
      */
     ping(data){
-        this.emit(RTMConfig.SERVER_PUSH.ping, data);
+        this.emit(RTMConfig.SERVER_PUSH.recvPing, data);
     }
 }
 

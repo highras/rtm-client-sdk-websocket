@@ -73,7 +73,7 @@ const SERVER_PUSH = {
 	recvTranslatedRoomMessage: 'transroommsg',
 	recvTranslatedBroadcastMessage: 'transbroadcastmsg',
 	recvUnreadMsgStatus: 'pushunread',
-	ping: 'ping'
+	recvPing: 'ping'
 };
 
 class RTMConfig{
