@@ -1607,7 +1607,7 @@ function auth(){
             });
 
             if (self._timeoutID){
-                clearInterval(self._timeoutID);
+                clearTimeout(self._timeoutID);
                 self._timeoutID = 0;
             }
 
@@ -1644,7 +1644,7 @@ function onClose(){
     this._authed = false;
 
     if (this._timeoutID){
-        clearInterval(this._timeoutID);
+        clearTimeout(this._timeoutID);
         this._timeoutID = 0;
     }
 
