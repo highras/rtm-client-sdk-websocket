@@ -80,7 +80,7 @@ class RTMClient{
      * @param {string} endpoint
      * @param {bool} ipv6 
      */
-    login(endpoint, ipv6){
+    login(endpoint, ipv6, timeout){
         if (this._authed){
             return;
         }
@@ -90,7 +90,7 @@ class RTMClient{
         this._isClose = false;
 
         if (this._endpoint){
-            connectRTMGate.call(this);
+            connectRTMGate.call(this, timeout);
             return;
         }
 
@@ -116,7 +116,7 @@ class RTMClient{
             }
 
             onClose.call(self);
-        });
+        }, timeout);
     }
 
     /**
@@ -1503,7 +1503,7 @@ function sendQuest(client, options, callback, timeout){
     }, timeout);
 }
 
-function getRTMGate(service, callback){
+function getRTMGate(service, callback, timeout){
 	let self = this;
 
 	let client = new FPClient({
@@ -1530,7 +1530,7 @@ function getRTMGate(service, callback){
             payload: msgpack.encode(payload, self._msgOptions)
         };
     
-        sendQuest.call(self, client, options, callback);
+        sendQuest.call(self, client, options, callback, timeout);
     });
 
     client.on('error', function(err){
@@ -1552,7 +1552,7 @@ function buildEndpoint(endpoint){
     return protol + endpoint + '/service/websocket';
 }
 
-function connectRTMGate(){
+function connectRTMGate(timeout){
     this._client = new FPClient({ 
         endpoint: buildEndpoint.call(this, this._endpoint), 
         autoReconnect: false,
@@ -1569,7 +1569,7 @@ function connectRTMGate(){
     });
 
     this._client.on('close', function(){
-        onClose.call(self);
+        onClose.call(self, timeout);
     });
 
     this._client.on('error', function(err){
@@ -1580,7 +1580,7 @@ function connectRTMGate(){
     this._client.processor = this._processor;
 }
 
-function auth(){
+function auth(timeout){
     let payload = {
         pid: this._pid,
 		uid: this._uid,
@@ -1636,7 +1636,7 @@ function auth(){
 
         self._endpoint = null;
         onClose.call(self);
-    });
+    }, timeout);
 }
 
 function onClose(){
