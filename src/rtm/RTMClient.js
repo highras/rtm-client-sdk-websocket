@@ -1627,8 +1627,7 @@ function auth(){
                 return;
             }
 
-            console.error(data);
-            self.emit('error', { code:RTMConfig.ERROR_CODE.RTM_EC_AUTH_DENIED, ex:'RTM_EC_AUTH_DENIED' });
+            self.emit('error', data);
         }
 
         if (err){
