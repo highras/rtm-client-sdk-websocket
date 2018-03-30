@@ -58,6 +58,7 @@ client.on('login', function(data){
     let pushName = data.services.recvMessage;
     data.processor.on(pushName, function(data){
         console.log('\n[PUSH] ' + pushName + ':\n', data);
+        // console.log(data.mid.toString());
     });
 });
 
