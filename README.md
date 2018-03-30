@@ -26,7 +26,7 @@ yarn run build
 ```javascript
 let client = new RTMClient({ 
     dispatch: '117.50.4.158:13325',
-    uid: new Int64BE(654321),
+    uid: new Int64BE(0, 654321),
     token: 'B66731BB8DCEEB9127495C0932B94317',
     autoReconnect: false,
     connectionTimeout: 10 * 1000,
@@ -45,7 +45,7 @@ client.login();
 
 client.on('login', function(data){
     //send to server
-    client.sendMessage(to, 8, 'hello !', '', function(err, data){
+    client.sendMessage(new Int64BE(123789), 8, 'hello !', '', function(err, data){
         if (err){
             console.error('\n[ERR] ' + name + ':\n', err)
         }
