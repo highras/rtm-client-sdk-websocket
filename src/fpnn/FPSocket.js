@@ -32,12 +32,11 @@ class FPSocket{
         
         if (this._client){
             this._client.close();
-            this._client = null;
         }
     }
 
     open(){
-        if (this.isConnecting || this.isOpen || this._client || !this._endpoint){
+        if (this.isConnecting || this.isOpen || !this._endpoint){
             this.emit('error', { code:FPConfig.ERROR_CODE.FPNN_EC_CORE_INVALID_CONNECTION, ex:'FPNN_EC_CORE_INVALID_CONNECTION' });
             return;
         }

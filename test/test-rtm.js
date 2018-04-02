@@ -6,6 +6,35 @@ function test(endpoint, pid, token, from, to){
     from = new Int64BE(from);
     to = new Int64BE(to);
 
+    let step = 2;
+    let index = 0;
+    let t = function(fn, name){
+        setTimeout(function(){
+            var cb = function(err, data){
+                if (err){
+                    console.error('\n[ERR] ' + name + ':\n', err)
+                }
+                if (data){
+                    console.log('\n[DATA] ' + name + ':\n', data);
+                }
+            };
+            fn(name, cb);
+        }, index * 1000 * step);
+
+        if (name){
+            index++;
+        }
+    }
+
+    let tos = [to, new Int64BE(0, 778877)];
+    let gid = new Int64BE(0, 999999);
+    let rid = new Int64BE(0, 666666);
+    let friends = [to, new Int64BE(0, 778877)];
+    let fuid = to;
+    let lat = 39239.1123;
+    let lng = 69394.4850;
+        
+
     client = new RTMClient({
         dispatch: endpoint,
         uid: from,
@@ -25,45 +54,27 @@ function test(endpoint, pid, token, from, to){
     });
 
     client.on('close', function(){
-        console.error('closed!');
+        console.log('closed!');
     });
 
     client.login();
 
+    //receive from server
+    let pushName = client.rtmConfig.SERVER_PUSH.recvMessage;
+    client.processor.on(pushName, function(data){
+        console.log('\n[PUSH] ' + pushName + ':\n', data);
+    });
 
+    pushName = client.rtmConfig.SERVER_PUSH.recvPing;
+    client.processor.on(pushName, function(data){
+        console.log('\n[PUSH] ' + pushName + ':\n', data);
+    });
+
+    //send to server
     client.on('login', function(data){
+        index = 0;
         console.log('login with ' + data.endpoint + '\n\n');
 
-        //send to server
-        let step = 2;
-        let index = 0;
-
-        let t = function(fn, name){
-            setTimeout(function(){
-                var cb = function(err, data){
-                    if (err){
-                        console.error('\n[ERR] ' + name + ':\n', err)
-                    }
-                    if (data){
-                        console.log('\n[DATA] ' + name + ':\n', data);
-                    }
-                };
-                fn(name, cb);
-            }, index * 1000 * step);
-
-            if (name){
-                index++;
-            }
-        }
-
-        let tos = [to, new Int64BE(0, 778877)];
-        let gid = new Int64BE(0, 999999);
-        let rid = new Int64BE(0, 666666);
-        let friends = [to, new Int64BE(0, 778877)];
-        let fuid = to;
-        let lat = 39239.1123;
-        let lng = 69394.4850;
-        
         t(function(name, cb){
             console.log('---------------begin!-----------------')
         });
@@ -165,14 +176,6 @@ function test(endpoint, pid, token, from, to){
         }, 'translate');
 
         t(function(name, cb){
-            client[name].call(client, 'test-user', cb);
-        }, 'setPushName');
-
-        t(function(name, cb){
-            client[name].call(client, cb);
-        }, 'getPushName');
-
-        t(function(name, cb){
             client[name].call(client, lat, lng, cb);
         }, 'setGeo');
 
@@ -186,12 +189,6 @@ function test(endpoint, pid, token, from, to){
 
         t(function(name, cb){
             console.log('---------------(' + index + ')end!-----------------');
-        });
-
-        //receive from server
-        let pushName = data.services.recvMessage;
-        data.processor.on(pushName, function(data){
-            console.log('\n[PUSH] ' + pushName + ':\n', data);
         });
     });
 }

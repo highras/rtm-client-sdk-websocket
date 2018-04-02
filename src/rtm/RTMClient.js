@@ -76,6 +76,14 @@ class RTMClient{
         return this._authed;
     }
 
+    get processor(){
+        return this._processor;
+    }
+
+    get rtmConfig(){
+        return RTMConfig;
+    }
+
     /**
      * 
      * @param {string} endpoint
@@ -1108,64 +1116,6 @@ class RTMClient{
 
     /**
      * 
-     * @param {string} pushname 
-     * @param {function} callback 
-     * @param {number} timeout 
-     * 
-     * @callback
-     * @param {object} err
-     * @param {object} data 
-     */
-    setPushName(pushname, callback, timeout){
-        let payload = {
-            pushname: pushname
-        };
-
-        let options = {
-            flag: 1,
-            method: 'setpushname',
-            payload: msgpack.encode(payload, this._msgOptions)
-        };
-
-        sendQuest.call(this, this._client, options, callback, timeout);
-    }
-
-    /**
-     * 
-     * @param {function} callback 
-     * @param {number} timeout 
-     * 
-     * @callback
-     * @param {object} err
-     * @param {string} data 
-     */
-    getPushName(callback, timeout){
-        let payload = {};
-
-        let options = {
-            flag: 1,
-            method: 'getpushname',
-            payload: msgpack.encode(payload, this._msgOptions)
-        };
-
-        sendQuest.call(this, this._client, options, function(err, data){
-            if (err){
-                callback(err, null);
-                return;
-            }
-
-            let pushname = data['pushname'];
-            if (pushname !== undefined){
-                callback(null, pushname);
-                return;
-            }
-
-            callback(null, data);
-        }, timeout);
-    }
-
-    /**
-     * 
      * @param {number} lat 
      * @param {number} lng 
      * @param {function} callback 
@@ -1618,9 +1568,7 @@ function auth(timeout){
             }
 
             self.emit('login', { 
-                endpoint: self._endpoint, 
-                processor: self._processor, 
-                services: RTMConfig.SERVER_PUSH
+                endpoint: self._endpoint 
             });
 
             return;

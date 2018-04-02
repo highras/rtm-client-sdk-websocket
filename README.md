@@ -41,10 +41,21 @@ client.on('error', function(err){
     console.error(err);
 });
 
+client.on('close', function(){
+    console.log('closed!');
+});
+
 client.login();
 
+//push service
+let pushName = client.rtmConfig.SERVER_PUSH.recvMessage;
+client.processor.on(pushName, function(data){
+    console.log('\n[PUSH] ' + pushName + ':\n', data);
+    // console.log(data.mid.toString());
+});
+
+//send to server
 client.on('login', function(data){
-    //send to server
     client.sendMessage(new Int64BE(123789), 8, 'hello !', '', function(err, data){
         if (err){
             console.error('\n[ERR] ' + name + ':\n', err)
@@ -52,13 +63,6 @@ client.on('login', function(data){
         if (data){
             console.log('\n[DATA] ' + name + ':\n', data);
         }
-    });
-
-    //push service
-    let pushName = data.services.recvMessage;
-    data.processor.on(pushName, function(data){
-        console.log('\n[PUSH] ' + pushName + ':\n', data);
-        // console.log(data.mid.toString());
     });
 });
 
@@ -68,10 +72,10 @@ client.on('login', function(data){
 * `event`:
     * `login`: 登陆成功
         * `data.endpoint`: **(string)** 当前连接的RTMGate地址, 可在本地缓存, 下次登陆可使用该地址以加速登陆过程, **每次登陆成功需更新本地缓存**
-        * `data.processor`: **(RTMProcessor)** 监听PushService的句柄
-        * `data.services`: **(object)** 支持的PushService定义, 请参考 `RTMConfig.SERVER_PUSH` 成员
+
     * `error`: 发生异常
         * `err`: **(object)**
+
     * `close`: 连接关闭
 
 #### PushService ####
@@ -200,6 +204,10 @@ client.on('login', function(data){
 
 * `authed`: 是否处于登陆状态
     * `return`: **(bool)**
+
+* `processor`: **(RTMProcessor)** 监听PushService的句柄
+
+* `rtmConfig`: **(object)** 请参考 `RTMConfig` 成员
 
 * `login(endpoint, ipv6, timeout)`: 连接并登陆 
     * `endpoint`: **(Optional | string)** RTMGate服务地址, 由Dispatch服务获取, 或由RTM提供
@@ -444,19 +452,6 @@ client.on('login', function(data){
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
         * `err`: **(object)** 
         * `data`: **(object[stext:string, src:string, dtext:string, dst:string])** 
-    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
-
-* `setPushName(pushname, callback, timeout)`: 设置名字
-    * `pushname`: **(Required | string)** 名字
-    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
-        * `data`: **(object)** 
-    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
-
-* `getPushName(callback, timeout)`: 获取名字
-    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
-        * `data`: **(string)** 
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
 
 * `setGeo(lat, lng, callback, timeout)`: 设置位置
