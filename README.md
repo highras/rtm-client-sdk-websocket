@@ -58,7 +58,7 @@ client.processor.on(pushName, function(data){
 client.on('login', function(data){
     client.sendMessage(new Int64BE(123789), 8, 'hello !', '', function(err, data){
         if (err){
-            console.error('\n[ERR] ' + name + ':\n', err)
+            console.error('\n[ERR] ' + name + ':\n', err.message);
         }
         if (data){
             console.log('\n[DATA] ' + name + ':\n', data);
@@ -74,7 +74,7 @@ client.on('login', function(data){
         * `data.endpoint`: **(string)** 当前连接的RTMGate地址, 可在本地缓存, 下次登陆可使用该地址以加速登陆过程, **每次登陆成功需更新本地缓存**
 
     * `error`: 发生异常
-        * `err`: **(object)**
+        * `err`: **(Error)**
 
     * `close`: 连接关闭
 
@@ -220,7 +220,7 @@ client.on('login', function(data){
     * `msg`: **(Required | string)** 消息内容
     * `attrs`: **(Required | string)** 消息附加信息, 没有可传`''`
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
+        * `err`: **(Error)** 
         * `data`: **(object)** 
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
 
@@ -230,7 +230,7 @@ client.on('login', function(data){
     * `msg`: **(Required | string)** 消息内容
     * `attrs`: **(Required | string)** 消息附加信息, 没有可传`''`
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
+        * `err`: **(Error)** 
         * `data`: **(object)** 
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
 
@@ -240,7 +240,7 @@ client.on('login', function(data){
     * `msg`: **(Required | string)** 消息内容
     * `attrs`: **(Required | string)** 消息附加信息, 可传`''`
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
+        * `err`: **(Error)** 
         * `data`: **(object)** 
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
 
@@ -250,7 +250,7 @@ client.on('login', function(data){
     * `msg`: **(Required | string)** 消息内容
     * `attrs`: **(Required | string)** 消息附加信息, 可传`''`
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
+        * `err`: **(Error)** 
         * `data`: **(object)** 
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
 
@@ -259,27 +259,27 @@ client.on('login', function(data){
 * `addVariables(dict, callback, timeout)`: 添加属性
     * `dict`: **(Required | object)** 参数字典, 值必须是`string`类型, 具体参数参见 RTM 文档。
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
+        * `err`: **(Error)** 
         * `data`: **(object)** 
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
 
 * `addFriends(friends, callback, timeout)`: 添加好友
     * `friends`: **(Required | array[Int64BE])** 多个好友 id
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)**
+        * `err`: **(Error)**
         * `data`: **(object)**
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
 
 * `deleteFriends(friends, callback, timeout)`: 删除好友
     * `friends`: **(Required | array[Int64BE])** 多个好友 id
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)**
+        * `err`: **(Error)**
         * `data`: **(object)**
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
 
 * `getFriends(callback, timeout)`: 获取好友
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)**
+        * `err`: **(Error)**
         * `data`: **(array[Int64BE])**
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
 
@@ -287,7 +287,7 @@ client.on('login', function(data){
     * `gid`: **(Required | Int64BE)** group id
     * `uids`: **(Required | array[Int64BE])** 多个用户 id
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
+        * `err`: **(Error)** 
         * `data`: **(object)** 
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
 
@@ -295,53 +295,53 @@ client.on('login', function(data){
     * `gid`: **(Required | Int64BE)** group id
     * `uids`: **(Required | array[Int64BE])** 多个用户 id
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
+        * `err`: **(Error)** 
         * `data`: **(object)** 
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
 
 * `getGroupMembers(gid, callback, timeout)`: 获取group成员
     * `gid`: **(Required | Int64BE)** group id
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
+        * `err`: **(Error)** 
         * `data`: **(array[Int64BE])** 
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
 
 * `getUserGroups(callback, timeout)`: 获取用户所在的Group
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
+        * `err`: **(Error)** 
         * `data`: **(array[Int64BE])** 
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
 
 * `enterRoom(rid, callback, timeout)`: 进入房间
     * `rid`: **(Required | Int64BE)** 房间 id
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
+        * `err`: **(Error)** 
         * `data`: **(object)** 
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
     
 * `leaveRoom(rid, callback, timeout)`: 离开房间
     * `rid`: **(Required | Int64BE)** 房间 id
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
+        * `err`: **(Error)** 
         * `data`: **(object)** 
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
 
 * `getUserRooms(callback, timeout)`: 获取用户所在的Room
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
+        * `err`: **(Error)** 
         * `data`: **(array[Int64BE])** 
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
 
 * `getOnlineUsers(uids, callback, timeout)`: 获取在线用户
     * `uids`: **(Required | array[Int64BE])** 多个用户 id
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
+        * `err`: **(Error)** 
         * `data`: **(array[Int64BE])** 
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
 
 * `checkUnreadMessage(callback, timeout)`: 获取离线消息／未读消息数目
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
+        * `err`: **(Error)** 
         * `data`: **(object[uidOfUnreadMessage:array[Int64BE], gidOfUnreadGroupMessage:array[Int64BE], haveUnreadBroadcastMessage:bool])** 
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
 
@@ -354,7 +354,7 @@ client.on('login', function(data){
     * `localid`: **(Optional | Int64BE)** 本地保存的上一轮获取到的消息的最大消息 id, 没有传递 -1, 服务器将返回大于这个id的所有消息, 翻页时, 本参数传一样的值
     * `mtypes`: **(Optional | array[number])** 关心的消息类型列表, 空代表所有类型
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
+        * `err`: **(Error)** 
         * `data`: **(object[num:number, maxid:Int64BE, msgs:array[GroupMsg]])** 
             * `GroupMsg.id` **(Int64BE)**
             * `GroupMsg.from` **(Int64BE)**
@@ -375,7 +375,7 @@ client.on('login', function(data){
     * `localid`: **(Optional | Int64BE)** 本地保存的上一轮获取到的消息的最大消息 id, 没有传递 -1, 服务器将返回大于这个id的所有消息, 翻页时, 本参数传一样的值
     * `mtypes`: **(Optional | array[number])** 关心的消息类型列表, 空代表所有类型
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
+        * `err`: **(Error)** 
         * `data`: **(object[num:number, maxid:Int64BE, msgs:array[RoomMsg]])** 
             * `RoomMsg.id` **(Int64BE)**
             * `RoomMsg.from` **(Int64BE)**
@@ -395,7 +395,7 @@ client.on('login', function(data){
     * `localid`: **(Optional | Int64BE)** 本地保存的上一轮获取到的消息的最大消息 id, 没有传递 -1, 服务器将返回大于这个id的所有消息, 翻页时, 本参数传一样的值
     * `mtypes`: **(Optional | array[number])** 关心的消息类型列表, 空代表所有类型
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
+        * `err`: **(Error)** 
         * `data`: **(object[num:number, maxid:Int64BE, msgs:array[BroadcastMsg]])** 
             * `BroadcastMsg.id` **(Int64BE)**
             * `BroadcastMsg.from` **(Int64BE)**
@@ -417,7 +417,7 @@ client.on('login', function(data){
     * `localid`: **(Optional | Int64BE)** 本地保存的上一轮获取到的消息的最大消息 id, 没有传递 -1, 服务器将返回大于这个id的所有消息, 翻页时, 本参数传一样的值
     * `mtypes`: **(Optional | array[number])** 关心的消息类型列表, 空代表所有类型
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
+        * `err`: **(Error)** 
         * `data`: **(object[num:number, maxid:Int64BE, msgs:array[P2PMessage]])** 
             * `P2PMessage.id` **(Int64BE)**
             * `P2PMessage.direction` **(number)**
@@ -434,14 +434,14 @@ client.on('login', function(data){
     * `dtype`: **(Required | string)** 设备信息
     * `token`: **(Required | string)** 设备ID
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
+        * `err`: **(Error)** 
         * `data`: **(object)** 
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
 
 * `setTranslationLanguage(targetLanguage, callback, timeout)`: 设置自动翻译的默认目标语言类型, 如果 targetLanguage 为空字符串, 则取消自动翻译
     * `targetLanguage`: **(Required | string)** 翻译的目标语言类型
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
+        * `err`: **(Error)** 
         * `data`: **(object)** 
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
 
@@ -450,7 +450,7 @@ client.on('login', function(data){
     * `originalLanguage`: **(Optional | string)** 待翻译的消息的语言类型, 可为 `undefined`
     * `targetLanguage`: **(Required | string)** 本次翻译的目标语言类型
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
+        * `err`: **(Error)** 
         * `data`: **(object[stext:string, src:string, dtext:string, dst:string])** 
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
 
@@ -458,20 +458,20 @@ client.on('login', function(data){
     * `lat`: **(Required | number)** 纬度
     * `lng`: **(Required | number)** 经度
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
+        * `err`: **(Error)** 
         * `data`: **(object)** 
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
 
 * `getGeo(callback, timeout)`: 获取位置
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
+        * `err`: **(Error)** 
         * `data`: **(object[lat:number, lng:number])** 
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
 
 * `getGeos(uids, callback, timeout)`: 获取位置
     * `uids`: **(Required | array[Int64BE])** 多个用户 id
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
+        * `err`: **(Error)** 
         * `data`: **(array[array[uid:Int64BE,lat:number,lng:number])** 
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
 
@@ -480,7 +480,7 @@ client.on('login', function(data){
     * `to`: **(Required | Int64BE)** 接收者 id
     * `file`: **(Required | File)** 要发送的文件
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
+        * `err`: **(Error)** 
         * `data`: **(object)** 
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
 
@@ -489,7 +489,7 @@ client.on('login', function(data){
     * `tos`: **(Required | array[Int64BE])** 多个接受者 id
     * `file`: **(Required | File)** 要发送的文件
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
+        * `err`: **(Error)** 
         * `data`: **(object)** 
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
 
@@ -498,7 +498,7 @@ client.on('login', function(data){
     * `gid`: **(Required | Int64BE)** Group id
     * `file`: **(Required | File)** 要发送的文件
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
+        * `err`: **(Error)** 
         * `data`: **(object)** 
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
 
@@ -507,6 +507,6 @@ client.on('login', function(data){
     * `rid`: **(Required | Int64BE)** Room id
     * `file`: **(Required | File)** 要发送的文件
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(object)** 
+        * `err`: **(Error)** 
         * `data`: **(object)** 
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`

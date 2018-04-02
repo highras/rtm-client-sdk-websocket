@@ -12,7 +12,7 @@ function test(endpoint, pid, token, from, to){
         setTimeout(function(){
             var cb = function(err, data){
                 if (err){
-                    console.error('\n[ERR] ' + name + ':\n', err)
+                    console.error('\n[ERR] ' + name + ':\n', err.message);
                 }
                 if (data){
                     console.log('\n[DATA] ' + name + ':\n', data);

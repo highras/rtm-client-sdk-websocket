@@ -73,7 +73,7 @@ class FPClient{
 
     connect(){
         if (this.hasConnect){
-            this._conn.close();
+            this._conn.close(new Error('has connected!'));
             return;
         }
 
@@ -82,7 +82,7 @@ class FPClient{
 
     sendQuest(options, callback, timeout){
         if (!this.isOpen){
-            this.emit('error', 'no connect')
+            this.emit('error', new Error('no connect'));
             return;
         }
 
@@ -111,7 +111,7 @@ class FPClient{
 
     sendNotify(options){
         if (!this.isOpen){
-            this.emit('error', 'no connect')
+            this.emit('error', new Error('no connect'));
             return;
         }
 
@@ -200,7 +200,7 @@ function onData(chunk){
         this._peekData = peekHead.call(this, this._buffer);
 
         if (!this._peekData){
-            this._conn.close({ code:FPConfig.ERROR_CODE.FPNN_EC_CORE_CONNECTION_CLOSED, ex:'FPNN_EC_CORE_CONNECTION_CLOSED' });
+            this._conn.close(new Error('worng package!'));
             return;
         }
     }

@@ -37,7 +37,7 @@ class FPSocket{
 
     open(){
         if (this.isConnecting || this.isOpen || !this._endpoint){
-            this.emit('error', { code:FPConfig.ERROR_CODE.FPNN_EC_CORE_INVALID_CONNECTION, ex:'FPNN_EC_CORE_INVALID_CONNECTION' });
+            this.emit('error', new Error('has connected or worng endpoint!'));
             return;
         }
 
@@ -55,7 +55,7 @@ class FPSocket{
 
         this._timeoutID = setTimeout(function(){
             if (self.isConnecting){
-                self.close({ code:FPConfig.ERROR_CODE.FPNN_EC_CORE_TIMEOUT, ex:'FPNN_EC_CORE_TIMEOUT' });
+                self.close(new Error('connect timeout!'));
             }
         }, this._connectionTimeout);
 

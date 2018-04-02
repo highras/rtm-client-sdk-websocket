@@ -29,7 +29,7 @@ class FPCallback{
         }
 
         for (let key in this._cbMap){
-            delayExec.call(this, key, { code:FPConfig.ERROR_CODE.FPNN_EC_CORE_TIMEOUT, ex:'FPNN_EC_CORE_TIMEOUT' });
+            delayExec.call(this, key, new Error('timeout with closed!'));
         }
     }
 
@@ -45,7 +45,7 @@ function checkExpire(){
             if (self._exMap[key] > Date.now()){
                 continue;
             } 
-            delayExec.call(self, key, { code:FPConfig.ERROR_CODE.FPNN_EC_CORE_TIMEOUT, ex:'FPNN_EC_CORE_TIMEOUT' });
+            delayExec.call(self, key, new Error('timeout with expire'));
         }
     }, FPConfig.CHECK_CBS_INTERVAL);
 }
