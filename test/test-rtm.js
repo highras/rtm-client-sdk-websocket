@@ -10,7 +10,7 @@ function test(endpoint, pid, token, from, to){
         dispatch: endpoint,
         uid: from,
         token: token,
-        autoReconnect: false,
+        autoReconnect: true,
         connectionTimeout: 10 * 1000,
         pid: pid,
         version: undefined,
@@ -22,6 +22,10 @@ function test(endpoint, pid, token, from, to){
 
     client.on('error', function(err){
         console.error(err);
+    });
+
+    client.on('close', function(){
+        console.error('closed!');
     });
 
     client.login();

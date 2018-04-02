@@ -10,14 +10,7 @@ class FPSocket{
         this._endpoint = options ? options.endpoint : null;
         this._connectionTimeout = options ? options.connectionTimeout : 30 * 1000;
 
-        if (this._connectionTimeout === undefined){
-            this._connectionTimeout = 30 * 1000;
-        }
-
         this._client = null;
-        this._isConnect = false;
-        this._connecting = false;
-
         this._timeoutID = 0;
     }
 
@@ -36,7 +29,11 @@ class FPSocket{
         if (err){
             this.emit('error', err);
         }
-        onClose.call(this);
+        
+        if (this._client){
+            this._client.close();
+            this._client = null;
+        }
     }
 
     open(){
@@ -46,7 +43,6 @@ class FPSocket{
         }
 
         let self = this;
-        this._connecting = true;
 
         try {
             this._client = new WebSocket(this._endpoint);
@@ -82,11 +78,19 @@ class FPSocket{
     }
 
     get isOpen(){
-        return this._isConnect;
+        if (!this._client){
+            return false;
+        }
+
+        return this._client.readyState == WebSocket.OPEN;
     }
 
     get isConnecting(){
-        return this._connecting;
+        if (!this._client){
+            return false;
+        }
+
+        return this._client.readyState == WebSocket.CONNECTING;
     }
 }
 
@@ -95,9 +99,6 @@ function onData(chunk){
 }
 
 function onConnect(){
-    this._isConnect = true;
-    this._connecting = false;
-
     if (this._timeoutID){
         clearTimeout(this._timeoutID);
         this._timeoutID = 0;
@@ -111,14 +112,6 @@ function onClose(){
         clearTimeout(this._timeoutID);
         this._timeoutID = 0;
     }
-
-    if (this._client){
-        this._client.close();
-        this._client = null;
-    }
-
-    this._isConnect = false;
-    this._connecting = false;
 
     this.emit('close');
 }

@@ -50,7 +50,8 @@ class RTMClient{
 
         this._client = null;
         this._loginOptions = null; 
-        this._timeoutID = 0;
+        this._intervalID = 0;
+        this._reConnectInterval = 10 * 1000;
 
         this._isClose = false;
 
@@ -99,6 +100,10 @@ class RTMClient{
         }
 
         this._logining = true;
+
+        if (timeout){
+            this._reConnectInterval = timeout;
+        }
 
         let self = this;
 
@@ -274,6 +279,7 @@ class RTMClient{
         let self = this;
 
         sendQuest.call(this, this._client, options, function(err, data){
+            self._isClose = true;
             self._client.close();
         });
     }
@@ -1606,9 +1612,9 @@ function auth(timeout){
                 self._isClose = true;
             });
 
-            if (self._timeoutID){
-                clearTimeout(self._timeoutID);
-                self._timeoutID = 0;
+            if (self._intervalID){
+                clearInterval(self._intervalID);
+                self._intervalID = 0;
             }
 
             self.emit('login', { 
@@ -1643,23 +1649,27 @@ function onClose(){
     this._logining = false;
     this._authed = false;
 
-    if (this._timeoutID){
-        clearTimeout(this._timeoutID);
-        this._timeoutID = 0;
-    }
-
     this.emit('close');
+
+    if (this._autoReconnect){
+        reConnect.call(this);
+    }
+}
+
+function reConnect(){
+    if (this._intervalID){
+        clearInterval(this._intervalID);
+        this._intervalID = 0;
+    }
 
     if (this._isClose){
         return;
     }
 
-    if (this._autoReconnect){
-        let self = this;
-        this._timeoutID = setTimeout(function(){
-            self.login(self._endpoint, self._ipv6);
-        }, FPConfig.SEND_TIMEOUT);
-    }
+    let self = this;
+    this._intervalID = setInterval(function(){
+        self.login(self._endpoint, self._ipv6);
+    }, this._reConnectInterval);
 }
 
 module.exports = RTMClient;
