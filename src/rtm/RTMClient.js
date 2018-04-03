@@ -138,14 +138,14 @@ class RTMClient{
      * @param {number} mtype 
      * @param {string} msg 
      * @param {string} attrs 
-     * @param {function} callback 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
      * @param {object} data
      */
-    sendMessage(to, mtype, msg, attrs, callback, timeout){
+    sendMessage(to, mtype, msg, attrs, timeout, callback){
         if (attrs === undefined){
             attrs = '';
         }
@@ -173,14 +173,14 @@ class RTMClient{
      * @param {number} mtype 
      * @param {string} msg 
      * @param {string} attrs 
-     * @param {function} callback 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
      * @param {object} data
      */
-    sendMessages(tos, mtype, msg, attrs, callback, timeout){
+    sendMessages(tos, mtype, msg, attrs, timeout, callback){
         if (attrs === undefined){
             attrs = '';
         }
@@ -208,14 +208,14 @@ class RTMClient{
      * @param {number} mtype 
      * @param {string} msg 
      * @param {string} attrs 
-     * @param {function} callback 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
      * @param {object} data
      */
-    sendGroupMessage(gid, mtype, msg, attrs, callback, timeout){
+    sendGroupMessage(gid, mtype, msg, attrs, timeout, callback){
         if (attrs === undefined){
             attrs = '';
         }
@@ -243,14 +243,14 @@ class RTMClient{
      * @param {number} mtype 
      * @param {string} msg 
      * @param {string} attrs 
-     * @param {function} callback 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
      * @param {object} data
      */
-    sendRoomMessage(rid, mtype, msg, attrs, callback, timeout){
+    sendRoomMessage(rid, mtype, msg, attrs, timeout, callback){
         if (attrs === undefined){
             attrs = '';
         }
@@ -295,14 +295,14 @@ class RTMClient{
     /**
      * 
      * @param {object} dict 
-     * @param {function} callback 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
      * @param {object} data
      */
-    addVariables(dict, callback, timeout){
+    addVariables(dict, timeout, callback){
         let payload = {
             var: dict
         };
@@ -319,14 +319,14 @@ class RTMClient{
     /**
      * 
      * @param {array<Int64BE>} friends 
-     * @param {function} callback 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
      * @param {object} data
      */
-    addFriends(friends, callback, timeout){
+    addFriends(friends, timeout, callback){
         let payload = {
             friends: friends
         };
@@ -343,14 +343,14 @@ class RTMClient{
     /**
      * 
      * @param {array<Int64BE>} friends 
-     * @param {function} callback 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
      * @param {object} data
      */
-    deleteFriends(friends, callback, timeout){
+    deleteFriends(friends, timeout, callback){
         let payload = {
             friends: friends
         };
@@ -366,14 +366,14 @@ class RTMClient{
 
     /**
      * 
-     * @param {function} callback 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
      * @param {array<Int64BE>} data
      */
-    getFriends(callback, timeout){
+    getFriends(timeout, callback){
         let payload = {};
 
         let options = {
@@ -407,14 +407,14 @@ class RTMClient{
      * 
      * @param {Int64BE} gid 
      * @param {array<Int64BE>} uids 
-     * @param {function} callback 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
      * @param {object} data
      */
-    addGroupMembers(gid, uids, callback, timeout){
+    addGroupMembers(gid, uids, timeout, callback){
         let payload = {
             gid: gid,
             uids: uids
@@ -433,14 +433,14 @@ class RTMClient{
      * 
      * @param {Int64BE} gid 
      * @param {array<Int64BE>} uids 
-     * @param {function} callback 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
      * @param {object} data
      */
-    deleteGroupMembers(gid, uids, callback, timeout){
+    deleteGroupMembers(gid, uids, timeout, callback){
         let payload = {
             gid: gid,
             uids: uids
@@ -458,14 +458,14 @@ class RTMClient{
     /**
      * 
      * @param {Int64BE} gid 
-     * @param {function} callback 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
      * @param {array<Int64BE>} data
      */
-    getGroupMembers(gid, callback, timeout){
+    getGroupMembers(gid, timeout, callback){
         let payload = {
             gid: gid
         };
@@ -499,14 +499,14 @@ class RTMClient{
 
     /**
      * 
-     * @param {function} callback 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
      * @param {array<Int64BE>} data
      */
-    getUserGroups(callback, timeout){
+    getUserGroups(timeout, callback){
         let payload = {};
 
         let options = {
@@ -539,14 +539,14 @@ class RTMClient{
     /**
      * 
      * @param {Int64BE} rid 
-     * @param {function} callback 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
      * @param {object} data
      */
-    enterRoom(rid, callback, timeout){
+    enterRoom(rid, timeout, callback){
         let payload = {
             rid: rid
         };
@@ -563,14 +563,14 @@ class RTMClient{
     /**
      * 
      * @param {Int64BE} rid 
-     * @param {function} callback 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
      * @param {object} data
      */
-    leaveRoom(rid, callback, timeout){
+    leaveRoom(rid, timeout, callback){
         let payload = {
             rid: rid
         };
@@ -586,14 +586,14 @@ class RTMClient{
 
     /**
      * 
-     * @param {function} callback 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
      * @param {array<Int64BE>} data
      */
-    getUserRooms(callback, timeout){
+    getUserRooms(timeout, callback){
         let payload = {};
 
         let options = {
@@ -626,14 +626,14 @@ class RTMClient{
     /**
      * 
      * @param {array<Int64BE>} uids 
-     * @param {function} callback 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
      * @param {array<Int64BE>} data
      */
-    getOnlineUsers(uids, callback, timeout){
+    getOnlineUsers(uids, timeout, callback){
         let payload = {
             uids: uids
         };
@@ -667,14 +667,14 @@ class RTMClient{
 
     /**
      * 
-     * @param {function} callback 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
      * @param {object<uidOfUnreadMessage:array<Int64BE>, gidOfUnreadGroupMessage:array<Int64BE>, haveUnreadBroadcastMessage:bool>} data
      */
-    checkUnreadMessage(callback, timeout){
+    checkUnreadMessage(timeout, callback){
         let payload = {};
 
         let options = {
@@ -720,8 +720,8 @@ class RTMClient{
      * @param {Int64BE} localmid
      * @param {Int64BE} localid
      * @param {array<number>} mtypes
-     * @param {function} callback 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
@@ -737,7 +737,7 @@ class RTMClient{
      * @param {string} GroupMsg.attrs
      * @param {number} GroupMsg.mtime
      */
-    getGroupMessage(gid, num, desc, page, localmid, localid, mtypes, callback, timeout){
+    getGroupMessage(gid, num, desc, page, localmid, localid, mtypes, timeout, callback){
         let payload = {
             gid: gid,
             num: num,
@@ -800,8 +800,8 @@ class RTMClient{
      * @param {Int64BE} localmid
      * @param {Int64BE} localid
      * @param {array<number>} mtypes
-     * @param {function} callback 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
@@ -817,7 +817,7 @@ class RTMClient{
      * @param {string} RoomMsg.attrs
      * @param {number} RoomMsg.mtime
      */
-    getRoomMessage(rid, num, desc, page, localmid, localid, mtypes, callback, timeout){
+    getRoomMessage(rid, num, desc, page, localmid, localid, mtypes, timeout, callback){
         let payload = {
             rid: rid,
             num: num,
@@ -879,8 +879,8 @@ class RTMClient{
      * @param {Int64BE} localmid
      * @param {Int64BE} localid
      * @param {array<number>} mtypes
-     * @param {function} callback 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
@@ -896,7 +896,7 @@ class RTMClient{
      * @param {string} BroadcastMsg.attrs
      * @param {number} BroadcastMsg.mtime
      */
-    getBroadcastMessage(num, desc, page, localmid, localid, mtypes, callback, timeout){
+    getBroadcastMessage(num, desc, page, localmid, localid, mtypes, timeout, callback){
         let payload = {
             num: num,
             desc: desc,
@@ -959,8 +959,8 @@ class RTMClient{
      * @param {Int64BE} localmid
      * @param {Int64BE} localid
      * @param {array<number>} mtypes
-     * @param {function} callback 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
@@ -976,7 +976,7 @@ class RTMClient{
      * @param {string} P2PMessage.attrs
      * @param {number} P2PMessage.mtime
      */
-    getP2PMessage(peeruid, num, direction, desc, page, localmid, localid, mtypes, callback, timeout){
+    getP2PMessage(peeruid, num, direction, desc, page, localmid, localid, mtypes, timeout, callback){
         let payload = {
             ouid: peeruid,
             num: num,
@@ -1033,21 +1033,19 @@ class RTMClient{
 
     /**
      * 
-     * @param {string} ptype 
-     * @param {string} dtype 
-     * @param {string} token 
-     * @param {function} callback 
+     * @param {string} apptype 
+     * @param {string} devicetoken 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
      * @param {object} data 
      */
-    addDevice(ptype, dtype, token, callback, timeout){
+    addDevice(apptype, devicetoken, timeout, callback){
         let payload = {
-            ptype: ptype,
-            dtype: dtype,
-            token: token
+            apptype: apptype,
+            devicetoken: devicetoken
         };
 
         let options = {
@@ -1061,15 +1059,39 @@ class RTMClient{
 
     /**
      * 
-     * @param {string} targetLanguage 
-     * @param {function} callback 
+     * @param {string} devicetoken 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
      * @param {object} data 
      */
-    setTranslationLanguage(targetLanguage, callback, timeout){
+    removeDevice(devicetoken, timeout, callback){
+        let payload = {
+            devicetoken: devicetoken
+        };
+
+        let options = {
+            flag: 1,
+            method: 'removedevice',
+            payload: msgpack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._client, options, callback, timeout);
+    }
+
+    /**
+     * 
+     * @param {string} targetLanguage 
+     * @param {number} timeout 
+     * @param {function} callback 
+     * 
+     * @callback
+     * @param {Error} err
+     * @param {object} data 
+     */
+    setTranslationLanguage(targetLanguage, timeout, callback){
         let payload = {
             lang: targetLanguage
         };
@@ -1088,14 +1110,14 @@ class RTMClient{
      * @param {string} originalMessage 
      * @param {string} originalLanguage 
      * @param {string} targetLanguage 
-     * @param {function} callback 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
      * @param {object<stext:string, src:string, dtext:string, dst:string>} data 
      */
-    translate(originalMessage, originalLanguage, targetLanguage, callback, timeout){
+    translate(originalMessage, originalLanguage, targetLanguage, timeout, callback){
         let payload = {
             text: originalMessage,
             dst: targetLanguage
@@ -1118,14 +1140,14 @@ class RTMClient{
      * 
      * @param {number} lat 
      * @param {number} lng 
-     * @param {function} callback 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
      * @param {object} data 
      */
-    setGeo(lat, lng, callback, timeout){
+    setGeo(lat, lng, timeout, callback){
         let payload = {
             lat: lat,
             lng: lng
@@ -1142,14 +1164,14 @@ class RTMClient{
 
     /**
      * 
-     * @param {function} callback 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
      * @param {object<lat:number, lng:number>} data 
      */
-    getGeo(callback, timeout){
+    getGeo(timeout, callback){
         let payload = {};
 
         let options = {
@@ -1164,14 +1186,14 @@ class RTMClient{
     /**
      * 
      * @param {array<Int64BE>} uids
-     * @param {function} callback 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
      * @param {array<array<uid:Int64BE,lat:number,lng:number>>} data 
      */
-    getGeos(uids, callback, timeout){
+    getGeos(uids, timeout, callback){
         let payload = {
             uids: uids
         };
@@ -1208,14 +1230,14 @@ class RTMClient{
      * @param {number} mtype 
      * @param {Int64BE} to 
      * @param {File} file
-     * @param {function} callback 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
      * @param {object} data 
      */
-    sendFile(mtype, to, file, callback, timeout){
+    sendFile(mtype, to, file, timeout, callback){
         let ops = {
             cmd: 'sendfile',
             mtype: mtype,
@@ -1231,14 +1253,14 @@ class RTMClient{
      * @param {number} mtype 
      * @param {array<Int64BE>} tos 
      * @param {File} file
-     * @param {function} callback 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
      * @param {object} data 
      */
-    sendFiles(mtype, tos, file, callback, timeout){
+    sendFiles(mtype, tos, file, timeout, callback){
         let ops = {
             cmd: 'sendfiles',
             mtype: mtype,
@@ -1254,14 +1276,14 @@ class RTMClient{
      * @param {number} mtype 
      * @param {Int64BE} gid 
      * @param {File} file
-     * @param {function} callback 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
      * @param {object} data 
      */
-    sendGroupFile(mtype, gid, file, callback, timeout){
+    sendGroupFile(mtype, gid, file, timeout, callback){
         let ops = {
             cmd: 'sendgroupfile',
             mtype: mtype,
@@ -1277,14 +1299,14 @@ class RTMClient{
      * @param {number} mtype 
      * @param {Int64BE} rid 
      * @param {File} file
-     * @param {function} callback 
      * @param {number} timeout 
+     * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
      * @param {object} data 
      */
-    sendRoomFile(mtype, rid, file, callback, timeout){
+    sendRoomFile(mtype, rid, file, timeout, callback){
         let ops = {
             cmd: 'sendroomfile',
             mtype: mtype,
@@ -1585,9 +1607,7 @@ function auth(timeout){
                 self._intervalID = 0;
             }
 
-            self.emit('login', { 
-                endpoint: self._endpoint 
-            });
+            self.emit('login', { endpoint: self._endpoint });
 
             return;
         }
@@ -1599,7 +1619,8 @@ function auth(timeout){
                 return;
             }
 
-            self.emit('error', data);
+            self.emit('error', new Error('token error!'));
+            self.emit('login', { error: data });
         }
 
         if (err){

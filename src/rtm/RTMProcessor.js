@@ -9,6 +9,7 @@ class RTMProcessor{
 
         this._map = {};
         this._msgOptions = msgOptions;
+
         checkExpire.call(this);
     }
 

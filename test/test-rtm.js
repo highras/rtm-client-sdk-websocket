@@ -33,6 +33,7 @@ function test(endpoint, pid, token, from, to){
     let fuid = to;
     let lat = 39239.1123;
     let lng = 69394.4850;
+    let timeout = 10 * 1000;
         
 
     client = new RTMClient({
@@ -72,6 +73,11 @@ function test(endpoint, pid, token, from, to){
 
     //send to server
     client.on('login', function(data){
+        if (data.error){
+            console.error(data.error);
+            return;
+        }
+
         index = 0;
         console.log('login with ' + data.endpoint + '\n\n');
 
@@ -80,111 +86,115 @@ function test(endpoint, pid, token, from, to){
         });
         
         t(function(name, cb){
-            client[name].call(client, to, 8, 'hello !', '', cb);
+            client[name].call(client, to, 8, 'hello !', '', timeout, cb);
         }, 'sendMessage');
 
         t(function(name, cb){
-            client[name].call(client, tos, 8, 'hello !', '', cb);
+            client[name].call(client, tos, 8, 'hello !', '', timeout, cb);
         }, 'sendMessages');
 
         t(function(name, cb){
-            client[name].call(client, gid, 8, 'hello !', '', cb);
+            client[name].call(client, gid, 8, 'hello !', '', timeout, cb);
         }, 'sendGroupMessage');
 
         t(function(name, cb){
-            client[name].call(client, rid, 8, 'hello !', '', cb);
+            client[name].call(client, rid, 8, 'hello !', '', timeout, cb);
         }, 'sendRoomMessage');
         
         t(function(name, cb){
-            client[name].call(client, { key: 'test' }, cb);
+            client[name].call(client, { key: 'test' }, timeout, cb);
         }, 'addVariables');
 
         t(function(name, cb){
-            client[name].call(client, friends, cb);
+            client[name].call(client, friends, timeout, cb);
         }, 'addFriends');
 
         t(function(name, cb){
-            client[name].call(client, [new Int64BE(0, 778899)], cb);
+            client[name].call(client, [new Int64BE(0, 778899)], timeout, cb);
         }, 'deleteFriends');
 
         t(function(name, cb){
-            client[name].call(client, cb);
+            client[name].call(client, timeout, cb);
         }, 'getFriends');
 
         t(function(name, cb){
-            client[name].call(client, gid, [from, to], cb);
+            client[name].call(client, gid, [from, to], timeout, cb);
         }, 'addGroupMembers');
 
         t(function(name, cb){
-            client[name].call(client, gid, [to], cb);
+            client[name].call(client, gid, [to], timeout, cb);
         }, 'deleteGroupMembers');
 
         t(function(name, cb){
-            client[name].call(client, gid, cb);
+            client[name].call(client, gid, timeout, cb);
         }, 'getGroupMembers');
 
         t(function(name, cb){
-            client[name].call(client, cb);
+            client[name].call(client, timeout, cb);
         }, 'getUserGroups');
 
         t(function(name, cb){
-            client[name].call(client, rid, cb);
+            client[name].call(client, rid, timeout, cb);
         }, 'enterRoom');
 
         t(function(name, cb){
-            client[name].call(client, rid, cb);
+            client[name].call(client, rid, timeout, cb);
         }, 'leaveRoom');
 
         t(function(name, cb){
-            client[name].call(client, cb);
+            client[name].call(client, timeout, cb);
         }, 'getUserRooms');
 
         t(function(name, cb){
-            client[name].call(client, tos, cb);
+            client[name].call(client, tos, timeout, cb);
         }, 'getOnlineUsers');
 
         t(function(name, cb){
-            client[name].call(client, cb);
+            client[name].call(client, timeout, cb);
         }, 'checkUnreadMessage');
 
         t(function(name, cb){
-            client[name].call(client, gid, 10, false, 0, 0, 0, undefined, cb);
+            client[name].call(client, gid, 10, false, 0, 0, 0, undefined, timeout, cb);
         }, 'getGroupMessage');
 
         t(function(name, cb){
-            client[name].call(client, rid, 10, false, 0, 0, 0, undefined, cb);
+            client[name].call(client, rid, 10, false, 0, 0, 0, undefined, timeout, cb);
         }, 'getRoomMessage');
 
         t(function(name, cb){
-            client[name].call(client, 10, false, 0, 0, 0, undefined, cb);
+            client[name].call(client, 10, false, 0, 0, 0, undefined, timeout, cb);
         }, 'getBroadcastMessage');
 
         t(function(name, cb){
-            client[name].call(client, to, 10, 0, false, 0, 0, 0, undefined, cb);
+            client[name].call(client, to, 10, 0, false, 0, 0, 0, undefined, timeout, cb);
         }, 'getP2PMessage');
 
         t(function(name, cb){
-            client[name].call(client, 'IOS', 'iphone6s', 'test device token', cb);
+            client[name].call(client, 'app-info', 'device-token', timeout, cb);
         }, 'addDevice');
 
         t(function(name, cb){
-            client[name].call(client, 'en', cb);
+            client[name].call(client, 'device-token', timeout, cb);
+        }, 'removeDevice');
+
+        t(function(name, cb){
+            client[name].call(client, 'en', timeout, cb);
         }, 'setTranslationLanguage');
 
         t(function(name, cb){
-            client[name].call(client, '你好!', undefined, 'en', cb);
+            client[name].call(client, '你好!', undefined, 'en', timeout, cb);
         }, 'translate');
 
         t(function(name, cb){
-            client[name].call(client, lat, lng, cb);
+            client[name].call(client, lat, lng, timeout, cb);
         }, 'setGeo');
 
         t(function(name, cb){
-            client[name].call(client, cb);
+            client[name].call(client, timeout, cb);
         }, 'getGeo');
 
         t(function(name, cb){
-            client[name].call(client, [from, to], cb);
+            client[name].call(client, [from, to], timeout, cb);
         }, 'getGeos');
 
         t(function(name, cb){
