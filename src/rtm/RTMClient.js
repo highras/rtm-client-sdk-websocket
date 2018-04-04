@@ -36,7 +36,7 @@ class RTMClient{
         this._recvUnreadMsgStatus = options.recvUnreadMsgStatus !== undefined ? options.recvUnreadMsgStatus : true;
         this._ssl = options.ssl !== undefined ? options.ssl : true;
         this._autoReconnect = options.autoReconnect !== undefined ? options.autoReconnect : true;
-        this._connectionTimeout = options.connectionTimeout ? options.connectionTimeout : 30 * 1000;
+        this._connectionTimeout = options.connectionTimeout || 30 * 1000;
 
         if (this._ssl){
             this._proxyEndpoint = options.proxyEndpoint; 
@@ -94,8 +94,8 @@ class RTMClient{
             return;
         }
 
-        this._endpoint = endpoint ? endpoint : null;
-        this._ipv6 = ipv6 !== undefined ? ipv6 : false;
+        this._endpoint = endpoint || null;
+        this._ipv6 = ipv6 || false;
         this._isClose = false;
 
         if (this._endpoint){
@@ -146,9 +146,7 @@ class RTMClient{
      * @param {object} data
      */
     sendMessage(to, mtype, msg, attrs, timeout, callback){
-        if (attrs === undefined){
-            attrs = '';
-        }
+        attrs = attrs || '';
 
         let payload = {
             to: to,
@@ -181,9 +179,7 @@ class RTMClient{
      * @param {object} data
      */
     sendMessages(tos, mtype, msg, attrs, timeout, callback){
-        if (attrs === undefined){
-            attrs = '';
-        }
+        attrs = attrs || '';
 
         let payload = {
             tos: tos,
@@ -216,9 +212,7 @@ class RTMClient{
      * @param {object} data
      */
     sendGroupMessage(gid, mtype, msg, attrs, timeout, callback){
-        if (attrs === undefined){
-            attrs = '';
-        }
+        attrs = attrs || '';
 
         let payload = {
             gid: gid,
@@ -251,9 +245,7 @@ class RTMClient{
      * @param {object} data
      */
     sendRoomMessage(rid, mtype, msg, attrs, timeout, callback){
-        if (attrs === undefined){
-            attrs = '';
-        }
+        attrs = attrs || '';
 
         let payload = {
             rid: rid,

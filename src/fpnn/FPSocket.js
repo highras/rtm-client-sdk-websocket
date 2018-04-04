@@ -7,8 +7,8 @@ class FPSocket{
     constructor(options){
         FPEvent.assign(this);
 
-        this._endpoint = options ? options.endpoint : null;
-        this._connectionTimeout = options ? options.connectionTimeout : 30 * 1000;
+        this._endpoint = options.endpoint || null;
+        this._connectionTimeout = options.connectionTimeout || 30 * 1000;
 
         this._client = null;
         this._timeoutID = 0;

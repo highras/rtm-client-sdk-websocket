@@ -9,14 +9,14 @@ class FPPackage{
     buildPkgData(options){
         let data = {};
 
-        data.magic = options ? options.magic : FPConfig.TCP_MAGIC;
-        data.version = options ? options.version : 0;
-        data.flag = options ? options.flag : 0;
-        data.mtype = options ? options.mtype : 0;
-        data.ss = options ? options.ss : 0;
-        data.method = options ? options.method : null;
-        data.seq = options ? options.seq : 0;
-        data.payload = options ? options.payload : null;
+        data.magic = options.magic || FPConfig.TCP_MAGIC;
+        data.version = options.version || 0;
+        data.flag = options.flag || 0;
+        data.mtype = options.mtype || 0;
+        data.ss = options.ss || 0;
+        data.method = options.method || null;
+        data.seq = options.seq || 0;
+        data.payload = options.payload || null;
 
         if (data.payload){
             data.psize = Buffer.byteLength(data.payload);
