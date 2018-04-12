@@ -76,11 +76,11 @@ client.on('login', function(data){
 
 #### Events ####
 * `event`:
-    * `login`: 登陆成功
+    * `login`: 登陆
         * `data.endpoint`: **(string)** 当前连接的RTMGate地址, 可在本地缓存, 下次登陆可使用该地址以加速登陆过程, **每次登陆成功需更新本地缓存**
         * `data.error`: **(object)** auth失败, token失效需重新获取
 
-    * `error`: 发生异常
+    * `error`: 异常
         * `err`: **(Error)**
 
     * `close`: 连接关闭
