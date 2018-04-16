@@ -13,7 +13,6 @@ class FPClient{
     constructor(options){
         FPEvent.assign(this);
 
-        this._buffer = Buffer.allocUnsafe(16);
         this._autoReconnect = options.autoReconnect || false;
         this._connectionTimeout = options.connectionTimeout || 30 * 1000;
 
@@ -179,16 +178,21 @@ function reConnect(){
 function onData(chunk){
     chunk = Buffer.from(chunk);
 
-    if (this._wpos + chunk.length > this._buffer.length){
-        let buf = Buffer.allocUnsafe(this._wpos + chunk.length);
+    let len = this._wpos + chunk.length;
+    if (len > this._buffer.length){
+        len = Math.max(len, 2 * FPConfig.READ_BUFFER_LEN);
+        let buf = Buffer.allocUnsafe(len);
         this._buffer.copy(buf, 0, 0, this._wpos);
         this._buffer = buf;
     }
 
     this._wpos += chunk.copy(this._buffer, this._wpos, 0);
 
-    if (!this._peekData){
+    if (this._wpos < 12){
+        return;
+    }
 
+    if (!this._peekData){
         this._peekData = peekHead.call(this, this._buffer);
 
         if (!this._peekData){
@@ -202,7 +206,7 @@ function onData(chunk){
         let mbuf = Buffer.allocUnsafe(this._peekData.pkgLen);
         this._buffer.copy(mbuf, 0, 0, this._peekData.pkgLen);
 
-        let len = Math.max(2 * (this._wpos - this._peekData.pkgLen), FPConfig.READ_BUFFER_LEN);
+        let len = Math.max(2 * diff, FPConfig.READ_BUFFER_LEN);
         let buf = Buffer.allocUnsafe(len);
         this._wpos = this._buffer.copy(buf, 0, this._peekData.pkgLen, this._peekData.pkgLen + diff);
         this._buffer = buf;

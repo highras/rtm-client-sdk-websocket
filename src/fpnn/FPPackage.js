@@ -26,7 +26,6 @@ class FPPackage{
             data.ss = Buffer.byteLength(data.method);
         }
 
-        data.ctime = timestamp.call(this);
         data.wpos = 0;
 
         return data;
@@ -262,10 +261,6 @@ class FPPackage{
             data.payload = pbuf;
         }
     }
-}
-
-function timestamp(){
-    return Math.floor(Date.now());
 }
 
 function isString(src){
