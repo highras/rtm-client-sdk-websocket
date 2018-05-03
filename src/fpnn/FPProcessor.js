@@ -2,12 +2,15 @@
 
 const FPEvent = require('./FPEvent');
 
-class FPProcessor{
-    constructor(){
+class FPProcessor {
+
+    constructor() {
+
         FPEvent.assign(this);
     }
 
-    service(data, cb){
+    service(data, cb) {
+
         this.emit(data.method, data.payload, cb);
     }
 }

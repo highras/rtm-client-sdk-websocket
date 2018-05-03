@@ -3,8 +3,10 @@
 const FPEvent = require('../fpnn/FPEvent');
 const RTMConfig = require('./RTMConfig');
 
-class RTMProcessor{
-    constructor(msgOptions){
+class RTMProcessor {
+
+    constructor(msgOptions) {
+
         FPEvent.assign(this);
 
         this._map = {};
@@ -13,36 +15,47 @@ class RTMProcessor{
         checkExpire.call(this);
     }
 
-    service(data, cb){
+    service(data, cb) {
+
         let callCb = true;
 
-        if (RTMConfig.SERVER_PUSH.kickOut == data.method){
-            callCb = false;
-        }
-        if (RTMConfig.SERVER_PUSH.kickOutRoom == data.method){
+        if (RTMConfig.SERVER_PUSH.kickOut == data.method) {
+
             callCb = false;
         }
 
-        if (callCb){
-            if (data.flag == 0){
+        if (RTMConfig.SERVER_PUSH.kickOutRoom == data.method) {
+
+            callCb = false;
+        }
+
+        if (callCb) {
+
+            if (data.flag == 0) {
+
                 cb(JSON.stringify({}), false);
             }
-            if (data.flag == 1){
+
+            if (data.flag == 1) {
+
                 cb(msgpack.encode({}, this._msgOptions), false);
             }
         }
 
         let payload = null;
 
-        if (data.flag == 0){
+        if (data.flag == 0) {
+
             payload = JSON.parse(data.payload);
         }
 
-        if (data.flag == 1){
+        if (data.flag == 1) {
+
             payload = msgpack.decode(data.payload, this._msgOptions);
         }
 
-        if (payload){
+        if (payload) {
+
             this[data.method].call(this, payload);
         }
     }
@@ -51,7 +64,8 @@ class RTMProcessor{
      * 
      * @param {object} data 
      */
-    kickout(data){
+    kickout(data) {
+
         this.emit(RTMConfig.SERVER_PUSH.kickOut, data);
     }
 
@@ -59,8 +73,10 @@ class RTMProcessor{
      * 
      * @param {Int64BE} data.rid 
      */
-    kickoutroom(data){
-        if (data.rid){
+    kickoutroom(data) {
+        
+        if (data.rid) {
+
             data.rid = new Int64BE(data.rid);
         }
 
@@ -76,19 +92,25 @@ class RTMProcessor{
      * @param {string} data.msg
      * @param {string} data.attrs
      */
-    pushmsg(data){
-        if (data.from){
+    pushmsg(data) {
+
+        if (data.from) {
+            
             data.from = new Int64BE(data.from);
         }
 
-        if (data.mid){
+        if (data.mid) {
+
             data.mid = new Int64BE(data.mid);
-            if (!checkMid.call(this, data.mid)){
+
+            if (!checkMid.call(this, data.mid)) {
+
                 return;
             }
         }
 
-        if (data.ftype > 0){
+        if (data.ftype > 0) {
+
             this.emit(RTMConfig.SERVER_PUSH.recvFile, data);
             return;
         }
@@ -107,24 +129,30 @@ class RTMProcessor{
      * @param {string} data.msg
      * @param {string} data.attrs
      */
-    pushgroupmsg(data){
-        if (data.from){
+    pushgroupmsg(data) {
+        
+        if (data.from) {
+
             data.from = new Int64BE(data.from);
         }
 
-        if (data.mid){
+        if (data.mid) {
+            
             data.mid = new Int64BE(data.mid);
-            if (!checkMid.call(this, data.mid)){
+
+            if (!checkMid.call(this, data.mid)) {
+
                 return;
             }
         }
 
+        if (data.gid) {
 
-        if (data.gid){
             data.gid = new Int64BE(data.gid);
         }
 
-        if (data.ftype > 0){
+        if (data.ftype > 0) {
+
             this.emit(RTMConfig.SERVER_PUSH.recvGroupFile, data);
             return;
         }
@@ -143,23 +171,30 @@ class RTMProcessor{
      * @param {string} data.msg
      * @param {string} data.attrs
      */
-    pushroommsg(data){
-        if (data.from){
+    pushroommsg(data) {
+
+        if (data.from) {
+
             data.from = new Int64BE(data.from);
         }
 
-        if (data.mid){
+        if (data.mid) {
+            
             data.mid = new Int64BE(data.mid);
-            if (!checkMid.call(this, data.mid)){
+
+            if (!checkMid.call(this, data.mid)) {
+
                 return;
             }
         }
 
-        if (data.rid){
+        if (data.rid) {
+
             data.rid = new Int64BE(data.rid);
         }
 
-        if (data.ftype > 0){
+        if (data.ftype > 0) {
+
             this.emit(RTMConfig.SERVER_PUSH.recvRoomFile, data);
             return;
         }
@@ -177,19 +212,25 @@ class RTMProcessor{
      * @param {string} data.msg
      * @param {string} data.attrs
      */
-    pushbroadcastmsg(data){
-        if (data.from){
+    pushbroadcastmsg(data) {
+
+        if (data.from) {
+
             data.from = new Int64BE(data.from);
         }
 
-        if (data.mid){
+        if (data.mid) {
+
             data.mid = new Int64BE(data.mid);
-            if (!checkMid.call(this, data.mid)){
+
+            if (!checkMid.call(this, data.mid)) {
+
                 return;
             }
         }
 
-        if (data.ftype > 0){
+        if (data.ftype > 0) {
+            
             this.emit(RTMConfig.SERVER_PUSH.recvBroadcastFile, data);
             return;
         }
@@ -205,19 +246,25 @@ class RTMProcessor{
      * @param {Int64BE} data.omid
      * @param {string} data.msg
      */
-    transmsg(data){
-        if (data.from){
+    transmsg(data) {
+
+        if (data.from) {
+
             data.from = new Int64BE(data.from);
         }
 
-        if (data.mid){
+        if (data.mid) {
+            
             data.mid = new Int64BE(data.mid);
-            if (!checkMid.call(this, data.mid)){
+
+            if (!checkMid.call(this, data.mid)) {
+
                 return;
             }
         }
 
-        if (data.omid){
+        if (data.omid) {
+
             data.omid = new Int64BE(data.omid);
         }
 
@@ -232,23 +279,30 @@ class RTMProcessor{
      * @param {Int64BE} data.omid
      * @param {string} data.msg
      */
-    transgroupmsg(data){
-        if (data.from){
+    transgroupmsg(data) {
+
+        if (data.from) {
+
             data.from = new Int64BE(data.from);
         }
 
-        if (data.mid){
+        if (data.mid) {
+
             data.mid = new Int64BE(data.mid);
-            if (!checkMid.call(this, data.mid)){
+
+            if (!checkMid.call(this, data.mid)) {
+
                 return;
             }
         }
 
-        if (data.gid){
+        if (data.gid) {
+            
             data.gid = new Int64BE(data.gid);
         }
 
-        if (data.omid){
+        if (data.omid) {
+
             data.omid = new Int64BE(data.omid);
         }
 
@@ -263,23 +317,30 @@ class RTMProcessor{
      * @param {Int64BE} data.omid
      * @param {string} data.msg
      */
-    transroommsg(data){
-        if (data.from){
+    transroommsg(data) {
+
+        if (data.from) {
+
             data.from = new Int64BE(data.from);
         }
 
-        if (data.mid){
+        if (data.mid) {
+
             data.mid = new Int64BE(data.mid);
-            if (!checkMid.call(this, data.mid)){
+
+            if (!checkMid.call(this, data.mid)) {
+
                 return;
             }
         }
 
-        if (data.rid){
+        if (data.rid) {
+
             data.rid = new Int64BE(data.rid);
         }
 
-        if (data.omid){
+        if (data.omid) {
+
             data.omid = new Int64BE(data.omid);
         }
 
@@ -293,19 +354,25 @@ class RTMProcessor{
      * @param {Int64BE} data.omid
      * @param {string} data.msg
      */
-    transbroadcastmsg(data){
-        if (data.from){
+    transbroadcastmsg(data) {
+
+        if (data.from) {
+
             data.from = new Int64BE(data.from);
         }
 
-        if (data.mid){
+        if (data.mid) {
+
             data.mid = new Int64BE(data.mid);
-            if (!checkMid.call(this, data.mid)){
+
+            if (!checkMid.call(this, data.mid)) {
+
                 return;
             }
         }
 
-        if (data.omid){
+        if (data.omid) {
+
             data.omid = new Int64BE(data.omid);
         }
 
@@ -318,19 +385,25 @@ class RTMProcessor{
      * @param {array<Int64BE>} data.group
      * @param {bool} data.bc
      */
-    pushunread(data){
-        if (data.p2p){
+    pushunread(data) {
+
+        if (data.p2p) {
+
             let bp2p = [];
-            data.p2p.forEach(function(item, index){
+
+            data.p2p.forEach(function(item, index) {
+
                 bp2p[index] = new Int64BE(item);
             });
 
             data.p2p = bp2p;
         }
 
-        if (data.group){
+        if (data.group) {
+
             let bgroup = [];
-            data.group.forEach(function(item, index){
+            data.group.forEach(function(item, index) {
+
                 bgroup[index] = new Int64BE(item);
             });
 
@@ -344,17 +417,23 @@ class RTMProcessor{
      * 
      * @param {object} data 
      */
-    ping(data){
+    ping(data) {
+
         this.emit(RTMConfig.SERVER_PUSH.recvPing, data);
     }
 }
 
-function checkMid(mid){
+function checkMid(mid) {
+
     let key = mid.toString();
-    if (this._map.hasOwnProperty(key)){
-        if (this._map[key] > Date.now()){
+
+    if (this._map.hasOwnProperty(key)) {
+
+        if (this._map[key] > Date.now()) {
+
             return false; 
         }
+
         delete this._map[key];
     }
 
@@ -362,21 +441,30 @@ function checkMid(mid){
     return true;
 }
 
-function checkExpire(){
+function checkExpire() {
+
     let self = this;
-    setInterval(function(){
-        for (let key in self._map){
-            if (self._map[key] > Date.now()){
+
+    setInterval(function() {
+
+        for (let key in self._map) {
+
+            if (self._map[key] > Date.now()) {
+
                 continue;
             } 
+
             delayRemove.call(self, key);
         }
     }, RTMConfig.MID_TTL);
 }
 
-function delayRemove(key){
+function delayRemove(key) {
+
     let self = this;
-    setTimeout(function(){
+
+    setTimeout(function() {
+
         delete self._map[key];
     }, 0);
 }

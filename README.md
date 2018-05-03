@@ -37,11 +37,13 @@ let client = new RTMClient({
     proxyEndpoint: 'highras.ifunplus.cn:13550'
 });
 
-client.on('error', function(err){
+client.on('error', function(err) {
+
     console.error(err);
 });
 
-client.on('close', function(){
+client.on('close', function() {
+
     console.log('closed!');
 });
 
@@ -49,24 +51,31 @@ client.login();
 
 //push service
 let pushName = client.rtmConfig.SERVER_PUSH.recvMessage;
-client.processor.on(pushName, function(data){
+client.processor.on(pushName, function(data) {
+
     console.log('\n[PUSH] ' + pushName + ':\n', data);
     // console.log(data.mid.toString());
 });
 
 //send to server
-client.on('login', function(data){
-    if (data.error){
+client.on('login', function(data) {
+
+    if (data.error) {
+
         console.error(data.error);
         // need to get new token
         return;
     }
 
-    client.sendMessage(new Int64BE(123789), 8, 'hello !', '', 10 * 1000, function(err, data){
-        if (err){
+    client.sendMessage(new Int64BE(123789), 8, 'hello !', '', 10 * 1000, function(err, data) {
+
+        if (err) {
+
             console.error('\n[ERR] ' + name + ':\n', err.message);
         }
-        if (data){
+
+        if (data) {
+
             console.log('\n[DATA] ' + name + ':\n', data);
         }
     });

@@ -9,49 +9,65 @@
 
         <script src="../dist/rtm.min.js"></script>
 
+        <script src="./TestCase.js"></script>
+        <script src="./AsyncStressTester.js"></script>
         <script src="./test-rtm.js"></script>
 
         <script type="text/javascript">
             function checkInput() {
+
                 var inputFrom = document.getElementById("rtmInfoFrom");
             
                 if (inputFrom.endpoint.value == '') {
+
                     alert('RTM Dispatch Endpoint is empty!');
                     return;
                 }
             
                 if (inputFrom.pid.value == '') {
+
                     alert('Project ID is empty!');
                     return;
                 }
             
                 if (inputFrom.token.value == '') {
+
                     alert('Project token is empty!');
                     return;
                 }
             
                 if (inputFrom.from.value == '') {
+
                     alert('From ID is empty!');
                     return;
                 }
 
                 if (inputFrom.to.value == '') {
+
                     alert('To ID is empty!');
                     return;
                 }
             
                 var pid = parseInt(inputFrom.pid.value);
+
                 if (pid == NaN) {
+
                     alert('Project ID is not number!');
                     return;
                 }
+
                 var from = parseInt(inputFrom.from.value);
+
                 if (from == NaN) {
+
                     alert('From ID is not number!');
                     return;
                 }
+
                 var to = parseInt(inputFrom.to.value);
+
                 if (to == NaN) {
+
                     alert('To ID is not number!');
                     return;
                 }
@@ -69,7 +85,7 @@
             
         <form id="rtmInfoFrom">
             RTM Dispatch Endpoint: <input type="text" name="endpoint" value="highras-rtm-rtmgated.ifunplus.cn:13325">&nbsp;&nbsp;&nbsp;&nbsp; Project ID: <input type="text" name="pid" value="1017"><br>
-            Login token: <input type="text" name="token" value="08572A13E32B413D5908CDE996E88C1C">&nbsp;&nbsp;&nbsp;&nbsp; From ID: <input type="text" name="from" value="654321">&nbsp;&nbsp;&nbsp;&nbsp; To ID: <input type="text" name="to" value="123789"><br>
+            Login token: <input type="text" name="token" value="C21441776E1C424D1A8EF25CC11C7D03">&nbsp;&nbsp;&nbsp;&nbsp; From ID: <input type="text" name="from" value="654321">&nbsp;&nbsp;&nbsp;&nbsp; To ID: <input type="text" name="to" value="123789"><br>
             <input type="button" name="login" value="login" onclick="checkInput()">
         </form>
         
@@ -81,24 +97,33 @@
         <output id="list"></output>
 
         <script>
-            function handleFileSelect(evt){
+            function handleFileSelect(evt) {
+
                 var files = evt.target.files;
                 var output = [];
+
                 for (var i = 0, f; f = files[i]; i++) {
+
                     output.push('<li><strong>', f.name, '</strong> (', f.type || 'n/a', ') - ',
                                 f.size, ' bytes, last modified: ',
                                 f.lastModifiedDate.toLocaleDateString(), '</li>');
 
-                    if (client.authed){
-                        client.sendFile(8, new Int64BE(0, 778899), f, function(err, data){
-                            if (data){
+                    if (client.authed) {
+
+                        client.sendFile(8, new Int64BE(0, 778899), f, function(err, data) {
+
+                            if (data) {
+
                                 console.log('\n[DATA] sendFile:\n', data);
                             }
-                            if (err){
+
+                            if (err) {
+
                                 console.error('\n[ERR] sendFile:\n', err)
                             }
                         });
-                    }else{
+                    } else {
+
                         console.log('do not authed!');
                     }
                 }

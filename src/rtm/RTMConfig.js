@@ -76,25 +76,26 @@ const SERVER_PUSH = {
 	recvPing: 'ping'
 };
 
-class RTMConfig{
-	static get ERROR_CODE(){
+class RTMConfig {
+
+	static get ERROR_CODE() {
+
 		return ERROR_CODE;
 	}
 
-	static get FILE_TYPE(){
+	static get FILE_TYPE() {
+
 		return FILE_TYPE;
 	}
 
-	static get PING_INTERVAL(){
-		return 10 * 1000;
-	}
-
-	static get SERVER_PUSH(){
+	static get SERVER_PUSH() {
+		
 		return SERVER_PUSH;
 	}
 
-	static get MID_TTL(){
-		return 30 * 1000;
+	static get MID_TTL() {
+
+		return 5 * 1000;
 	}
 }
 

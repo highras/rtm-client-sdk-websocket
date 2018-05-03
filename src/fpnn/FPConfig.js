@@ -56,48 +56,60 @@ const CRYPTO_ALGORITHM = [
 	'aes-256-cfb'
 ];
 
-class FPConfig{
-	static get ERROR_CODE(){
+class FPConfig {
+
+	static get ERROR_CODE() {
+
 		return ERROR_CODE;
 	}
 
-	static get FP_FLAG(){
+	static get FP_FLAG() {
+
 		return FP_FLAG;
 	}
 
-	static get FP_MESSAGE_TYPE(){
+	static get FP_MESSAGE_TYPE() {
+
 		return FP_MESSAGE_TYPE;
 	}
 
-	static get TCP_MAGIC(){
+	static get TCP_MAGIC() {
+
 		return TCP_MAGIC;
 	}
 
-	static get HTTP_MAGIC(){
+	static get HTTP_MAGIC() {
+
 		return HTTP_MAGIC;
 	}
 
-	static get FPNN_VERSION(){
+	static get FPNN_VERSION() {
+
 		return FPNN_VERSION;
 	}
 
-	static get READ_BUFFER_LEN(){
+	static get READ_BUFFER_LEN() {
+
 		return 1024;
 	}
 
-	static get CHECK_CBS_INTERVAL(){
+	static get CHECK_CBS_INTERVAL() {
+		
 		return 1000;
 	}
 
-	static get SEND_TIMEOUT(){
+	static get SEND_TIMEOUT() {
+
 		return 20 * 1000;
 	}
 	
-	static get CRYPTO_CURVES(){
+	static get CRYPTO_CURVES() {
+
 		return CRYPTO_CURVES;
 	}
 
-	static get CRYPTO_ALGORITHM(){
+	static get CRYPTO_ALGORITHM() {
+
 		return CRYPTO_ALGORITHM;
 	}
 }

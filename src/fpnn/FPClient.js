@@ -9,8 +9,10 @@ const FPPackage = require('./FPPackage');
 const FPCallback = require('./FPCallback');
 const FPProcessor = require('./FPProcessor');
 
-class FPClient{
-    constructor(options){
+class FPClient {
+
+    constructor(options) {
+
         FPEvent.assign(this);
 
         this._autoReconnect = options.autoReconnect || false;
@@ -18,7 +20,8 @@ class FPClient{
 
         this._proxy = options.proxy || null;
 
-        if (this._proxy){
+        if (this._proxy) {
+            
             this._proxy.targetEndpoint = options.endpoint;
             options.endpoint = this._proxy.endpoint;
         }
@@ -26,19 +29,24 @@ class FPClient{
         this._conn = new FPSocket(options);
 
         let self = this;
-        this._conn.on('connect', function(){
+
+        this._conn.on('connect', function() {
+
             onConnect.call(self);
         });
 
-        this._conn.on('close', function(){
+        this._conn.on('close', function() {
+
             onClose.call(self);
         });
 
-        this._conn.on('data', function(chunk){
+        this._conn.on('data', function(chunk) {
+
             onData.call(self, chunk);
         });
 
-        this._conn.on('error', function(err){
+        this._conn.on('error', function(err) {
+
             self.emit('error', err);
         });
 
@@ -50,20 +58,25 @@ class FPClient{
         this._wpos = 0;
         this._peekData = null;
 
+        this._readID = 0;
         this._intervalID = 0;
         this._buffer = Buffer.allocUnsafe(FPConfig.READ_BUFFER_LEN);
     }
 
-    get processor(){
+    get processor() {
+
         return this._psr;
     }
 
-    set processor(value){
+    set processor(value) {
+
         return this._psr = value;
     }
 
-    connect(){
-        if (this.hasConnect){
+    connect() {
+
+        if (this.hasConnect) {
+
             this._conn.close(new Error('has connected!'));
             return;
         }
@@ -71,8 +84,10 @@ class FPClient{
         this._conn.open();
     }
 
-    sendQuest(options, callback, timeout){
-        if (!this.isOpen){
+    sendQuest(options, callback, timeout) {
+
+        if (!this.isOpen) {
+
             this.emit('error', new Error('no connect'));
             return;
         }
@@ -89,19 +104,26 @@ class FPClient{
         data.payload = options.payload;
 
         data = this._pkg.buildPkgData(data);
-        if (callback) this._cbs.addCb(this._pkg.cbKey(data), callback, timeout);
+
+        if (callback) {
+
+            this._cbs.addCb(this._pkg.cbKey(data), callback, timeout);
+        }
 
         let buf = this._pkg.enCode(data);
 
-        if (this._proxy){
+        if (this._proxy) {
+
             buf = this._proxy.buildProxyData(buf);
         }
 
         this._conn.write(buf);
     }
 
-    sendNotify(options){
-        if (!this.isOpen){
+    sendNotify(options) {
+
+        if (!this.isOpen) {
+
             this.emit('error', new Error('no connect'));
             return;
         }
@@ -119,28 +141,34 @@ class FPClient{
         data = this._pkg.buildPkgData(data);
         let buf = this._pkg.enCode(data);
 
-        if (this._proxy){
+        if (this._proxy) {
+
             buf = this._proxy.buildProxyData(buf);
         }
 
         this._conn.write(buf);
     }
 
-    close(){
+    close() {
+
         this._conn.close();
     }
 
-    get isOpen(){
+    get isOpen() {
+
         return this._conn.isOpen;
     }
 
-    get hasConnect(){
+    get hasConnect() {
+
         return this._conn.isOpen || this._conn.isConnecting;
     }
 }
 
-function onConnect(){
-    if (this._intervalID){
+function onConnect() {
+
+    if (this._intervalID) {
+
         clearInterval(this._intervalID);
         this._intervalID = 0;
     }
@@ -148,7 +176,14 @@ function onConnect(){
     this.emit('connect');
 }
 
-function onClose(){
+function onClose() {
+
+    if (this._readID) {
+
+        clearInterval(this._readID);
+        this._readID = 0;
+    }
+
     this._seq = 0;
     this._wpos = 0;
     this._peekData = null;
@@ -158,78 +193,110 @@ function onClose(){
 
     this.emit('close');
 
-    if (this._autoReconnect){
+    if (this._autoReconnect) {
+
         reConnect.call(this);
     }
 }
 
-function reConnect(){
-    if (this._intervalID){
+function reConnect() {
+
+    if (this._intervalID) {
+
         return;
     }
 
     let self = this;
-    this._intervalID = setInterval(function(){
+
+    this._intervalID = setInterval(function() {
+
         self.connect();
     }, this._connectionTimeout);
 }
 
-function onData(chunk){
+function onData(chunk) {
+
     chunk = Buffer.from(chunk);
 
     let len = this._wpos + chunk.length;
-    if (len > this._buffer.length){
-        len = Math.max(len, 2 * FPConfig.READ_BUFFER_LEN);
-        let buf = Buffer.allocUnsafe(len);
-        this._buffer.copy(buf, 0, 0, this._wpos);
-        this._buffer = buf;
+
+    if (len > this._buffer.length) {
+
+        resizeBuffer.call(this, len, 2 * FPConfig.READ_BUFFER_LEN);
     }
 
     this._wpos += chunk.copy(this._buffer, this._wpos, 0);
 
-    if (this._wpos < 12){
-        return;
-    }
+    if (!this._readID) {
 
-    if (!this._peekData){
-        this._peekData = peekHead.call(this, this._buffer);
+        let self = this;
+        this._readID = setInterval(function () {
 
-        if (!this._peekData){
-            this._conn.close(new Error('worng package!'));
-            return;
-        }
-    }
-
-    let diff = this._wpos - this._peekData.pkgLen;
-    if (diff >= 0){
-        let mbuf = Buffer.allocUnsafe(this._peekData.pkgLen);
-        this._buffer.copy(mbuf, 0, 0, this._peekData.pkgLen);
-
-        let len = Math.max(2 * diff, FPConfig.READ_BUFFER_LEN);
-        let buf = Buffer.allocUnsafe(len);
-        this._wpos = this._buffer.copy(buf, 0, this._peekData.pkgLen, this._peekData.pkgLen + diff);
-        this._buffer = buf;
-
-        delete this._peekData;
-        this._peekData = null;
-
-        let data = this._pkg.deCode(mbuf);
-
-        if (this._pkg.isAnswer(data)){
-            let cbkey = this._pkg.cbKey(data);
-            this._cbs.execCb(cbkey, data);
-        }
-
-        if (this._pkg.isQuest(data)){
-            let self = this;
-            this._psr.service(data, function(payload, exception){
-                sendAnswer.call(self, data.flag, data.seq, payload, exception);
-            });
-        }
+            readPeekData.call(self);
+        }, 0);
     }
 }
 
-function sendAnswer(flag, seq, payload, exception){
+function resizeBuffer(len1, len2, offset=0) {
+
+    let len = Math.max(len1, len2);
+
+    let buf = Buffer.allocUnsafe(len);
+    this._wpos = this._buffer.copy(buf, 0, offset, this._wpos);
+    this._buffer = buf;
+}
+
+function readPeekData () {
+
+    if (this._wpos < 12) {
+
+        return;
+    }
+
+    if (!this._peekData) {
+
+        this._peekData = peekHead.call(this, this._buffer);
+
+        if (!this._peekData) {
+
+            this.conn.close(new Error('worng package!'));
+            return;
+        }
+    }
+    
+    let diff = this._wpos - this._peekData.pkgLen;
+
+    if (diff < 0) {
+
+        return;
+    }
+
+    this._buffer.copy(this._peekData.buffer, 0, 0, this._peekData.pkgLen);
+
+    let data = this._pkg.deCode(this._peekData.buffer);
+
+    resizeBuffer.call(this, 2 * diff, FPConfig.READ_BUFFER_LEN, this._peekData.pkgLen);
+    delete this._peekData;
+    this._peekData = null;
+
+    if (this._pkg.isAnswer(data)) {
+
+        let cbkey = this._pkg.cbKey(data);
+        this._cbs.execCb(cbkey, data);
+    }
+
+    if (this._pkg.isQuest(data)) {
+
+        let self = this;
+        this._psr.service(data, function(payload, exception) {
+
+            sendAnswer.call(self, data.flag, data.seq, payload, exception);
+        });
+    }
+}
+
+function sendAnswer(flag, seq, payload, exception) {
+
     exception = exception || false;
 
     let options = {
@@ -243,46 +310,62 @@ function sendAnswer(flag, seq, payload, exception){
     this.sendQuest(options);
 }
 
-function peekHead(buf){
+function peekHead(buf) {
+
     let data = null;
 
-    if (buf.length >= 12){
+    if (buf.length >= 12) {
+
         data = this._pkg.peekHead(buf);
 
-        if (!checkHead.call(this, data)){
+        if (!checkHead.call(this, data)) {
+
             return null;
         }
 
-        if (this._pkg.isOneWay(data)){
+        if (this._pkg.isOneWay(data)) {
+
             data.pkgLen = 12 + data.ss + data.psize;
         }
 
-        if (this._pkg.isTwoWay(data)){
+        if (this._pkg.isTwoWay(data)) {
+
             data.pkgLen = 16 + data.ss + data.psize;
         }
 
-        if (this._pkg.isAnswer(data)){
+        if (this._pkg.isAnswer(data)) {
+
             data.pkgLen = 16 + data.psize;
+        }
+
+        if (data.pkgLen > 0) {
+
+            data.buffer = Buffer.allocUnsafe(data.pkgLen);
         }
     }
 
     return data;
 }
 
-function checkHead(data){
-    if (!FPConfig.TCP_MAGIC.equals(data.magic) && !FPConfig.HTTP_MAGIC.equals(data.magic)){
+function checkHead(data) {
+
+    if (!FPConfig.TCP_MAGIC.equals(data.magic) && !FPConfig.HTTP_MAGIC.equals(data.magic)) {
+
         return false;
     }
 
-    if (data.version < 0 || data.version >= FPConfig.FPNN_VERSION.length){
+    if (data.version < 0 || data.version >= FPConfig.FPNN_VERSION.length) {
+
         return false;
     }
 
-    if (data.flag < 0 || data.flag >= FPConfig.FP_FLAG.length){
+    if (data.flag < 0 || data.flag >= FPConfig.FP_FLAG.length) {
+
         return false;
     }
     
-    if (data.mtype < 0 || data.mtype >= FPConfig.FP_MESSAGE_TYPE.length){
+    if (data.mtype < 0 || data.mtype >= FPConfig.FP_MESSAGE_TYPE.length) {
+
         return false;
     }
 
