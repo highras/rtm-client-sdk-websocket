@@ -16,8 +16,6 @@ class FPClient {
         FPEvent.assign(this);
 
         this._autoReconnect = options.autoReconnect || false;
-        this._connectionTimeout = options.connectionTimeout || 30 * 1000;
-
         this._proxy = options.proxy || null;
 
         if (this._proxy) {
@@ -211,7 +209,7 @@ function reConnect() {
     this._intervalID = setInterval(function() {
 
         self.connect();
-    }, this._connectionTimeout);
+    }, 100);
 }
 
 function onData(chunk) {

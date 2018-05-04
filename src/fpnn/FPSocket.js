@@ -10,7 +10,7 @@ class FPSocket {
         FPEvent.assign(this);
 
         this._endpoint = options.endpoint || null;
-        this._connectionTimeout = options.connectionTimeout || 30 * 1000;
+        this._connectionTimeout = options.connectionTimeout || 10 * 1000;
 
         this._client = null;
         this._writeID = 0;
@@ -130,17 +130,16 @@ function writeSocket() {
 
     while (this._queue.length) {
 
-        let arrayBuffer = this._queue[0];
-
         try {
 
-            this._client.send(arrayBuffer);
-            this._queue.shift();
+            this._client.send(this._queue[0]);
         } catch (err) {
 
             onError.call(this, err);
             return;
         }
+
+        this._queue.shift();
     }
 }
 

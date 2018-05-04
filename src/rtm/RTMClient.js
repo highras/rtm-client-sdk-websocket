@@ -54,7 +54,6 @@ class RTMClient {
         this._client = null;
         this._loginOptions = null; 
         this._intervalID = 0;
-        this._reConnectInterval = 10 * 1000;
 
         this._isClose = false;
 
@@ -119,11 +118,6 @@ class RTMClient {
         }
 
         this._logining = true;
-
-        if (timeout) {
-
-            this._reConnectInterval = timeout;
-        }
 
         let self = this;
 
@@ -1601,8 +1595,12 @@ function fileSend(client, ops, callback, timeout) {
 
 function genMid() {
 
-    let timestamp = Math.floor(Date.now() / 1000);
-    return new Int64BE(timestamp, this._midSeq++);
+    if (++this._midSeq >= 999) {
+
+        this._midSeq = 0;
+    }
+
+    return new Int64BE(Date.now().toString() + this._midSeq);
 }
 
 function cyrMD5(data) {
@@ -1850,7 +1848,7 @@ function reConnect() {
     this._intervalID = setInterval(function() {
 
         self.login(self._endpoint, self._ipv6);
-    }, this._reConnectInterval);
+    }, 100);
 }
 
 module.exports = RTMClient;
