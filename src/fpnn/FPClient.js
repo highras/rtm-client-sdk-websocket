@@ -45,7 +45,7 @@ class FPClient {
 
         this._conn.on('error', function(err) {
 
-            self.emit('error', err);
+            onError.call(self, err);
         });
 
         this._pkg = new FPPackage();
@@ -57,7 +57,7 @@ class FPClient {
         this._peekData = null;
 
         this._readID = 0;
-        this._intervalID = 0;
+        this._reconnectID = 0;
         this._buffer = Buffer.allocUnsafe(FPConfig.READ_BUFFER_LEN);
     }
 
@@ -83,12 +83,6 @@ class FPClient {
     }
 
     sendQuest(options, callback, timeout) {
-
-        if (!this.isOpen) {
-
-            this.emit('error', new Error('no connect'));
-            return;
-        }
 
         let data = {};
 
@@ -120,12 +114,6 @@ class FPClient {
 
     sendNotify(options) {
 
-        if (!this.isOpen) {
-
-            this.emit('error', new Error('no connect'));
-            return;
-        }
-
         let data = {};
 
         data.magic = options.magic || FPConfig.TCP_MAGIC;
@@ -147,7 +135,12 @@ class FPClient {
         this._conn.write(buf);
     }
 
-    close() {
+    close(err) {
+
+        if (err) {
+
+            onError.call(this, err);
+        }
 
         this._conn.close();
     }
@@ -163,12 +156,17 @@ class FPClient {
     }
 }
 
+function onError(err) {
+    
+    this.emit('error', err);
+}
+
 function onConnect() {
 
-    if (this._intervalID) {
+    if (this._reconnectID) {
 
-        clearInterval(this._intervalID);
-        this._intervalID = 0;
+        clearTimeout(this._reconnectID);
+        this._reconnectID = 0;
     }
 
     this.emit('connect');
@@ -182,12 +180,17 @@ function onClose() {
         this._readID = 0;
     }
 
+    if (this._reconnectID) {
+
+        clearTimeout(this._reconnectID);
+        this._reconnectID = 0;
+    }
+
     this._seq = 0;
     this._wpos = 0;
     this._peekData = null;
 
     this._buffer = Buffer.allocUnsafe(FPConfig.READ_BUFFER_LEN);
-    this._cbs.removeCb();
 
     this.emit('close');
 
@@ -199,14 +202,14 @@ function onClose() {
 
 function reConnect() {
 
-    if (this._intervalID) {
+    if (this._reconnectID) {
 
         return;
     }
 
     let self = this;
 
-    this._intervalID = setInterval(function() {
+    this._reconnectID = setTimeout(function() {
 
         self.connect();
     }, 100);

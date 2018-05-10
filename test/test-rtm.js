@@ -6,10 +6,12 @@ function test(endpoint, pid, token, from, to) {
     baseTest(endpoint, pid, token, from, to);
 
     // case 2
-    // TODO
+    // asyncStressTest();
 }
 
 function baseTest(endpoint, pid, token, from, to) {
+
+    console.log('connect to dispatch: ', endpoint);
 
     let tester = TestCase({
         dispatch: endpoint,
@@ -21,7 +23,8 @@ function baseTest(endpoint, pid, token, from, to) {
         version: undefined,
         recvUnreadMsgStatus: false,
         ssl: true,
-        proxyEndpoint: 'highras.ifunplus.cn:13550'
+        // proxyEndpoint: 'highras.ifunplus.cn:13550'
+        proxyEndpoint: 'infra-dev.ifunplus.cn:13550'
     }, from, to);
 }
 
@@ -32,15 +35,15 @@ function asyncStressTest() {
         uid: 1,
         token: '',
         autoReconnect: true,
-        connectionTimeout: 20 * 1000,
+        connectionTimeout: 30 * 1000,
         pid: 0,
         version: undefined,
         recvUnreadMsgStatus: false,
         ssl: true,
         proxyEndpoint: 'infra-dev.ifunplus.cn:13550'
-    }, '35.167.185.139:13013');
+    }, '10.63.2.47:13013');
 
-    tester.buildTesters(1, 1);
+    tester.buildTesters(10, 1800);
 
     tester.launch();
     tester.showStatistics();

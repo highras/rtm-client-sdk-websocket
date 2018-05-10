@@ -48,15 +48,6 @@ const FILE_TYPE = {
 	file: 100
 };
 
-const CLOSING_TYPE = {
-	normal: 0,
-	kickout: 1,
-	initiactive: 2
-};
-
-let isIOS = false;
-let isSSL = false;
-
 const SERVER_PUSH = {
 	kickOut: 'kickout',
 	kickOutRoom: 'kickoutroom',

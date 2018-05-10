@@ -47,13 +47,13 @@ class RTMClient {
 
         this._midSeq = 0;
         this._saltSeq = 0;
-        this._loginCount = 0;
         this._endpoint = null;
         this._ipv6 = false;
 
-        this._client = null;
+        this._rtmClient = null;
+        this._dispatchClient = null;
         this._loginOptions = null; 
-        this._intervalID = 0;
+        this._reconnectID = 0;
 
         this._isClose = false;
 
@@ -63,9 +63,6 @@ class RTMClient {
             }) 
         };
 
-        this._logining = false;
-        this._authed = false;
-
         this._processor = new RTMProcessor(this._msgOptions);
 
         if (this._proxyEndpoint) {
@@ -73,11 +70,6 @@ class RTMClient {
             let endpoint = buildEndpoint.call(this, this._proxyEndpoint);
             this._proxy = new RTMProxy(endpoint);
         }
-    }
-
-    get authed() {
-
-        return this._authed;
     }
 
     get processor() {
@@ -95,12 +87,7 @@ class RTMClient {
      * @param {string} endpoint
      * @param {bool} ipv6 
      */
-    login(endpoint, ipv6, timeout) {
-
-        if (this._authed) {
-
-            return;
-        }
+    login(endpoint, ipv6) {
 
         this._endpoint = endpoint || null;
         this._ipv6 = ipv6 || false;
@@ -108,16 +95,9 @@ class RTMClient {
 
         if (this._endpoint) {
 
-            connectRTMGate.call(this, timeout);
+            connectRTMGate.call(this);
             return;
         }
-
-        if (this._logining) {
-
-            return;
-        }
-
-        this._logining = true;
 
         let self = this;
 
@@ -125,22 +105,14 @@ class RTMClient {
 
             if (data) {
                 
-                setTimeout(function() {
-
-                    self._loginCount++;
-                    self.login(data.endpoint, self._ipv6);
-                }, self._loginCount * 1000);
-
-                return;
+                self.login(data.endpoint, self._ipv6);
             }
 
             if (err) {
 
-                self.emit('error', err);
+                reConnect.call(self);
             }
-
-            onClose.call(self);
-        }, timeout);
+        }, this._connectionTimeout);
     }
 
     /**
@@ -174,7 +146,7 @@ class RTMClient {
             payload: msgpack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._client, options, callback, timeout);
+        sendQuest.call(this, this._rtmClient, options, callback, timeout);
     }
 
     /**
@@ -208,7 +180,7 @@ class RTMClient {
             payload: msgpack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._client, options, callback, timeout);
+        sendQuest.call(this, this._rtmClient, options, callback, timeout);
     }
 
     /**
@@ -242,7 +214,7 @@ class RTMClient {
             payload: msgpack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._client, options, callback, timeout);
+        sendQuest.call(this, this._rtmClient, options, callback, timeout);
     }
 
     /**
@@ -276,7 +248,7 @@ class RTMClient {
             payload: msgpack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._client, options, callback, timeout);
+        sendQuest.call(this, this._rtmClient, options, callback, timeout);
     }
 
     /**
@@ -294,10 +266,10 @@ class RTMClient {
 
         let self = this;
 
-        sendQuest.call(this, this._client, options, function(err, data) {
+        sendQuest.call(this, this._rtmClient, options, function(err, data) {
 
             self._isClose = true;
-            self._client.close();
+            self._rtmClient.close();
         });
     }
 
@@ -323,7 +295,7 @@ class RTMClient {
             payload: msgpack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._client, options, callback, timeout);
+        sendQuest.call(this, this._rtmClient, options, callback, timeout);
     }
 
     /**
@@ -348,7 +320,7 @@ class RTMClient {
             payload: msgpack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._client, options, callback, timeout);
+        sendQuest.call(this, this._rtmClient, options, callback, timeout);
     }
 
     /**
@@ -373,7 +345,7 @@ class RTMClient {
             payload: msgpack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._client, options, callback, timeout);
+        sendQuest.call(this, this._rtmClient, options, callback, timeout);
     }
 
     /**
@@ -395,7 +367,7 @@ class RTMClient {
             payload: msgpack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._client, options, function(err, data) {
+        sendQuest.call(this, this._rtmClient, options, function(err, data) {
 
             if (err) {
 
@@ -446,7 +418,7 @@ class RTMClient {
             payload: msgpack.encode(payload, this._msgOptions)
         };
         
-        sendQuest.call(this, this._client, options, callback, timeout);
+        sendQuest.call(this, this._rtmClient, options, callback, timeout);
     }
 
     /**
@@ -473,7 +445,7 @@ class RTMClient {
             payload: msgpack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._client, options, callback, timeout);
+        sendQuest.call(this, this._rtmClient, options, callback, timeout);
     }
 
     /**
@@ -498,7 +470,7 @@ class RTMClient {
             payload: msgpack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._client, options, function(err, data) {
+        sendQuest.call(this, this._rtmClient, options, function(err, data) {
 
             if (err) {
 
@@ -543,7 +515,7 @@ class RTMClient {
             payload: msgpack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._client, options, function(err, data) {
+        sendQuest.call(this, this._rtmClient, options, function(err, data) {
 
             if (err) {
 
@@ -592,7 +564,7 @@ class RTMClient {
             payload: msgpack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._client, options, callback, timeout);
+        sendQuest.call(this, this._rtmClient, options, callback, timeout);
     }
 
     /**
@@ -617,7 +589,7 @@ class RTMClient {
             payload: msgpack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._client, options, callback, timeout);
+        sendQuest.call(this, this._rtmClient, options, callback, timeout);
     }
 
     /**
@@ -639,7 +611,7 @@ class RTMClient {
             payload: msgpack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._client, options, function(err, data) {
+        sendQuest.call(this, this._rtmClient, options, function(err, data) {
 
             if (err) {
 
@@ -688,7 +660,7 @@ class RTMClient {
             payload: msgpack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._client, options, function(err, data) {
+        sendQuest.call(this, this._rtmClient, options, function(err, data) {
 
             if (err) {
 
@@ -734,7 +706,7 @@ class RTMClient {
             payload: msgpack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._client, options, function(err, data) {
+        sendQuest.call(this, this._rtmClient, options, function(err, data) {
             
             if (err) {
 
@@ -830,7 +802,7 @@ class RTMClient {
             payload: msgpack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._client, options, function(err, data) {
+        sendQuest.call(this, this._rtmClient, options, function(err, data) {
 
             if (err) {
 
@@ -921,7 +893,7 @@ class RTMClient {
             payload: msgpack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._client, options, function(err, data) {
+        sendQuest.call(this, this._rtmClient, options, function(err, data) {
 
             if (err) {
 
@@ -1010,7 +982,7 @@ class RTMClient {
             payload: msgpack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._client, options, function(err, data) {
+        sendQuest.call(this, this._rtmClient, options, function(err, data) {
 
             if (err) {
 
@@ -1103,7 +1075,7 @@ class RTMClient {
             payload: msgpack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._client, options, function(err, data) {
+        sendQuest.call(this, this._rtmClient, options, function(err, data) {
 
             if (err) {
 
@@ -1162,7 +1134,7 @@ class RTMClient {
             payload: msgpack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._client, options, callback, timeout);
+        sendQuest.call(this, this._rtmClient, options, callback, timeout);
     }
 
     /**
@@ -1187,7 +1159,7 @@ class RTMClient {
             payload: msgpack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._client, options, callback, timeout);
+        sendQuest.call(this, this._rtmClient, options, callback, timeout);
     }
 
     /**
@@ -1212,7 +1184,7 @@ class RTMClient {
             payload: msgpack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._client, options, callback, timeout);
+        sendQuest.call(this, this._rtmClient, options, callback, timeout);
     }
 
     /**
@@ -1245,7 +1217,7 @@ class RTMClient {
             payload: msgpack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._client, options, callback, timeout);
+        sendQuest.call(this, this._rtmClient, options, callback, timeout);
     }
 
     /**
@@ -1272,7 +1244,7 @@ class RTMClient {
             payload: msgpack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._client, options, callback, timeout);
+        sendQuest.call(this, this._rtmClient, options, callback, timeout);
     }
 
     /**
@@ -1294,7 +1266,7 @@ class RTMClient {
             payload: msgpack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._client, options, callback, timeout);
+        sendQuest.call(this, this._rtmClient, options, callback, timeout);
     }
 
     /**
@@ -1319,7 +1291,7 @@ class RTMClient {
             payload: msgpack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._client, options, function(err, data) {
+        sendQuest.call(this, this._rtmClient, options, function(err, data) {
 
             if (err) {
 
@@ -1442,6 +1414,50 @@ class RTMClient {
 
         fileSendProcess.call(this, ops, callback, timeout);
     }
+
+    // sendQuest(options, callback, timeout) {
+
+    //     sendQuest.call(this, this._rtmClient, options, callback, timeout);
+    // }
+
+    // connect(endpoint, timeout) {
+
+    //     if (this._rtmClient != null && this._rtmClient.isOpen) {
+
+    //         this._rtmClient.close();
+    //         return;
+    //     }
+
+    //     this._endpoint = endpoint;
+    
+    //     this._rtmClient = new FPClient({ 
+    //         endpoint: buildEndpoint.call(this, this._endpoint), 
+    //         autoReconnect: true,
+    //         connectionTimeout: this._connectionTimeout,
+    //         proxy: this._proxy
+    //     });
+    
+    //     let self = this;
+    
+    //     this._rtmClient.connect();
+    
+    //     this._rtmClient.on('connect', function() {
+    
+    //         self.emit('connect');
+    //     });
+    
+    //     this._rtmClient.on('close', function() {
+    
+    //         onClose.call(self);
+    //     });
+    
+    //     this._rtmClient.on('error', function(err) {
+            
+    //         self.emit('error', err);
+    //     });
+    
+    //     this._rtmClient.processor = this._processor;
+    // }
 }
 
 function fileSendProcess(ops, callback, timeout) {
@@ -1568,7 +1584,7 @@ function filetoken(ops, callback, timeout) {
         payload: msgpack.encode(payload, this._msgOptions)
     };
 
-    sendQuest.call(this, this._client, options, callback, timeout);
+    sendQuest.call(this, this._rtmClient, options, callback, timeout);
 }
 
 function fileSend(client, ops, callback, timeout) {
@@ -1672,38 +1688,51 @@ function getRTMGate(service, callback, timeout) {
     
 	let self = this;
 
-	let client = new FPClient({
-        endpoint: buildEndpoint.call(this, this._dispatch),
-        autoReconnect: false,
-        connectionTimeout: this._connectionTimeout,
-        proxy: this._proxy
-    });
+    if (this._dispatchClient == null) {
 
-    client.connect();
+        this._dispatchClient = new FPClient({
+            endpoint: buildEndpoint.call(this, this._dispatch),
+            autoReconnect: false,
+            connectionTimeout: this._connectionTimeout,
+            proxy: this._proxy
+        });
 
-    client.on('connect', function() {
+        this._dispatchClient.on('connect', function() {
 
-        let payload = {
-            pid: self._pid,
-            uid: self._uid,
-            what: service,
-            addrType: self._ipv6 ? 'ipv6' : 'ipv4',
-            version: self._version
-        };
-    
-        let options = {
-            flag: 1,
-            method: 'which',
-            payload: msgpack.encode(payload, self._msgOptions)
-        };
-    
-        sendQuest.call(self, client, options, callback, timeout);
-    });
+            let payload = {
+                pid: self._pid,
+                uid: self._uid,
+                what: service,
+                addrType: self._ipv6 ? 'ipv6' : 'ipv4',
+                version: self._version
+            };
+        
+            let options = {
+                flag: 1,
+                method: 'which',
+                payload: msgpack.encode(payload, self._msgOptions)
+            };
+        
+            sendQuest.call(self, self._dispatchClient, options, function (err, data){
+                if (data) {
+                    
+                    self._dispatchClient.close();
+                    callback(null, data);
+                }
 
-    client.on('error', function(err) {
+                if (err) {
 
-        self.emit('error', err);
-    });
+                    self._dispatchClient.close(err);
+                    callback(err, null);
+                }
+            }, timeout);
+        });
+    }
+
+    if (!this._dispatchClient.hasConnect) {
+
+        this._dispatchClient.connect();
+    }
 }
 
 function buildEndpoint(endpoint) {
@@ -1725,7 +1754,13 @@ function buildEndpoint(endpoint) {
 
 function connectRTMGate(timeout) {
 
-    this._client = new FPClient({ 
+    if (this._rtmClient != null && this._rtmClient.isOpen) {
+
+        this._rtmClient.close();
+        return;
+    }
+
+    this._rtmClient = new FPClient({ 
         endpoint: buildEndpoint.call(this, this._endpoint), 
         autoReconnect: false,
         connectionTimeout: this._connectionTimeout,
@@ -1734,25 +1769,31 @@ function connectRTMGate(timeout) {
 
     let self = this;
 
-    this._client.connect();
+    this._rtmClient.connect();
 
-    this._client.on('connect', function() {
+    this._rtmClient.on('connect', function() {
 
-        auth.call(self);
+        self._processor.on(RTMConfig.SERVER_PUSH.kickOut, function(data) {
+            
+            self._isClose = true;
+        });
+
+        auth.call(self, timeout);
     });
 
-    this._client.on('close', function() {
+    this._rtmClient.on('close', function() {
 
-        onClose.call(self, timeout);
+        self._rtmClient.removeEvent();
+        onClose.call(self);
+        reConnect.call(self);
     });
 
-    this._client.on('error', function(err) {
+    this._rtmClient.on('error', function(err) {
         
-        self._endpoint = null;
         self.emit('error', err);
     });
 
-    this._client.processor = this._processor;
+    this._rtmClient.processor = this._processor;
 }
 
 function auth(timeout) {
@@ -1773,22 +1814,14 @@ function auth(timeout) {
 
     let self = this;
 
-    sendQuest.call(this, this._client, options, function(err, data) {
+    sendQuest.call(this, this._rtmClient, options, function(err, data) {
         
         if (data && data.ok) {
 
-            self._loginCount = 0;
-            self._authed = true;
+            if (self._reconnectID) {
 
-            self._processor.on(RTMConfig.SERVER_PUSH.kickOut, function(data) {
-                
-                self._isClose = true;
-            });
-
-            if (self._intervalID) {
-
-                clearInterval(self._intervalID);
-                self._intervalID = 0;
+                clearTimeout(self._reconnectID);
+                self._reconnectID = 0;
             }
 
             self.emit('login', { endpoint: self._endpoint });
@@ -1799,8 +1832,8 @@ function auth(timeout) {
 
             if (data.gate) {
                 
-                self._client.close();
-                self.login(data.gate, self._ipv6); 
+                self._endpoint = data.gate;
+                self._rtmClient.close();
                 return;
             }
 
@@ -1810,30 +1843,30 @@ function auth(timeout) {
 
         if (err) {
 
-            self.emit('error', err);
+            self._rtmClient.close(err);
         }
-
-        self._endpoint = null;
-        onClose.call(self);
     }, timeout);
 }
 
 function onClose() {
 
-    this._logining = false;
-    this._authed = false;
+    if (this._reconnectID) {
+
+        clearTimeout(this._reconnectID);
+        this._reconnectID = 0;
+    }
 
     this.emit('close');
-
-    if (this._autoReconnect) {
-
-        reConnect.call(this);
-    }
 }
 
 function reConnect() {
 
-    if (this._intervalID) {
+    if (!this._autoReconnect) {
+
+        return;
+    }
+
+    if (this._reconnectID) {
 
         return;
     }
@@ -1845,7 +1878,7 @@ function reConnect() {
 
     let self = this;
 
-    this._intervalID = setInterval(function() {
+    this._reconnectID = setTimeout(function() {
 
         self.login(self._endpoint, self._ipv6);
     }, 100);

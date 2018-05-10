@@ -70,11 +70,17 @@ class FPSocket {
         } catch (err) {
 
             onError.call(self, err);
-            onClose.call(self);
+            // onClose.call(self);
             return;
         }
 
         this._client.binaryType = 'arraybuffer';
+
+        if (this._timeoutID) {
+
+            clearTimeout(this._timeoutID);
+            this._timeoutID = 0;
+        }
 
         this._timeoutID = setTimeout(function() {
 
@@ -127,6 +133,11 @@ class FPSocket {
 }
 
 function writeSocket() {
+
+    if (!this.isOpen) {
+
+        return;
+    }
 
     while (this._queue.length) {
 

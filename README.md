@@ -6,6 +6,10 @@
 * [int64-buffer](https://github.com/kawanet/int64-buffer) `./lib/int64-buffer.min.js`
 * [msgpack-lite](https://github.com/kawanet/msgpack-lite) `./lib/msgpack.min.js`
 
+#### Promise支持 ####
+* 支持动态转Promise接口
+* 参考:[Promise.promisifyAll](http://bluebirdjs.com/docs/api/promise.promisifyall.html)
+
 #### 关于编译 ####
 * 支持源码编译[详见: `./webpack.config.js` `./package.json`]
 * 编译依赖的模块[`babel-loader` `babel-preset-es2015` `webpack` `webpack-cli`]
@@ -13,7 +17,6 @@
 ```
 yarn run build
 ```
-
 
 #### 一个例子 ####
 * 参考 `./test/index.html` `./test/test-rtm.js` 打开浏览器console输出
@@ -218,17 +221,13 @@ client.on('login', function(data) {
     * `options.ssl`: **(Optional | string)** 是否开启SSL加密, 若开启需设置代理地址 默认: `true`
     * `options.proxyEndpoint`: **(Optional | string)** 若开启SSL加密, 需设置代理地址, 测试代理: `highras.ifunplus.cn:13550`
 
-* `authed`: 是否处于登陆状态
-    * `return`: **(bool)**
-
 * `processor`: **(RTMProcessor)** 监听PushService的句柄
 
 * `rtmConfig`: **(object)** 请参考 `RTMConfig` 成员
 
-* `login(endpoint, ipv6, timeout)`: 连接并登陆 
+* `login(endpoint, ipv6)`: 连接并登陆 
     * `endpoint`: **(Optional | string)** RTMGate服务地址, 由Dispatch服务获取, 或由RTM提供
     * `ipv6`: **(Optional | bool)** 是否为IPV6地址格式, 默认: `false`
-    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
 
 * `sendMessage(to, mtype, msg, attrs, timeout, callback)`: 发送消息
     * `to`: **(Required | Int64BE)** 接收方uid
