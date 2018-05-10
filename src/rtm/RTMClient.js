@@ -694,7 +694,7 @@ class RTMClient {
      * 
      * @callback
      * @param {Error} err
-     * @param {object<uidOfUnreadMessage:array<Int64BE>, gidOfUnreadGroupMessage:array<Int64BE>, haveUnreadBroadcastMessage:bool>} data
+     * @param {object<p2p:array<Int64BE>, group:array<Int64BE>, bc:bool>} data
      */
     checkUnreadMessage(timeout, callback) {
 
@@ -714,7 +714,7 @@ class RTMClient {
                 return;
             }
 
-            let uids = data['uidOfUnreadMessage'];
+            let uids = data['p2p'];
 
             if (uids) {
 
@@ -725,10 +725,10 @@ class RTMClient {
                     buids[index] = new Int64BE(item);
                 });
 
-                data.uidOfUnreadMessage = buids;
+                data.p2p = buids;
             }
 
-            let gids = data['gidOfUnreadGroupMessage'];
+            let gids = data['group'];
 
             if (gids) {
 
@@ -739,7 +739,7 @@ class RTMClient {
                     bgids[index] = new Int64BE(item);
                 });
 
-                data.gidOfUnreadGroupMessage = bgids;
+                data.group = bgids;
             }
 
             callback(null, data);

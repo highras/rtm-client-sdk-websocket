@@ -358,7 +358,7 @@ client.on('login', function(data) {
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
         * `err`: **(Error)** 
-        * `data`: **(object[uidOfUnreadMessage:array[Int64BE], gidOfUnreadGroupMessage:array[Int64BE], haveUnreadBroadcastMessage:bool])** 
+        * `data`: **(object[p2p:array[Int64BE], group:array[Int64BE], bc:bool])** 
 
 * `getGroupMessage(gid, num, desc, page, localmid, localid, mtypes, timeout, callback)`: 获取Group历史消息
     * `gid`: **(Required | Int64BE)** Group id
