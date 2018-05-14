@@ -265,10 +265,10 @@ class RTMClient {
         };
 
         let self = this;
+        this._isClose = true;
 
         sendQuest.call(this, this._rtmClient, options, function(err, data) {
 
-            self._isClose = true;
             self._rtmClient.close();
         });
     }
