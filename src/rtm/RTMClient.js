@@ -1415,49 +1415,49 @@ class RTMClient {
         fileSendProcess.call(this, ops, callback, timeout);
     }
 
-    // sendQuest(options, callback, timeout) {
+    sendQuest(options, callback, timeout) {
 
-    //     sendQuest.call(this, this._rtmClient, options, callback, timeout);
-    // }
+        sendQuest.call(this, this._rtmClient, options, callback, timeout);
+    }
 
-    // connect(endpoint, timeout) {
+    connect(endpoint, timeout) {
 
-    //     if (this._rtmClient != null && this._rtmClient.isOpen) {
+        if (this._rtmClient != null && this._rtmClient.isOpen) {
 
-    //         this._rtmClient.close();
-    //         return;
-    //     }
+            this._rtmClient.close();
+            return;
+        }
 
-    //     this._endpoint = endpoint;
+        this._endpoint = endpoint;
     
-    //     this._rtmClient = new FPClient({ 
-    //         endpoint: buildEndpoint.call(this, this._endpoint), 
-    //         autoReconnect: true,
-    //         connectionTimeout: this._connectionTimeout,
-    //         proxy: this._proxy
-    //     });
+        this._rtmClient = new FPClient({ 
+            endpoint: buildEndpoint.call(this, this._endpoint), 
+            autoReconnect: true,
+            connectionTimeout: this._connectionTimeout,
+            proxy: this._proxy
+        });
     
-    //     let self = this;
+        let self = this;
     
-    //     this._rtmClient.connect();
+        this._rtmClient.connect();
     
-    //     this._rtmClient.on('connect', function() {
+        this._rtmClient.on('connect', function() {
     
-    //         self.emit('connect');
-    //     });
+            self.emit('connect');
+        });
     
-    //     this._rtmClient.on('close', function() {
+        this._rtmClient.on('close', function() {
     
-    //         onClose.call(self);
-    //     });
+            onClose.call(self);
+        });
     
-    //     this._rtmClient.on('error', function(err) {
+        this._rtmClient.on('error', function(err) {
             
-    //         self.emit('error', err);
-    //     });
+            self.emit('error', err);
+        });
     
-    //     this._rtmClient.processor = this._processor;
-    // }
+        this._rtmClient.processor = this._processor;
+    }
 }
 
 function fileSendProcess(ops, callback, timeout) {
@@ -1776,6 +1776,7 @@ function connectRTMGate(timeout) {
         self._processor.on(RTMConfig.SERVER_PUSH.kickOut, function(data) {
             
             self._isClose = true;
+            self._rtmClient.close();
         });
 
         auth.call(self, timeout);

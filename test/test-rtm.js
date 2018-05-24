@@ -43,7 +43,7 @@ function asyncStressTest() {
         proxyEndpoint: 'infra-dev.ifunplus.cn:13550'
     }, '10.63.2.47:13013');
 
-    tester.buildTesters(10, 1800);
+    tester.buildTesters(1, 150);
 
     tester.launch();
     tester.showStatistics();

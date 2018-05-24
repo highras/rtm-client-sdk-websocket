@@ -85,7 +85,7 @@ function AsyncStressTester(options, gate) {
     
                     incSend();
                 }
-            }, interval);
+            }, Math.round(interval));
         });
     
         client.connect(gate, 20 * 1000);
