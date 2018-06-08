@@ -50,17 +50,6 @@ client.on('close', function() {
     console.log('closed!');
 });
 
-client.login();
-
-//push service
-let pushName = client.rtmConfig.SERVER_PUSH.recvMessage;
-client.processor.on(pushName, function(data) {
-
-    console.log('\n[PUSH] ' + pushName + ':\n', data);
-    // console.log(data.mid.toString());
-});
-
-//send to server
 client.on('login', function(data) {
 
     if (data.error) {
@@ -70,6 +59,7 @@ client.on('login', function(data) {
         return;
     }
 
+    //send to server
     client.sendMessage(new Int64BE(123789), 8, 'hello !', '', 10 * 1000, function(err, data) {
 
         if (err) {
@@ -84,6 +74,15 @@ client.on('login', function(data) {
     });
 });
 
+//push service
+let pushName = client.rtmConfig.SERVER_PUSH.recvMessage;
+client.processor.on(pushName, function(data) {
+
+    console.log('\n[PUSH] ' + pushName + ':\n', data);
+    // console.log(data.mid.toString());
+});
+
+client.login();
 ```
 
 #### Events ####
