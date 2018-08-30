@@ -1857,7 +1857,7 @@ function onClose() {
         this._reconnectID = 0;
     }
 
-    this.emit('close');
+    this.emit('close', !this._isClose && this._autoReconnect);
 }
 
 function reConnect() {

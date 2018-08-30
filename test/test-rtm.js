@@ -23,8 +23,8 @@ function baseTest(endpoint, pid, token, from, to) {
         version: undefined,
         recvUnreadMsgStatus: false,
         ssl: true,
-        // proxyEndpoint: 'highras.ifunplus.cn:13550'
-        proxyEndpoint: 'infra-dev.ifunplus.cn:13550'
+        proxyEndpoint: 'highras.ifunplus.cn:13550'
+        // proxyEndpoint: 'infra-dev.ifunplus.cn:13550'
     }, from, to);
 }
 

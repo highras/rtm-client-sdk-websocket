@@ -52,9 +52,9 @@ function TestCase (options, from, to) {
             console.error(err);
         });
 
-        client.on('close', function() {
+        client.on('close', function(retry) {
 
-            console.log('closed!');
+            console.log('closed!', retry);
         });
 
         client.login();

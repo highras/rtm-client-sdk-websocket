@@ -27,8 +27,14 @@ class FPSocket {
 
         if (buf) {
 
-            let arrayBuffer = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
-            this._queue.push(arrayBuffer);
+            if (Object.prototype.toString.call(buf) === '[object String]') {
+
+                this._queue.push(buf);
+            } else {
+
+                let arrayBuffer = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+                this._queue.push(arrayBuffer);
+            }
         }
 
         if (!this._writeID) {

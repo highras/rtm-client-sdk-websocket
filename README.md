@@ -28,12 +28,12 @@ yarn run build
 
 ```javascript
 let client = new RTMClient({ 
-    dispatch: '117.50.4.158:13325',
+    dispatch: 'rtm-nx-front.ifunplus.cn:13325',
     uid: new Int64BE(0, 654321),
-    token: 'B66731BB8DCEEB9127495C0932B94317',
+    token: '5C65CD872903AAB37211EC468B4A1364',
     autoReconnect: false,
     connectionTimeout: 10 * 1000,
-    pid: 1000001,
+    pid: 1000012,
     version: undefined,
     recvUnreadMsgStatus: false,
     ssl: true,
@@ -95,6 +95,7 @@ client.login();
         * `err`: **(Error)**
 
     * `close`: 连接关闭
+        * `retry`: **(bool)** 是否自动重连
 
 #### PushService ####
 请参考 `RTMConfig.SERVER_PUSH` 成员
