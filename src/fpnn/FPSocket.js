@@ -2,6 +2,7 @@
 
 const FPConfig = require('./FPConfig');
 const FPEvent = require('./FPEvent');
+const PlatFormImpl = require('./platform/BrowserImpl');
 
 class FPSocket {
 
@@ -11,11 +12,34 @@ class FPSocket {
 
         this._endpoint = options.endpoint || null;
         this._connectionTimeout = options.connectionTimeout || 10 * 1000;
+        this._platform = options.platformImpl || new PlatFormImpl();
 
-        this._client = null;
         this._writeID = 0;
         this._timeoutID = 0;
         this._queue = [];
+
+        let self = this;
+        FPEvent.assign(this._platform);
+
+        this._platform.on('open', function() {
+
+            onConnect.call(self);
+        });
+
+        this._platform.on('message', function(data) {
+
+            onData.call(self, data);
+        });
+
+        this._platform.on('close', function() {
+
+            onClose.call(self);
+        });
+
+        this._platform.on('error', function(err) {
+
+            onError.call(self, err);
+        });
     }
 
     get endpoint() { 
@@ -23,16 +47,16 @@ class FPSocket {
         return this._endpoint; 
     }
 
-    write(buf) {
+    write(data) {
 
-        if (buf) {
+        if (data) {
 
-            if (Object.prototype.toString.call(buf) === '[object String]') {
+            if (Object.prototype.toString.call(data) === '[object String]') {
 
-                this._queue.push(buf);
+                this._queue.push(data);
             } else {
 
-                let arrayBuffer = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+                let arrayBuffer = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
                 this._queue.push(arrayBuffer);
             }
         }
@@ -53,11 +77,8 @@ class FPSocket {
 
             this.emit('error', err);
         }
-        
-        if (this._client) {
 
-            this._client.close();
-        }
+        this._platform.close();
     }
 
     open() {
@@ -70,17 +91,7 @@ class FPSocket {
 
         let self = this;
 
-        try {
-
-            this._client = new WebSocket(this._endpoint);
-        } catch (err) {
-
-            onError.call(self, err);
-            // onClose.call(self);
-            return;
-        }
-
-        this._client.binaryType = 'arraybuffer';
+        this._platform.open(this._endpoint);
 
         if (this._timeoutID) {
 
@@ -95,46 +106,16 @@ class FPSocket {
                 self.close(new Error('connect timeout!'));
             }
         }, this._connectionTimeout);
-
-        this._client.onopen = function(evt) { 
-
-            onConnect.call(self);
-        };
-          
-        this._client.onmessage = function(evt) {
-
-            onData.call(self, evt.data);
-        };
-          
-        this._client.onclose = function(evt) {
-
-            onClose.call(self);
-        };      
-
-        this._client.onerror = function(evt) {
-
-            onError.call(self, evt);
-        };
     }
 
     get isOpen() {
 
-        if (!this._client) {
-
-            return false;
-        }
-
-        return this._client.readyState == WebSocket.OPEN;
+        return this._platform.isOpen;
     }
 
     get isConnecting() {
 
-        if (!this._client) {
-
-            return false;
-        }
-
-        return this._client.readyState == WebSocket.CONNECTING;
+        return this._platform.isConnecting;
     }
 }
 
@@ -147,15 +128,7 @@ function writeSocket() {
 
     while (this._queue.length) {
 
-        try {
-
-            this._client.send(this._queue[0]);
-        } catch (err) {
-
-            onError.call(this, err);
-            return;
-        }
-
+        this._platform.send(this._queue[0]);
         this._queue.shift();
     }
 }
