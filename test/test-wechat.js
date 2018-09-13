@@ -15,6 +15,7 @@
 */
 
 import Rtm from './js/rtm/rtm/RTMClient.js'
+import WechatImpl from './js/rtm/fpnn/platform/WechatImpl'
 
 let client = new Rtm.RTMClient({
 
@@ -27,7 +28,8 @@ let client = new Rtm.RTMClient({
     recvUnreadMsgStatus: false,
     ssl: true,
     // proxyEndpoint: 'highras.ifunplus.cn:13555'
-    proxyEndpoint: 'infra-dev.ifunplus.cn:13555'
+    proxyEndpoint: 'infra-dev.ifunplus.cn:13555',
+    platformImpl: new WechatImpl()
 });
 
 client.on('error', function (err) {
