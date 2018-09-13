@@ -1,7 +1,5 @@
 'use strict'
 
-const Buffer = require('buffer/').Buffer;
-
 const FPConfig = require('./FPConfig');
 const FPEvent = require('./FPEvent');
 const FPSocket = require('./FPSocket');
@@ -58,7 +56,7 @@ class FPClient {
 
         this._readID = 0;
         this._reconnectID = 0;
-        this._buffer = Buffer.allocUnsafe(FPConfig.READ_BUFFER_LEN);
+        this._buffer = FPConfig.BUFFER.allocUnsafe(FPConfig.READ_BUFFER_LEN);
     }
 
     get processor() {
@@ -89,10 +87,10 @@ class FPClient {
         data.magic = options.magic || FPConfig.TCP_MAGIC;
         data.version = options.version || 1;
         data.flag = options.flag || 0;
-        data.mtype = options.mtype !== undefined ? options.mtype : 1;
+        data.mtype = options.hasOwnProperty('mtype') ? options.mtype : 1;
 
         data.method = options.method;
-        data.seq = (options.seq === undefined) ? ++this._seq : options.seq;
+        data.seq = (!options.hasOwnProperty('seq')) ? ++this._seq : options.seq;
         data.payload = options.payload;
 
         data = this._pkg.buildPkgData(data);
@@ -190,7 +188,7 @@ function onClose() {
     this._wpos = 0;
     this._peekData = null;
 
-    this._buffer = Buffer.allocUnsafe(FPConfig.READ_BUFFER_LEN);
+    this._buffer = FPConfig.BUFFER.allocUnsafe(FPConfig.READ_BUFFER_LEN);
 
     this.emit('close');
 
@@ -217,7 +215,7 @@ function reConnect() {
 
 function onData(chunk) {
 
-    chunk = Buffer.from(chunk);
+    chunk = FPConfig.BUFFER.from(chunk);
 
     let len = this._wpos + chunk.length;
 
@@ -242,7 +240,7 @@ function resizeBuffer(len1, len2, offset=0) {
 
     let len = Math.max(len1, len2);
 
-    let buf = Buffer.allocUnsafe(len);
+    let buf = FPConfig.BUFFER.allocUnsafe(len);
     this._wpos = this._buffer.copy(buf, 0, offset, this._wpos);
     this._buffer = buf;
 }
@@ -341,7 +339,7 @@ function peekHead(buf) {
 
         if (data.pkgLen > 0) {
 
-            data.buffer = Buffer.allocUnsafe(data.pkgLen);
+            data.buffer = FPConfig.BUFFER.allocUnsafe(data.pkgLen);
         }
     }
 

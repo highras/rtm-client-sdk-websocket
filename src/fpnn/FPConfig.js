@@ -1,6 +1,6 @@
 'use strict'
 
-const Buffer = require('buffer/').Buffer;
+const Buffer = require('../../libs/buffer').Buffer;
 
 const ERROR_CODE = {
 	FPNN_EC_PROTO_UNKNOWN_ERROR: 10001,		// 未知错误（协议解析错误）
@@ -57,6 +57,11 @@ const CRYPTO_ALGORITHM = [
 ];
 
 class FPConfig {
+
+	static get BUFFER() {
+
+		return Buffer;
+	}
 
 	static get ERROR_CODE() {
 

@@ -4,9 +4,6 @@
         <title>Getting Started</title>
     </head>
     <body>
-        <script src="../lib/int64-buffer.min.js"></script>
-        <script src="../lib/msgpack.min.js"></script>
-
         <script src="../dist/rtm.min.js"></script>
 
         <script src="./TestCase.js"></script>
@@ -85,7 +82,7 @@
             
         <form id="rtmInfoFrom">
             RTM Dispatch Endpoint: <input type="text" name="endpoint" value="35.167.185.139:13325">&nbsp;&nbsp;&nbsp;&nbsp; Project ID: <input type="text" name="pid" value="1000012"><br>
-            Login token: <input type="text" name="token" value="90100436AFE920CACA186415B77B199B">&nbsp;&nbsp;&nbsp;&nbsp; From ID: <input type="text" name="from" value="654321">&nbsp;&nbsp;&nbsp;&nbsp; To ID: <input type="text" name="to" value="123789"><br>
+            Login token: <input type="text" name="token" value="609C0728A2D9115280E1A00ACE4873B3">&nbsp;&nbsp;&nbsp;&nbsp; From ID: <input type="text" name="from" value="654321">&nbsp;&nbsp;&nbsp;&nbsp; To ID: <input type="text" name="to" value="123789"><br>
             <input type="button" name="login" value="login" onclick="checkInput()">
         </form>
 
@@ -116,7 +113,7 @@
 
                     if (client.authed) {
 
-                        client.sendFile(8, new Int64BE(0, 778899), f, function(err, data) {
+                        client.sendFile(8, new Rtm.RTMConfig.Int64(0, 778899), f, function(err, data) {
 
                             if (data) {
 

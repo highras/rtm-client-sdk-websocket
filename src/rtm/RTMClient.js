@@ -6,7 +6,6 @@ const FPClient = require('../fpnn/FPClient');
 const RTMConfig = require('./RTMConfig');
 const RTMProcessor = require('./RTMProcessor');
 const RTMProxy = require('./RTMProxy');
-const MD5 = require('../lib/md5');
 
 class RTMClient {
 
@@ -17,7 +16,7 @@ class RTMClient {
      * options:
      * {string} options.dispatch
      * {number} options.pid 
-     * {Int64BE} options.uid
+     * {Int64} options.uid
      * {string} options.token
      * {bool} options.autoReconnect 
      * {number} options.connectionTimeout 
@@ -58,12 +57,14 @@ class RTMClient {
         this._isClose = false;
 
         this._msgOptions = {
-            codec: msgpack.createCodec({  
+
+            codec: RTMConfig.MsgPack.createCodec({  
+
                 int64: true
             }) 
         };
 
-        this._processor = new RTMProcessor(this._msgOptions);
+        this._processor = new RTMProcessor();
 
         if (this._proxyEndpoint) {
 
@@ -72,14 +73,15 @@ class RTMClient {
         }
     }
 
+
+    get msgOptions() {
+
+        return this._msgOptions;
+    }
+
     get processor() {
 
         return this._processor;
-    }
-
-    get rtmConfig() {
-
-        return RTMConfig;
     }
 
     /**
@@ -117,7 +119,7 @@ class RTMClient {
 
     /**
      * 
-     * @param {Int64BE} to 
+     * @param {Int64} to 
      * @param {number} mtype 
      * @param {string} msg 
      * @param {string} attrs 
@@ -143,7 +145,7 @@ class RTMClient {
         let options = {
             flag: 1,
             method: 'sendmsg',
-            payload: msgpack.encode(payload, this._msgOptions)
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
         sendQuest.call(this, this._rtmClient, options, callback, timeout);
@@ -151,7 +153,7 @@ class RTMClient {
 
     /**
      * 
-     * @param {array<Int64BE>} tos
+     * @param {array<Int64>} tos
      * @param {number} mtype 
      * @param {string} msg 
      * @param {string} attrs 
@@ -177,7 +179,7 @@ class RTMClient {
         let options = {
             flag: 1,
             method: 'sendmsgs',
-            payload: msgpack.encode(payload, this._msgOptions)
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
         sendQuest.call(this, this._rtmClient, options, callback, timeout);
@@ -185,7 +187,7 @@ class RTMClient {
 
     /**
      * 
-     * @param {Int64BE} gid
+     * @param {Int64} gid
      * @param {number} mtype 
      * @param {string} msg 
      * @param {string} attrs 
@@ -211,7 +213,7 @@ class RTMClient {
         let options = {
             flag: 1,
             method: 'sendgroupmsg',
-            payload: msgpack.encode(payload, this._msgOptions)
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
         sendQuest.call(this, this._rtmClient, options, callback, timeout);
@@ -219,7 +221,7 @@ class RTMClient {
 
     /**
      * 
-     * @param {Int64BE} rid
+     * @param {Int64} rid
      * @param {number} mtype 
      * @param {string} msg 
      * @param {string} attrs 
@@ -245,7 +247,7 @@ class RTMClient {
         let options = {
             flag: 1,
             method: 'sendroommsg',
-            payload: msgpack.encode(payload, this._msgOptions)
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
         sendQuest.call(this, this._rtmClient, options, callback, timeout);
@@ -261,7 +263,7 @@ class RTMClient {
         let options = {
             flag: 1,
             method: 'bye',
-            payload: msgpack.encode(payload, this._msgOptions)
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
         let self = this;
@@ -292,7 +294,7 @@ class RTMClient {
         let options = {
             flag: 1,
             method: 'addvariables',
-            payload: msgpack.encode(payload, this._msgOptions)
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
         sendQuest.call(this, this._rtmClient, options, callback, timeout);
@@ -300,7 +302,7 @@ class RTMClient {
 
     /**
      * 
-     * @param {array<Int64BE>} friends 
+     * @param {array<Int64>} friends 
      * @param {number} timeout 
      * @param {function} callback 
      * 
@@ -317,7 +319,7 @@ class RTMClient {
         let options = {
             flag: 1,
             method: 'addfriends',
-            payload: msgpack.encode(payload, this._msgOptions)
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
         sendQuest.call(this, this._rtmClient, options, callback, timeout);
@@ -325,7 +327,7 @@ class RTMClient {
 
     /**
      * 
-     * @param {array<Int64BE>} friends 
+     * @param {array<Int64>} friends 
      * @param {number} timeout 
      * @param {function} callback 
      * 
@@ -342,7 +344,7 @@ class RTMClient {
         let options = {
             flag: 1,
             method: 'delfriends',
-            payload: msgpack.encode(payload, this._msgOptions)
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
         sendQuest.call(this, this._rtmClient, options, callback, timeout);
@@ -355,7 +357,7 @@ class RTMClient {
      * 
      * @callback
      * @param {Error} err
-     * @param {array<Int64BE>} data
+     * @param {array<Int64>} data
      */
     getFriends(timeout, callback) {
 
@@ -364,7 +366,7 @@ class RTMClient {
         let options = {
             flag: 1,
             method: 'getfriends',
-            payload: msgpack.encode(payload, this._msgOptions)
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
         sendQuest.call(this, this._rtmClient, options, function(err, data) {
@@ -383,7 +385,7 @@ class RTMClient {
 
                 uids.forEach(function(item, index) {
 
-                    buids[index] = new Int64BE(item);
+                    buids[index] = new RTMConfig.Int64(item);
                 });
 
                 callback(null, buids);
@@ -396,8 +398,8 @@ class RTMClient {
 
     /**
      * 
-     * @param {Int64BE} gid 
-     * @param {array<Int64BE>} uids 
+     * @param {Int64} gid 
+     * @param {array<Int64>} uids 
      * @param {number} timeout 
      * @param {function} callback 
      * 
@@ -415,7 +417,7 @@ class RTMClient {
         let options = {
             flag: 1,
             method: 'addgroupmembers',
-            payload: msgpack.encode(payload, this._msgOptions)
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
         
         sendQuest.call(this, this._rtmClient, options, callback, timeout);
@@ -423,8 +425,8 @@ class RTMClient {
 
     /**
      * 
-     * @param {Int64BE} gid 
-     * @param {array<Int64BE>} uids 
+     * @param {Int64} gid 
+     * @param {array<Int64>} uids 
      * @param {number} timeout 
      * @param {function} callback 
      * 
@@ -442,7 +444,7 @@ class RTMClient {
         let options = {
             flag: 1,
             method: 'delgroupmembers',
-            payload: msgpack.encode(payload, this._msgOptions)
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
         sendQuest.call(this, this._rtmClient, options, callback, timeout);
@@ -450,13 +452,13 @@ class RTMClient {
 
     /**
      * 
-     * @param {Int64BE} gid 
+     * @param {Int64} gid 
      * @param {number} timeout 
      * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
-     * @param {array<Int64BE>} data
+     * @param {array<Int64>} data
      */
     getGroupMembers(gid, timeout, callback) {
 
@@ -467,7 +469,7 @@ class RTMClient {
         let options = {
             flag: 1,
             method: 'getgroupmembers',
-            payload: msgpack.encode(payload, this._msgOptions)
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
         sendQuest.call(this, this._rtmClient, options, function(err, data) {
@@ -485,7 +487,7 @@ class RTMClient {
                 let buids = [];
                 uids.forEach(function(item, index) {
 
-                    buids[index] = new Int64BE(item);
+                    buids[index] = new RTMConfig.Int64(item);
                 });
 
                 callback(null, buids);
@@ -503,7 +505,7 @@ class RTMClient {
      * 
      * @callback
      * @param {Error} err
-     * @param {array<Int64BE>} data
+     * @param {array<Int64>} data
      */
     getUserGroups(timeout, callback) {
 
@@ -512,7 +514,7 @@ class RTMClient {
         let options = {
             flag: 1,
             method: 'getusergroups',
-            payload: msgpack.encode(payload, this._msgOptions)
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
         sendQuest.call(this, this._rtmClient, options, function(err, data) {
@@ -531,7 +533,7 @@ class RTMClient {
 
                 gids.forEach(function(item, index) {
 
-                    bgids[index] = new Int64BE(item);
+                    bgids[index] = new RTMConfig.Int64(item);
                 });
 
                 callback(null, bgids);
@@ -544,7 +546,7 @@ class RTMClient {
 
     /**
      * 
-     * @param {Int64BE} rid 
+     * @param {Int64} rid 
      * @param {number} timeout 
      * @param {function} callback 
      * 
@@ -561,7 +563,7 @@ class RTMClient {
         let options = {
             flag: 1,
             method: 'enterroom',
-            payload: msgpack.encode(payload, this._msgOptions)
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
         sendQuest.call(this, this._rtmClient, options, callback, timeout);
@@ -569,7 +571,7 @@ class RTMClient {
 
     /**
      * 
-     * @param {Int64BE} rid 
+     * @param {Int64} rid 
      * @param {number} timeout 
      * @param {function} callback 
      * 
@@ -586,7 +588,7 @@ class RTMClient {
         let options = {
             flag: 1,
             method: 'leaveroom',
-            payload: msgpack.encode(payload, this._msgOptions)
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
         sendQuest.call(this, this._rtmClient, options, callback, timeout);
@@ -599,7 +601,7 @@ class RTMClient {
      * 
      * @callback
      * @param {Error} err
-     * @param {array<Int64BE>} data
+     * @param {array<Int64>} data
      */
     getUserRooms(timeout, callback) {
 
@@ -608,7 +610,7 @@ class RTMClient {
         let options = {
             flag: 1,
             method: 'getuserrooms',
-            payload: msgpack.encode(payload, this._msgOptions)
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
         sendQuest.call(this, this._rtmClient, options, function(err, data) {
@@ -627,7 +629,7 @@ class RTMClient {
 
                 rids.forEach(function(item, index) {
                     
-                    brids[index] = new Int64BE(item);
+                    brids[index] = new RTMConfig.Int64(item);
                 });
 
                 callback(null, brids);
@@ -640,13 +642,13 @@ class RTMClient {
 
     /**
      * 
-     * @param {array<Int64BE>} uids 
+     * @param {array<Int64>} uids 
      * @param {number} timeout 
      * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
-     * @param {array<Int64BE>} data
+     * @param {array<Int64>} data
      */
     getOnlineUsers(uids, timeout, callback) {
         
@@ -657,7 +659,7 @@ class RTMClient {
         let options = {
             flag: 1,
             method: 'getonlineusers',
-            payload: msgpack.encode(payload, this._msgOptions)
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
         sendQuest.call(this, this._rtmClient, options, function(err, data) {
@@ -676,7 +678,7 @@ class RTMClient {
 
                 uids.forEach(function(item, index) {
 
-                    buids[index] = new Int64BE(item);
+                    buids[index] = new RTMConfig.Int64(item);
                 });
 
                 callback(null, buids);
@@ -694,7 +696,7 @@ class RTMClient {
      * 
      * @callback
      * @param {Error} err
-     * @param {object<p2p:array<Int64BE>, group:array<Int64BE>, bc:bool>} data
+     * @param {object<p2p:array<Int64>, group:array<Int64>, bc:bool>} data
      */
     checkUnreadMessage(timeout, callback) {
 
@@ -703,7 +705,7 @@ class RTMClient {
         let options = {
             flag: 1,
             method: 'checkunreadmsg',
-            payload: msgpack.encode(payload, this._msgOptions)
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
         sendQuest.call(this, this._rtmClient, options, function(err, data) {
@@ -722,7 +724,7 @@ class RTMClient {
 
                 uids.forEach(function(item, index) {
 
-                    buids[index] = new Int64BE(item);
+                    buids[index] = new RTMConfig.Int64(item);
                 });
 
                 data.p2p = buids;
@@ -736,7 +738,7 @@ class RTMClient {
 
                 gids.forEach(function(item, index) {
 
-                    bgids[index] = new Int64BE(item);
+                    bgids[index] = new RTMConfig.Int64(item);
                 });
 
                 data.group = bgids;
@@ -748,26 +750,26 @@ class RTMClient {
 
     /**
      * 
-     * @param {Int64BE} gid 
+     * @param {Int64} gid 
      * @param {number} num
      * @param {bool} desc 
      * @param {number} page
-     * @param {Int64BE} localmid
-     * @param {Int64BE} localid
+     * @param {Int64} localmid
+     * @param {Int64} localid
      * @param {array<number>} mtypes
      * @param {number} timeout 
      * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
-     * @param {object<num:number, maxid:Int64BE, msgs:array<GroupMsg>>} data 
+     * @param {object<num:number, maxid:Int64, msgs:array<GroupMsg>>} data 
      * 
      * <GroupMsg>
-     * @param {Int64BE} GroupMsg.id
-     * @param {Int64BE} GroupMsg.from
+     * @param {Int64} GroupMsg.id
+     * @param {Int64} GroupMsg.from
      * @param {number} GroupMsg.mtype
      * @param {number} GroupMsg.ftype
-     * @param {Int64BE} GroupMsg.mid
+     * @param {Int64} GroupMsg.mid
      * @param {string} GroupMsg.msg
      * @param {string} GroupMsg.attrs
      * @param {number} GroupMsg.mtime
@@ -799,7 +801,7 @@ class RTMClient {
         let options = {
             flag: 1,
             method: 'getgroupmsg',
-            payload: msgpack.encode(payload, this._msgOptions)
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
         sendQuest.call(this, this._rtmClient, options, function(err, data) {
@@ -819,11 +821,11 @@ class RTMClient {
                 msgs.forEach(function(item, index) {
 
                     bmsgs[index] = {
-                        id: new Int64BE(item[0]),
-                        from: new Int64BE(item[1]),
+                        id: new RTMConfig.Int64(item[0]),
+                        from: new RTMConfig.Int64(item[1]),
                         mtype: Number(item[2]),
                         ftype: Number(item[3]),
-                        mid: new Int64BE(item[4]),
+                        mid: new RTMConfig.Int64(item[4]),
                         msg: item[5],
                         attrs: item[6],
                         mtime: Number(item[7])
@@ -839,26 +841,26 @@ class RTMClient {
 
     /**
      * 
-     * @param {Int64BE} rid 
+     * @param {Int64} rid 
      * @param {number} num
      * @param {bool} desc 
      * @param {number} page
-     * @param {Int64BE} localmid
-     * @param {Int64BE} localid
+     * @param {Int64} localmid
+     * @param {Int64} localid
      * @param {array<number>} mtypes
      * @param {number} timeout 
      * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
-     * @param {object<num:number, maxid:Int64BE, msgs:array<RoomMsg>>} data 
+     * @param {object<num:number, maxid:Int64, msgs:array<RoomMsg>>} data 
      * 
      * <RoomMsg>
-     * @param {Int64BE} RoomMsg.id
-     * @param {Int64BE} RoomMsg.from
+     * @param {Int64} RoomMsg.id
+     * @param {Int64} RoomMsg.from
      * @param {number} RoomMsg.mtype
      * @param {number} RoomMsg.ftype
-     * @param {Int64BE} RoomMsg.mid
+     * @param {Int64} RoomMsg.mid
      * @param {string} RoomMsg.msg
      * @param {string} RoomMsg.attrs
      * @param {number} RoomMsg.mtime
@@ -890,7 +892,7 @@ class RTMClient {
         let options = {
             flag: 1,
             method: 'getroommsg',
-            payload: msgpack.encode(payload, this._msgOptions)
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
         sendQuest.call(this, this._rtmClient, options, function(err, data) {
@@ -910,11 +912,11 @@ class RTMClient {
                 msgs.forEach(function(item, index) {
 
                     bmsgs[index] = {
-                        id: new Int64BE(item[0]),
-                        from: new Int64BE(item[1]),
+                        id: new RTMConfig.Int64(item[0]),
+                        from: new RTMConfig.Int64(item[1]),
                         mtype: Number(item[2]),
                         ftype: Number(item[3]),
-                        mid: new Int64BE(item[4]),
+                        mid: new RTMConfig.Int64(item[4]),
                         msg: item[5],
                         attrs: item[6],
                         mtime: Number(item[7])
@@ -933,22 +935,22 @@ class RTMClient {
      * @param {number} num
      * @param {bool} desc 
      * @param {number} page
-     * @param {Int64BE} localmid
-     * @param {Int64BE} localid
+     * @param {Int64} localmid
+     * @param {Int64} localid
      * @param {array<number>} mtypes
      * @param {number} timeout 
      * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
-     * @param {object<num:number, maxid:Int64BE, msgs:array<BroadcastMsg>>} data 
+     * @param {object<num:number, maxid:Int64, msgs:array<BroadcastMsg>>} data 
      * 
      * <BroadcastMsg>
-     * @param {Int64BE} BroadcastMsg.id
-     * @param {Int64BE} BroadcastMsg.from
+     * @param {Int64} BroadcastMsg.id
+     * @param {Int64} BroadcastMsg.from
      * @param {number} BroadcastMsg.mtype
      * @param {number} BroadcastMsg.ftype
-     * @param {Int64BE} BroadcastMsg.mid
+     * @param {Int64} BroadcastMsg.mid
      * @param {string} BroadcastMsg.msg
      * @param {string} BroadcastMsg.attrs
      * @param {number} BroadcastMsg.mtime
@@ -979,7 +981,7 @@ class RTMClient {
         let options = {
             flag: 1,
             method: 'getbroadcastmsg',
-            payload: msgpack.encode(payload, this._msgOptions)
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
         sendQuest.call(this, this._rtmClient, options, function(err, data) {
@@ -999,11 +1001,11 @@ class RTMClient {
                 msgs.forEach(function(item, index) {
 
                     bmsgs[index] = {
-                        id: new Int64BE(item[0]),
-                        from: new Int64BE(item[1]),
+                        id: new RTMConfig.Int64(item[0]),
+                        from: new RTMConfig.Int64(item[1]),
                         mtype: Number(item[2]),
                         ftype: Number(item[3]),
-                        mid: new Int64BE(item[4]),
+                        mid: new RTMConfig.Int64(item[4]),
                         msg: item[5],
                         attrs: item[6],
                         mtime: Number(item[7])
@@ -1019,27 +1021,27 @@ class RTMClient {
 
     /**
      * 
-     * @param {Int64BE} peeruid 
+     * @param {Int64} peeruid 
      * @param {number} num
      * @param {number} direction 
      * @param {bool} desc 
      * @param {number} page
-     * @param {Int64BE} localmid
-     * @param {Int64BE} localid
+     * @param {Int64} localmid
+     * @param {Int64} localid
      * @param {array<number>} mtypes
      * @param {number} timeout 
      * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
-     * @param {object<num:number, maxid:Int64BE, msgs:array<P2PMessage>>} data 
+     * @param {object<num:number, maxid:Int64, msgs:array<P2PMessage>>} data 
      * 
      * <P2PMessage>
-     * @param {Int64BE} P2PMessage.id
+     * @param {Int64} P2PMessage.id
      * @param {number} P2PMessage.direction
      * @param {number} P2PMessage.mtype
      * @param {number} P2PMessage.ftype
-     * @param {Int64BE} P2PMessage.mid
+     * @param {Int64} P2PMessage.mid
      * @param {string} P2PMessage.msg
      * @param {string} P2PMessage.attrs
      * @param {number} P2PMessage.mtime
@@ -1072,7 +1074,7 @@ class RTMClient {
         let options = {
             flag: 1,
             method: 'getp2pmsg',
-            payload: msgpack.encode(payload, this._msgOptions)
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
         sendQuest.call(this, this._rtmClient, options, function(err, data) {
@@ -1092,11 +1094,11 @@ class RTMClient {
                 msgs.forEach(function(item, index) {
 
                     bmsgs[index] = {
-                        id: new Int64BE(item[0]),
+                        id: new RTMConfig.Int64(item[0]),
                         direction: Number(item[1]),
                         mtype: Number(item[2]),
                         ftype: Number(item[3]),
-                        mid: new Int64BE(item[4]),
+                        mid: new RTMConfig.Int64(item[4]),
                         msg: item[5],
                         attrs: item[6],
                         mtime: Number(item[7])
@@ -1131,7 +1133,7 @@ class RTMClient {
         let options = {
             flag: 1,
             method: 'adddevice',
-            payload: msgpack.encode(payload, this._msgOptions)
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
         sendQuest.call(this, this._rtmClient, options, callback, timeout);
@@ -1156,7 +1158,7 @@ class RTMClient {
         let options = {
             flag: 1,
             method: 'removedevice',
-            payload: msgpack.encode(payload, this._msgOptions)
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
         sendQuest.call(this, this._rtmClient, options, callback, timeout);
@@ -1181,7 +1183,7 @@ class RTMClient {
         let options = {
             flag: 1,
             method: 'setlang',
-            payload: msgpack.encode(payload, this._msgOptions)
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
         sendQuest.call(this, this._rtmClient, options, callback, timeout);
@@ -1214,7 +1216,7 @@ class RTMClient {
         let options = {
             flag: 1,
             method: 'translate',
-            payload: msgpack.encode(payload, this._msgOptions)
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
         sendQuest.call(this, this._rtmClient, options, callback, timeout);
@@ -1241,7 +1243,7 @@ class RTMClient {
         let options = {
             flag: 1,
             method: 'setgeo',
-            payload: msgpack.encode(payload, this._msgOptions)
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
         sendQuest.call(this, this._rtmClient, options, callback, timeout);
@@ -1263,7 +1265,7 @@ class RTMClient {
         let options = {
             flag: 1,
             method: 'getgeo',
-            payload: msgpack.encode(payload, this._msgOptions)
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
         sendQuest.call(this, this._rtmClient, options, callback, timeout);
@@ -1271,13 +1273,13 @@ class RTMClient {
 
     /**
      * 
-     * @param {array<Int64BE>} uids
+     * @param {array<Int64>} uids
      * @param {number} timeout 
      * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
-     * @param {array<array<uid:Int64BE,lat:number,lng:number>>} data 
+     * @param {array<array<uid:Int64,lat:number,lng:number>>} data 
      */
     getGeos(uids, timeout, callback) {
 
@@ -1288,7 +1290,7 @@ class RTMClient {
         let options = {
             flag: 1,
             method: 'getgeos',
-            payload: msgpack.encode(payload, this._msgOptions)
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
         sendQuest.call(this, this._rtmClient, options, function(err, data) {
@@ -1307,7 +1309,7 @@ class RTMClient {
 
                 geos.forEach(function(item, index) {
 
-                    item[0] = new Int64BE(item[0]);
+                    item[0] = new RTMConfig.Int64(item[0]);
                     bgeos[index] = item;
                 });
 
@@ -1322,7 +1324,7 @@ class RTMClient {
     /**
      * 
      * @param {number} mtype 
-     * @param {Int64BE} to 
+     * @param {Int64} to 
      * @param {File} file
      * @param {number} timeout 
      * @param {function} callback 
@@ -1346,7 +1348,7 @@ class RTMClient {
     /**
      * 
      * @param {number} mtype 
-     * @param {array<Int64BE>} tos 
+     * @param {array<Int64>} tos 
      * @param {File} file
      * @param {number} timeout 
      * @param {function} callback 
@@ -1370,7 +1372,7 @@ class RTMClient {
     /**
      * 
      * @param {number} mtype 
-     * @param {Int64BE} gid 
+     * @param {Int64} gid 
      * @param {File} file
      * @param {number} timeout 
      * @param {function} callback 
@@ -1394,7 +1396,7 @@ class RTMClient {
     /**
      * 
      * @param {number} mtype 
-     * @param {Int64BE} rid 
+     * @param {Int64} rid 
      * @param {File} file
      * @param {number} timeout 
      * @param {function} callback 
@@ -1458,6 +1460,8 @@ class RTMClient {
     
         this._rtmClient.processor = this._processor;
     }
+
+
 }
 
 function fileSendProcess(ops, callback, timeout) {
@@ -1581,7 +1585,7 @@ function filetoken(ops, callback, timeout) {
     let options = {
         flag: 1,
         method: 'filetoken',
-        payload: msgpack.encode(payload, this._msgOptions)
+        payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
     };
 
     sendQuest.call(this, this._rtmClient, options, callback, timeout);
@@ -1603,7 +1607,7 @@ function fileSend(client, ops, callback, timeout) {
     let options = {
         flag: 1,
         method: ops.method,
-        payload: msgpack.encode(payload, this._msgOptions)
+        payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
     };
 
     sendQuest.call(this, client, options, callback, timeout);
@@ -1616,12 +1620,12 @@ function genMid() {
         this._midSeq = 0;
     }
 
-    return new Int64BE(Date.now().toString() + this._midSeq);
+    return new RTMConfig.Int64(Date.now().toString() + this._midSeq);
 }
 
 function cyrMD5(data) {
 
-    return MD5(data);
+    return require('../../libs/md5.min')(data);
 }
 
 function isException(data) {
@@ -1659,7 +1663,7 @@ function sendQuest(client, options, callback, timeout) {
 
         if (data.payload) {
 
-            let payload = msgpack.decode(data.payload, self._msgOptions);
+            let payload = RTMConfig.MsgPack.decode(data.payload, self._msgOptions);
             err = isException.call(self, payload);
 
             if (err) {
@@ -1710,7 +1714,7 @@ function getRTMGate(service, callback, timeout) {
             let options = {
                 flag: 1,
                 method: 'which',
-                payload: msgpack.encode(payload, self._msgOptions)
+                payload: RTMConfig.MsgPack.encode(payload, self._msgOptions)
             };
         
             sendQuest.call(self, self._dispatchClient, options, function (err, data){
@@ -1810,7 +1814,7 @@ function auth(timeout) {
     let options = {
         flag: 1,
         method: 'auth',
-        payload: msgpack.encode(payload, this._msgOptions)
+        payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
     };
 
     let self = this;
@@ -1885,4 +1889,4 @@ function reConnect() {
     }, 100);
 }
 
-module.exports = RTMClient;
+module.exports = { RTMClient, RTMConfig };

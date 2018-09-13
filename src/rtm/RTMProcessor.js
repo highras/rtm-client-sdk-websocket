@@ -5,12 +5,20 @@ const RTMConfig = require('./RTMConfig');
 
 class RTMProcessor {
 
-    constructor(msgOptions) {
+    constructor() {
 
         FPEvent.assign(this);
 
         this._map = {};
-        this._msgOptions = msgOptions;
+
+        this._msgOptions = {
+
+            codec: RTMConfig.MsgPack.createCodec({  
+
+                int64: true
+            }) 
+        };
+
 
         checkExpire.call(this);
     }
@@ -38,7 +46,7 @@ class RTMProcessor {
 
             if (data.flag == 1) {
 
-                cb(msgpack.encode({}, this._msgOptions), false);
+                cb(RTMConfig.MsgPack.encode({}, this._msgOptions), false);
             }
         }
 
@@ -51,7 +59,7 @@ class RTMProcessor {
 
         if (data.flag == 1) {
 
-            payload = msgpack.decode(data.payload, this._msgOptions);
+            payload = RTMConfig.MsgPack.decode(data.payload, this._msgOptions);
         }
 
         if (payload) {
@@ -71,13 +79,13 @@ class RTMProcessor {
 
     /**
      * 
-     * @param {Int64BE} data.rid 
+     * @param {Int64} data.rid 
      */
     kickoutroom(data) {
         
         if (data.rid) {
 
-            data.rid = new Int64BE(data.rid);
+            data.rid = new RTMConfig.Int64(data.rid);
         }
 
         this.emit(RTMConfig.SERVER_PUSH.kickOutRoom, data);
@@ -85,10 +93,10 @@ class RTMProcessor {
 
     /**
      * 
-     * @param {Int64BE} data.from
+     * @param {Int64} data.from
      * @param {number} data.mtype
      * @param {number} data.ftype
-     * @param {Int64BE} data.mid
+     * @param {Int64} data.mid
      * @param {string} data.msg
      * @param {string} data.attrs
      */
@@ -96,12 +104,12 @@ class RTMProcessor {
 
         if (data.from) {
             
-            data.from = new Int64BE(data.from);
+            data.from = new RTMConfig.Int64(data.from);
         }
 
         if (data.mid) {
 
-            data.mid = new Int64BE(data.mid);
+            data.mid = new RTMConfig.Int64(data.mid);
 
             if (!checkMid.call(this, 1, data.mid, data.from)) {
 
@@ -121,11 +129,11 @@ class RTMProcessor {
 
     /**
      * 
-     * @param {Int64BE} data.from
-     * @param {Int64BE} data.gid
+     * @param {Int64} data.from
+     * @param {Int64} data.gid
      * @param {number} data.mtype
      * @param {number} data.ftype
-     * @param {Int64BE} data.mid
+     * @param {Int64} data.mid
      * @param {string} data.msg
      * @param {string} data.attrs
      */
@@ -133,12 +141,12 @@ class RTMProcessor {
         
         if (data.from) {
 
-            data.from = new Int64BE(data.from);
+            data.from = new RTMConfig.Int64(data.from);
         }
 
         if (data.mid) {
             
-            data.mid = new Int64BE(data.mid);
+            data.mid = new RTMConfig.Int64(data.mid);
 
             if (!checkMid.call(this, 2, data.mid, data.from, data.gid)) {
 
@@ -148,7 +156,7 @@ class RTMProcessor {
 
         if (data.gid) {
 
-            data.gid = new Int64BE(data.gid);
+            data.gid = new RTMConfig.Int64(data.gid);
         }
 
         if (data.ftype > 0) {
@@ -163,11 +171,11 @@ class RTMProcessor {
 
     /**
      * 
-     * @param {Int64BE} data.from
-     * @param {Int64BE} data.rid
+     * @param {Int64} data.from
+     * @param {Int64} data.rid
      * @param {number} data.mtype
      * @param {number} data.ftype
-     * @param {Int64BE} data.mid
+     * @param {Int64} data.mid
      * @param {string} data.msg
      * @param {string} data.attrs
      */
@@ -175,12 +183,12 @@ class RTMProcessor {
 
         if (data.from) {
 
-            data.from = new Int64BE(data.from);
+            data.from = new RTMConfig.Int64(data.from);
         }
 
         if (data.mid) {
             
-            data.mid = new Int64BE(data.mid);
+            data.mid = new RTMConfig.Int64(data.mid);
 
             if (!checkMid.call(this, 3, data.mid, data.from, data.rid)) {
 
@@ -190,7 +198,7 @@ class RTMProcessor {
 
         if (data.rid) {
 
-            data.rid = new Int64BE(data.rid);
+            data.rid = new RTMConfig.Int64(data.rid);
         }
 
         if (data.ftype > 0) {
@@ -205,10 +213,10 @@ class RTMProcessor {
 
     /**
      * 
-     * @param {Int64BE} data.from
+     * @param {Int64} data.from
      * @param {number} data.mtype
      * @param {number} data.ftype
-     * @param {Int64BE} data.mid
+     * @param {Int64} data.mid
      * @param {string} data.msg
      * @param {string} data.attrs
      */
@@ -216,12 +224,12 @@ class RTMProcessor {
 
         if (data.from) {
 
-            data.from = new Int64BE(data.from);
+            data.from = new RTMConfig.Int64(data.from);
         }
 
         if (data.mid) {
 
-            data.mid = new Int64BE(data.mid);
+            data.mid = new RTMConfig.Int64(data.mid);
 
             if (!checkMid.call(this, 4, data.mid, data.from)) {
 
@@ -241,21 +249,21 @@ class RTMProcessor {
 
     /**
      * 
-     * @param {Int64BE} data.from
-     * @param {Int64BE} data.mid
-     * @param {Int64BE} data.omid
+     * @param {Int64} data.from
+     * @param {Int64} data.mid
+     * @param {Int64} data.omid
      * @param {string} data.msg
      */
     transmsg(data) {
 
         if (data.from) {
 
-            data.from = new Int64BE(data.from);
+            data.from = new RTMConfig.Int64(data.from);
         }
 
         if (data.mid) {
             
-            data.mid = new Int64BE(data.mid);
+            data.mid = new RTMConfig.Int64(data.mid);
 
             if (!checkMid.call(this, 1, data.mid, data.from)) {
 
@@ -265,7 +273,7 @@ class RTMProcessor {
 
         if (data.omid) {
 
-            data.omid = new Int64BE(data.omid);
+            data.omid = new RTMConfig.Int64(data.omid);
         }
 
         this.emit(RTMConfig.SERVER_PUSH.recvTranslatedMessage, data);
@@ -273,22 +281,22 @@ class RTMProcessor {
 
     /**
      * 
-     * @param {Int64BE} data.from
-     * @param {Int64BE} data.gid
-     * @param {Int64BE} data.mid
-     * @param {Int64BE} data.omid
+     * @param {Int64} data.from
+     * @param {Int64} data.gid
+     * @param {Int64} data.mid
+     * @param {Int64} data.omid
      * @param {string} data.msg
      */
     transgroupmsg(data) {
 
         if (data.from) {
 
-            data.from = new Int64BE(data.from);
+            data.from = new RTMConfig.Int64(data.from);
         }
 
         if (data.mid) {
 
-            data.mid = new Int64BE(data.mid);
+            data.mid = new RTMConfig.Int64(data.mid);
 
             if (!checkMid.call(this, 2, data.mid, data.from, data.gid)) {
 
@@ -298,12 +306,12 @@ class RTMProcessor {
 
         if (data.gid) {
             
-            data.gid = new Int64BE(data.gid);
+            data.gid = new RTMConfig.Int64(data.gid);
         }
 
         if (data.omid) {
 
-            data.omid = new Int64BE(data.omid);
+            data.omid = new RTMConfig.Int64(data.omid);
         }
 
         this.emit(RTMConfig.SERVER_PUSH.recvTranslatedGroupMessage, data);
@@ -311,22 +319,22 @@ class RTMProcessor {
 
     /**
      * 
-     * @param {Int64BE} data.from
-     * @param {Int64BE} data.rid
-     * @param {Int64BE} data.mid
-     * @param {Int64BE} data.omid
+     * @param {Int64} data.from
+     * @param {Int64} data.rid
+     * @param {Int64} data.mid
+     * @param {Int64} data.omid
      * @param {string} data.msg
      */
     transroommsg(data) {
 
         if (data.from) {
 
-            data.from = new Int64BE(data.from);
+            data.from = new RTMConfig.Int64(data.from);
         }
 
         if (data.mid) {
 
-            data.mid = new Int64BE(data.mid);
+            data.mid = new RTMConfig.Int64(data.mid);
 
             if (!checkMid.call(this, 3, data.mid, data.from, data.rid)) {
 
@@ -336,12 +344,12 @@ class RTMProcessor {
 
         if (data.rid) {
 
-            data.rid = new Int64BE(data.rid);
+            data.rid = new RTMConfig.Int64(data.rid);
         }
 
         if (data.omid) {
 
-            data.omid = new Int64BE(data.omid);
+            data.omid = new RTMConfig.Int64(data.omid);
         }
 
         this.emit(RTMConfig.SERVER_PUSH.recvTranslatedRoomMessage, data);
@@ -349,21 +357,21 @@ class RTMProcessor {
 
     /**
      * 
-     * @param {Int64BE} data.from
-     * @param {Int64BE} data.mid
-     * @param {Int64BE} data.omid
+     * @param {Int64} data.from
+     * @param {Int64} data.mid
+     * @param {Int64} data.omid
      * @param {string} data.msg
      */
     transbroadcastmsg(data) {
 
         if (data.from) {
 
-            data.from = new Int64BE(data.from);
+            data.from = new RTMConfig.Int64(data.from);
         }
 
         if (data.mid) {
 
-            data.mid = new Int64BE(data.mid);
+            data.mid = new RTMConfig.Int64(data.mid);
 
             if (!checkMid.call(this, 4, data.mid, data.fromt)) {
 
@@ -373,7 +381,7 @@ class RTMProcessor {
 
         if (data.omid) {
 
-            data.omid = new Int64BE(data.omid);
+            data.omid = new RTMConfig.Int64(data.omid);
         }
 
         this.emit(RTMConfig.SERVER_PUSH.recvTranslatedBroadcastMessage, data);
@@ -381,11 +389,13 @@ class RTMProcessor {
 
     /**
      * 
-     * @param {array<Int64BE>} data.p2p
-     * @param {array<Int64BE>} data.group
+     * @param {array<Int64>} data.p2p
+     * @param {array<Int64>} data.group
      * @param {bool} data.bc
      */
     pushunread(data) {
+
+        let self = this;
 
         if (data.p2p) {
 
@@ -393,7 +403,7 @@ class RTMProcessor {
 
             data.p2p.forEach(function(item, index) {
 
-                bp2p[index] = new Int64BE(item);
+                bp2p[index] = new RTMConfig.Int64(item);
             });
 
             data.p2p = bp2p;
@@ -404,7 +414,7 @@ class RTMProcessor {
             let bgroup = [];
             data.group.forEach(function(item, index) {
 
-                bgroup[index] = new Int64BE(item);
+                bgroup[index] = new RTMConfig.Int64(item);
             });
 
             data.group = bgroup;

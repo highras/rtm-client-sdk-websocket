@@ -6,7 +6,7 @@ module.exports = {
     output: {
         filename: 'rtm.min.js',
         path: path.resolve(__dirname, 'dist'),
-        library: 'RTMClient',
+        library: 'Rtm',
     },
     devtool: 'source-map',
     target: 'web',

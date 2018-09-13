@@ -1,5 +1,7 @@
 'use strict'
 
+const RTMConfig = require('./RTMConfig');
+
 class RTMProxy {
 
     constructor(endpoint) {
@@ -25,7 +27,7 @@ class RTMProxy {
 
     buildProxyData(data) {
 
-        return msgpack.encode({ endpoint: this._targetEndpoint, data: data });
+        return RTMConfig.MsgPack.encode({ endpoint: this._targetEndpoint, data: data });
     }
 }
 

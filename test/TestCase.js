@@ -4,13 +4,14 @@ let step = 2;
 let index = 0;
 
 function TestCase (options, from, to) {
-    from = new Int64BE(from);
-    to = new Int64BE(to);
 
-    let tos = [to, new Int64BE(0, 778877)];
-    let gid = new Int64BE(0, 999999);
-    let rid = new Int64BE(0, 666666);
-    let friends = [to, new Int64BE(0, 778877)];
+    from = new Rtm.RTMConfig.Int64(from);
+    to = new Rtm.RTMConfig.Int64(to);
+
+    let tos = [to, new Rtm.RTMConfig.Int64(0, 778877)];
+    let gid = new Rtm.RTMConfig.Int64(0, 999999);
+    let rid = new Rtm.RTMConfig.Int64(0, 666666);
+    let friends = [to, new Rtm.RTMConfig.Int64(0, 778877)];
     let fuid = to;
     let lat = 39239.1123;
     let lng = 69394.4850;
@@ -18,7 +19,7 @@ function TestCase (options, from, to) {
 
     let self = this;
 
-    let client = new RTMClient(options);
+    let client = new Rtm.RTMClient(options);
     
     let t = function(fn, name) {
 
@@ -60,13 +61,13 @@ function TestCase (options, from, to) {
         client.login();
 
         //receive from server
-        let pushName = client.rtmConfig.SERVER_PUSH.recvMessage;
+        let pushName = Rtm.RTMConfig.SERVER_PUSH.recvMessage;
         client.processor.on(pushName, function(data) {
 
             console.log('\n[PUSH] ' + pushName + ':\n', data);
         });
 
-        pushName = client.rtmConfig.SERVER_PUSH.recvPing;
+        pushName = Rtm.RTMConfig.SERVER_PUSH.recvPing;
         client.processor.on(pushName, function(data) {
 
             console.log('\n[PUSH] ' + pushName + ':\n', data);
@@ -121,7 +122,7 @@ function TestCase (options, from, to) {
 
             t.call(self, function(name, cb) {
 
-                client[name].call(client, [new Int64BE(0, 778899)], timeout, cb);
+                client[name].call(client, [new Rtm.RTMConfig.Int64(0, 778899)], timeout, cb);
             }, 'deleteFriends');
 
             t.call(self, function(name, cb) {

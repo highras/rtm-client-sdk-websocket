@@ -10,9 +10,6 @@ function AsyncStressTester(options, gate) {
     let testers = [];
 
     let opts = options;
-    let msgOptions = {
-        codec: msgpack.createCodec({ int64: true })
-    };
 
     let incSend = function() {
 
@@ -61,7 +58,7 @@ function AsyncStressTester(options, gate) {
     
         client.on('connect', function() {
     
-            let quest = buildStandardTestQuest.call(self);
+            let quest = buildStandardTestQuest.call(self, client.msgpack, client.msgOptions);
             setInterval(function() {
     
                 let startTime = Date.now();
@@ -91,7 +88,7 @@ function AsyncStressTester(options, gate) {
         client.connect(gate, 20 * 1000);
     }
     
-    let buildStandardTestQuest = function() {
+    let buildStandardTestQuest = function(msgpack, msgOptions) {
     
         let arr = [];
         arr.push('first_vec');
@@ -135,14 +132,14 @@ function AsyncStressTester(options, gate) {
 
             for (let i = 0; i < clientCount; i++) {
 
-                let client = new RTMClient(opts);
+                let client = new Rtm.RTMClient(opts);
                 client.qps = qps;
                 testers.push(client);
             }
 
             if (remain > 0) {
 
-                let client = new RTMClient(opts);
+                let client = new Rtm.RTMClient(opts);
                 client.qps = qps;
                 testers.push(client);
             }

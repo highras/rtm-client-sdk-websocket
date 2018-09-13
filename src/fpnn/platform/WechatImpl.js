@@ -24,7 +24,7 @@ class WechatImpl {
           
         this._socket.onMessage(function(data) {
 
-            self.emit('message', data);
+            self.emit('message', data.data);
         });
           
         this._socket.onClose(function() {

@@ -1,6 +1,5 @@
 'use strict'
 
-const Buffer = require('buffer/').Buffer;
 const FPConfig = require('./FPConfig');
 
 class FPPackage {
@@ -22,12 +21,12 @@ class FPPackage {
 
         if (data.payload) {
 
-            data.psize = Buffer.byteLength(data.payload);
+            data.psize = FPConfig.BUFFER.byteLength(data.payload);
         }
 
         if (data.method) {
 
-            data.ss = Buffer.byteLength(data.method);
+            data.ss = FPConfig.BUFFER.byteLength(data.method);
         }
 
         data.wpos = 0;
@@ -111,12 +110,12 @@ class FPPackage {
         data.wpos = buf.writeUInt8(data.ss, data.wpos);
         data.wpos = buf.writeUInt32LE(data.psize, data.wpos);
 
-        let mbuf = Buffer.from(data.method)
+        let mbuf = FPConfig.BUFFER.from(data.method)
         data.wpos += mbuf.copy(buf, data.wpos, 0);
 
         if (this.isJson(data)) {
 
-            let pbuf = Buffer.from(data.payload)
+            let pbuf = FPConfig.BUFFER.from(data.payload)
             data.wpos += pbuf.copy(buf, data.wpos, 0);
         }
 
@@ -136,12 +135,12 @@ class FPPackage {
         data.wpos = buf.writeUInt32LE(data.psize, data.wpos);
         data.wpos = buf.writeUInt32LE(data.seq, data.wpos);
 
-        let mbuf = Buffer.from(data.method)
+        let mbuf = FPConfig.BUFFER.from(data.method)
         data.wpos += mbuf.copy(buf, data.wpos, 0);
 
         if (this.isJson(data)) {
 
-            let pbuf = Buffer.from(data.payload)
+            let pbuf = FPConfig.BUFFER.from(data.payload)
             data.wpos += pbuf.copy(buf, data.wpos, 0);
         }
 
@@ -163,7 +162,7 @@ class FPPackage {
 
         if (this.isJson(data)) {
 
-            let pbuf = Buffer.from(data.payload)
+            let pbuf = FPConfig.BUFFER.from(data.payload)
             data.wpos += pbuf.copy(buf, data.wpos, 0);
         }
 
@@ -179,12 +178,12 @@ class FPPackage {
 
         let peek = {};
         let pos = 0;
-        let mbuf = Buffer.allocUnsafe(4);
+        let mbuf = FPConfig.BUFFER.allocUnsafe(4);
 
         pos += buf.copy(mbuf, 0, pos, pos + 4);
         peek.magic = mbuf;
 
-        mbuf = Buffer.allocUnsafe(1);
+        mbuf = FPConfig.BUFFER.allocUnsafe(1);
         pos += buf.copy(mbuf, 0, pos, pos + 1);
         peek.version = FPConfig.FPNN_VERSION.indexOf(mbuf);
 
@@ -233,12 +232,12 @@ class FPPackage {
             return;
         }
 
-        let mbuf = Buffer.allocUnsafe(data.ss);
+        let mbuf = FPConfig.BUFFER.allocUnsafe(data.ss);
         data.wpos += buf.copy(mbuf, 0, data.wpos, data.wpos + data.ss);
 
         data.method = mbuf.toString();
 
-        let pbuf = Buffer.allocUnsafe(data.psize);
+        let pbuf = FPConfig.BUFFER.allocUnsafe(data.psize);
         data.wpos += buf.copy(pbuf, 0, data.wpos);
 
         if (this.isJson(data)) {
@@ -263,12 +262,12 @@ class FPPackage {
         data.seq = buf.readUInt32LE(data.wpos);
         data.wpos += 4;
 
-        let mbuf = Buffer.allocUnsafe(data.ss);
+        let mbuf = FPConfig.BUFFER.allocUnsafe(data.ss);
         data.wpos += buf.copy(mbuf, 0, data.wpos, data.wpos + data.ss);
 
         data.method = mbuf.toString();
 
-        let pbuf = Buffer.allocUnsafe(data.psize);
+        let pbuf = FPConfig.BUFFER.allocUnsafe(data.psize);
         data.wpos += buf.copy(pbuf, 0, data.wpos);
 
         if (this.isJson(data)) {
@@ -293,7 +292,7 @@ class FPPackage {
         data.seq = buf.readUInt32LE(data.wpos);
         data.wpos += 4;
 
-        let pbuf = Buffer.allocUnsafe(data.psize);
+        let pbuf = FPConfig.BUFFER.allocUnsafe(data.psize);
         data.wpos += buf.copy(pbuf, 0, data.wpos);
 
         if (this.isJson(data)) {
@@ -310,7 +309,7 @@ class FPPackage {
 
 function buildHeader(data, size) {
 
-    let buf = Buffer.allocUnsafe(size);
+    let buf = FPConfig.BUFFER.allocUnsafe(size);
 
     if (this.isHTTP(data)) {
 
