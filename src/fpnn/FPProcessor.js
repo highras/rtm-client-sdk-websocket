@@ -13,6 +13,11 @@ class FPProcessor {
 
         this.emit(data.method, data.payload, cb);
     }
+
+    destroy() {
+
+        this.removeEvent();
+    }
 }
 
 module.exports = FPProcessor;

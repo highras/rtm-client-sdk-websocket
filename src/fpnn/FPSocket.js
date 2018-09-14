@@ -117,6 +117,17 @@ class FPSocket {
 
         return this._platform.isConnecting;
     }
+
+    destroy() {
+
+        this.removeEvent();
+        this.close();
+
+        this._platform.removeEvent();
+        this._platform = null;
+
+        onClose.call(this);
+    }
 }
 
 function writeSocket() {

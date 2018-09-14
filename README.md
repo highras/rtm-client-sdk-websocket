@@ -82,6 +82,9 @@ client.processor.on(pushName, function(data) {
 });
 
 client.login();
+
+// destroy
+// client.destroy();
 ```
 
 #### Events ####
@@ -223,11 +226,11 @@ client.login();
 
 * `processor`: **(RTMProcessor)** 监听PushService的句柄
 
-* `rtmConfig`: **(object)** 请参考 `RTMConfig` 成员
-
 * `login(endpoint, ipv6)`: 连接并登陆 
     * `endpoint`: **(Optional | string)** RTMGate服务地址, 由Dispatch服务获取, 或由RTM提供
     * `ipv6`: **(Optional | bool)** 是否为IPV6地址格式, 默认: `false`
+
+* `destroy()`: 断开连接并开始销毁
 
 * `sendMessage(to, mtype, msg, attrs, timeout, callback)`: 发送消息
     * `to`: **(Required | Int64)** 接收方uid

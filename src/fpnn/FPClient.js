@@ -152,6 +152,20 @@ class FPClient {
 
         return this._conn.isOpen || this._conn.isConnecting;
     }
+
+    destroy() {
+
+        this._pkg = null;
+        this._autoReconnect = false;
+
+        this.removeEvent();
+        this._cbs.removeCb();
+
+        this._psr.destroy();
+        this._conn.destroy();
+        
+        onClose.call(this);
+    }
 }
 
 function onError(err) {

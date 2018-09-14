@@ -51,6 +51,7 @@ class RTMClient {
 
         this._rtmClient = null;
         this._dispatchClient = null;
+        this._fileClient = null;
         this._loginOptions = null; 
         this._reconnectID = 0;
 
@@ -72,7 +73,6 @@ class RTMClient {
             this._proxy = new RTMProxy(endpoint);
         }
     }
-
 
     get msgOptions() {
 
@@ -115,6 +115,46 @@ class RTMClient {
                 reConnect.call(self);
             }
         }, this._connectionTimeout);
+    }
+
+    destroy() {
+
+        this.close();
+
+        this._midSeq = 0;
+        this._saltSeq = 0;
+
+        if (this._proxy) {
+
+            this._proxy = null;
+        }
+
+        if (this._processor) {
+
+            this._processor.destroy();
+            this._processor = null;
+        }
+
+        if (this._rtmClient) {
+
+            this._rtmClient.destroy();
+            this._rtmClient = null;
+        }
+
+        if (this._dispatchClient) {
+
+            this._dispatchClient.destroy();
+            this._dispatchClient = null;
+        }
+
+        if (this._fileClient) {
+
+            this._fileClient.destroy();
+            this._fileClient = null;
+        }
+
+        this.removeEvent();
+        onClose.call(this);
     }
 
     /**
@@ -271,7 +311,10 @@ class RTMClient {
 
         sendQuest.call(this, this._rtmClient, options, function(err, data) {
 
-            self._rtmClient.close();
+            if (self._rtmClient) {
+
+                self._rtmClient.close();
+            }
         });
     }
 
@@ -1503,53 +1546,60 @@ function fileSendProcess(ops, callback, timeout) {
             }
 
             let sign = cyrMD5.call(self, cyrMD5.call(self, ops.fileContent) + ':' + token);
-            let client = new FPClient({ 
-                endpoint: buildEndpoint.call(self, endpoint),
-                autoReconnect: false,
-                connectionTimeout: timeout,
-                proxy: self._proxy
-            });
 
-            client.connect();
-            client.on('connect', function() {
+            if (!self._fileClient) {
 
-                let options = {
-                    method: ops.cmd,
-                    token: token,
-                    from: self._uid,
-                    mtype: ops.mtype,
-                    sign: sign,
-                    ext: ext,
-                    data: ops.fileContent
-                };
+                self._fileClient = new FPClient({ 
+                    endpoint: buildEndpoint.call(self, endpoint),
+                    autoReconnect: false,
+                    connectionTimeout: timeout,
+                    proxy: self._proxy
+                });
 
-                if (ops.tos !== undefined) {
+                // self._fileClient.on('connect', function() {});
+                // self._fileClient.on('close', function() {});
+                self._fileClient.on('error', function(err) {
 
-                    options.tos = ops.tos;
-                }
-            
-                if (ops.to !== undefined) {
+                    self.emit('error', new Error('file client: ' + err.message));
+                });
+            }
 
-                    options.to = ops.to;
-                }
-            
-                if (ops.rid !== undefined) {
+            if (!self._fileClient.hasConnect) {
 
-                    options.rid = ops.rid;
-                }
-            
-                if (ops.gid !== undefined) {
+                self._fileClient.connect();
+            }
 
-                    options.gid = ops.gid;
-                }
+            let options = {
+                method: ops.cmd,
+                token: token,
+                from: self._uid,
+                mtype: ops.mtype,
+                sign: sign,
+                ext: ext,
+                data: ops.fileContent
+            };
 
-                fileSend.call(self, client, options, callback, timeout);
-            });
+            if (ops.tos !== undefined) {
 
-            client.on('error', function(err) {
+                options.tos = ops.tos;
+            }
+        
+            if (ops.to !== undefined) {
 
-                self.emit('error', new Error('file client: ' + err.message));
-            });
+                options.to = ops.to;
+            }
+        
+            if (ops.rid !== undefined) {
+
+                options.rid = ops.rid;
+            }
+        
+            if (ops.gid !== undefined) {
+
+                options.gid = ops.gid;
+            }
+
+            fileSend.call(self, self._fileClient, options, callback, timeout);
         }, timeout);
     };
 
@@ -1652,6 +1702,12 @@ function sendQuest(client, options, callback, timeout) {
 
     let self = this;
 
+    if (!client) {
+
+        callback && callback(new Error('client has been destroyed!'), null);
+        return;
+    }
+
     client.sendQuest(options, function(data) {
         
         if (!callback) {
@@ -1718,18 +1774,33 @@ function getRTMGate(service, callback, timeout) {
             };
         
             sendQuest.call(self, self._dispatchClient, options, function (err, data){
+
+
+                if (self._dispatchClient) {
+
+                    self._dispatchClient.destroy();
+                    self._dispatchClient = null;
+                }
+                
                 if (data) {
                     
-                    self._dispatchClient.close();
                     callback(null, data);
                 }
 
                 if (err) {
 
-                    self._dispatchClient.close(err);
                     callback(err, null);
                 }
             }, timeout);
+        });
+
+        this._dispatchClient.on('close', function() {
+
+            if (self._dispatchClient) {
+
+                self._dispatchClient.destroy();
+                self._dispatchClient = null;
+            }
         });
     }
 

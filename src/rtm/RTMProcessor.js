@@ -68,6 +68,12 @@ class RTMProcessor {
         }
     }
 
+    destroy() {
+
+        this._map = {};
+        this.removeEvent();
+    }
+
     /**
      * 
      * @param {object} data 
