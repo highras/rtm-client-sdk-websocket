@@ -155,11 +155,9 @@ class FPClient {
 
     destroy() {
 
-        this._pkg = null;
         this._autoReconnect = false;
 
         this.removeEvent();
-        this._cbs.removeCb();
 
         this._psr.destroy();
         this._conn.destroy();
@@ -202,6 +200,7 @@ function onClose() {
     this._wpos = 0;
     this._peekData = null;
 
+    this._cbs.removeCb();
     this._buffer = FPConfig.BUFFER.allocUnsafe(FPConfig.READ_BUFFER_LEN);
 
     this.emit('close');
