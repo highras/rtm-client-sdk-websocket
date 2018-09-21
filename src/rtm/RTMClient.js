@@ -188,7 +188,18 @@ class RTMClient {
             payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._rtmClient, options, callback, timeout);
+        sendQuest.call(this, this._rtmClient, options, function(err, data) {
+
+            if (err) {
+
+                err.rtm_mid = payload.mid;
+                callback && callback(err, null);
+                return;
+            }
+
+            data.rtm_mid = payload.mid;
+            callback && callback(null, data);
+        }, timeout);
     }
 
     /**
@@ -222,7 +233,18 @@ class RTMClient {
             payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._rtmClient, options, callback, timeout);
+        sendQuest.call(this, this._rtmClient, options, function(err, data) {
+
+            if (err) {
+
+                err.rtm_mid = payload.mid;
+                callback && callback(err, null);
+                return;
+            }
+
+            data.rtm_mid = payload.mid;
+            callback && callback(null, data);
+        }, timeout);
     }
 
     /**
@@ -256,7 +278,18 @@ class RTMClient {
             payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._rtmClient, options, callback, timeout);
+        sendQuest.call(this, this._rtmClient, options, function(err, data) {
+
+            if (err) {
+
+                err.rtm_mid = payload.mid;
+                callback && callback(err, null);
+                return;
+            }
+
+            data.rtm_mid = payload.mid;
+            callback && callback(null, data);
+        }, timeout);
     }
 
     /**
@@ -290,7 +323,18 @@ class RTMClient {
             payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._rtmClient, options, callback, timeout);
+        sendQuest.call(this, this._rtmClient, options, function(err, data) {
+
+            if (err) {
+
+                err.rtm_mid = payload.mid;
+                callback && callback(err, null);
+                return;
+            }
+
+            data.rtm_mid = payload.mid;
+            callback && callback(null, data);
+        }, timeout);
     }
 
     /**
@@ -416,7 +460,7 @@ class RTMClient {
 
             if (err) {
 
-                callback(err, null);
+                callback && callback(err, null);
                 return;
             }
 
@@ -431,11 +475,11 @@ class RTMClient {
                     buids[index] = new RTMConfig.Int64(item);
                 });
 
-                callback(null, buids);
+                callback && callback(null, buids);
                 return;
             }
 
-            callback(null, data);
+            callback && callback(null, data);
         }, timeout);
     }
 
@@ -519,7 +563,7 @@ class RTMClient {
 
             if (err) {
 
-                callback(err, null);
+                callback && callback(err, null);
                 return;
             }
 
@@ -533,11 +577,11 @@ class RTMClient {
                     buids[index] = new RTMConfig.Int64(item);
                 });
 
-                callback(null, buids);
+                callback && callback(null, buids);
                 return;
             }
 
-            callback(null, data);
+            callback && callback(null, data);
         }, timeout);
     }
 
@@ -564,7 +608,7 @@ class RTMClient {
 
             if (err) {
 
-                callback(err, null);
+                callback && callback(err, null);
                 return;
             }
 
@@ -579,11 +623,11 @@ class RTMClient {
                     bgids[index] = new RTMConfig.Int64(item);
                 });
 
-                callback(null, bgids);
+                callback && callback(null, bgids);
                 return;
             }
 
-            callback(null, data);
+            callback && callback(null, data);
         }, timeout);
     }
 
@@ -660,7 +704,7 @@ class RTMClient {
 
             if (err) {
 
-                callback(err, null);
+                callback && callback(err, null);
                 return;
             }
 
@@ -675,11 +719,11 @@ class RTMClient {
                     brids[index] = new RTMConfig.Int64(item);
                 });
 
-                callback(null, brids);
+                callback && callback(null, brids);
                 return;
             }
 
-            callback(null, data);
+            callback && callback(null, data);
         }, timeout);
     }
 
@@ -709,7 +753,7 @@ class RTMClient {
 
             if (err) {
 
-                callback(err, null);
+                callback && callback(err, null);
                 return;
             }
 
@@ -724,11 +768,11 @@ class RTMClient {
                     buids[index] = new RTMConfig.Int64(item);
                 });
 
-                callback(null, buids);
+                callback && callback(null, buids);
                 return;
             }
 
-            callback(null, data);
+            callback && callback(null, data);
         }, timeout);
     }
 
@@ -755,7 +799,7 @@ class RTMClient {
             
             if (err) {
 
-                callback(err, null);
+                callback && callback(err, null);
                 return;
             }
 
@@ -787,7 +831,7 @@ class RTMClient {
                 data.group = bgids;
             }
 
-            callback(null, data);
+            callback && callback(null, data);
         }, timeout);
     }
 
@@ -851,7 +895,7 @@ class RTMClient {
 
             if (err) {
 
-                callback(err, null);
+                callback && callback(err, null);
                 return;
             }
 
@@ -878,7 +922,7 @@ class RTMClient {
                 data.msgs = bmsgs;
             }
 
-            callback(null, data);
+            callback && callback(null, data);
         }, timeout);
     }
 
@@ -942,7 +986,7 @@ class RTMClient {
 
             if (err) {
 
-                callback(err, null);
+                callback && callback(err, null);
                 return;
             }
 
@@ -969,7 +1013,7 @@ class RTMClient {
                 data.msgs = bmsgs;
             }
 
-            callback(null, data);
+            callback && callback(null, data);
         }, timeout);
     }
 
@@ -1031,7 +1075,7 @@ class RTMClient {
 
             if (err) {
 
-                callback(err, null);
+                callback && callback(err, null);
                 return;
             }
 
@@ -1058,7 +1102,7 @@ class RTMClient {
                 data.msgs = bmsgs;
             }
 
-            callback(null, data);
+            callback && callback(null, data);
         }, timeout);
     }
 
@@ -1124,7 +1168,7 @@ class RTMClient {
 
             if (err) {
 
-                callback(err, null);
+                callback && callback(err, null);
                 return;
             }
 
@@ -1151,7 +1195,7 @@ class RTMClient {
                 data.msgs = bmsgs;
             }
 
-            callback(null, data);
+            callback && callback(null, data);
         }, timeout);
     }
 
@@ -1340,7 +1384,7 @@ class RTMClient {
 
             if (err) {
 
-                callback(err, null);
+                callback && callback(err, null);
                 return;
             }
 
@@ -1356,11 +1400,11 @@ class RTMClient {
                     bgeos[index] = item;
                 });
 
-                callback(null, bgeos);
+                callback && callback(null, bgeos);
                 return;
             }
 
-            callback(null, data);
+            callback && callback(null, data);
         }, timeout);
     }
 
@@ -1724,11 +1768,11 @@ function sendQuest(client, options, callback, timeout) {
 
             if (err) {
 
-                callback(err, null);
+                callback && callback(err, null);
                 return;
             }
 
-            callback(null, payload);
+            callback && callback(null, payload);
             return;
         }
 
@@ -1736,11 +1780,11 @@ function sendQuest(client, options, callback, timeout) {
 
         if (err) {
 
-            callback(data, null);
+            callback && callback(data, null);
             return;
         }
 
-        callback(null, data);
+        callback && callback(null, data);
     }, timeout);
 }
 
@@ -1784,12 +1828,12 @@ function getRTMGate(service, callback, timeout) {
                 
                 if (data) {
                     
-                    callback(null, data);
+                    callback && callback(null, data);
                 }
 
                 if (err) {
 
-                    callback(err, null);
+                    callback && callback(err, null);
                 }
             }, timeout);
         });
