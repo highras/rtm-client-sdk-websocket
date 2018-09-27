@@ -63,7 +63,7 @@ client.on('login', function(data) {
 
         if (err) {
 
-            console.error('\n[ERR]', err.message);
+            console.error('\n[ERR]', err);
         }
 
         if (data) {

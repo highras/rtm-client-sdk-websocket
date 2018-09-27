@@ -29,10 +29,23 @@ function TestCase (options, from, to) {
                 
                 if (err) {
 
-                    console.error('\n[ERR] ' + name + ':\n', err.message);
+                    if (err.mid) {
+
+                        console.error('\n[ERR] mid:' + err.mid.toString(), name + ':\n', err.error);
+                        return;
+                    }
+
+                    console.error('\n[ERR] ' + name + ':\n', err);
+
                 }
 
                 if (data) {
+
+                    if (data.mid) {
+
+                        console.log('\n[DATA] mid:' + data.mid.toString(), name + ':\n', data.payload);
+                        return;
+                    }
 
                     console.log('\n[DATA] ' + name + ':\n', data);
                 }

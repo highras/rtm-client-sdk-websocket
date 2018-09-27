@@ -23,8 +23,8 @@ function baseTest(endpoint, pid, token, from, to) {
         version: undefined,
         recvUnreadMsgStatus: false,
         ssl: true,
-        // proxyEndpoint: 'highras.ifunplus.cn:13555'
-        proxyEndpoint: 'infra-dev.ifunplus.cn:13555'
+        // proxyEndpoint: 'highras.ifunplus.cn:13556'
+        proxyEndpoint: 'infra-dev.ifunplus.cn:13556'
     }, from, to);
 }
 
@@ -40,7 +40,7 @@ function asyncStressTest() {
         version: undefined,
         recvUnreadMsgStatus: false,
         ssl: true,
-        proxyEndpoint: 'infra-dev.ifunplus.cn:13555'
+        proxyEndpoint: 'infra-dev.ifunplus.cn:13556'
     }, '10.63.2.47:13013');
 
     tester.buildTesters(1, 150);
