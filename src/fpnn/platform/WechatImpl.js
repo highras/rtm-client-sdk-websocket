@@ -11,6 +11,12 @@ class WechatImpl {
 
         let self = this;
 
+        if (!wx || !wx.connectSocket) {
+
+       		this.emit('error', new Error('Not support `wx` or `wx.connectSocket` undefined'));
+       		return;
+        }
+
         this._socket = wx.connectSocket({
 
         	url: endpoint,

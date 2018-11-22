@@ -106,7 +106,7 @@ class FPClient {
 
             buf = this._proxy.buildProxyData(buf);
         }
-
+        
         this._conn.write(buf);
     }
 

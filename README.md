@@ -32,8 +32,6 @@ let client = new Rtm.RTMClient({
     autoReconnect: false,
     connectionTimeout: 10 * 1000,
     pid: 1000012,
-    version: undefined,
-    recvUnreadMsgStatus: false,
     ssl: true,
     platformImpl: null,
     proxyEndpoint: 'highras.ifunplus.cn:13555',
@@ -59,7 +57,7 @@ client.on('login', function(data) {
     }
 
     //send to server
-    client.sendMessage(new Rtm.RTMConfig.Int64(123789), 8, 'hello !', '', 10 * 1000, function(err, data) {
+    client.sendMessage(new Rtm.RTMConfig.Int64(123789), 8, 'hello !', '', new Rtm.RTMConfig.Int64(0), 10 * 1000, function(err, data) {
 
         if (err) {
 
@@ -117,6 +115,7 @@ client.login();
     * `data.mid`: **(Int64)** 消息 id, 当前链接会话内唯一
     * `data.msg`: **(string)** 消息内容
     * `data.attrs`: **(string)** 发送时附加的自定义内容
+    * `data.mtime`: **(Int64)** 消息入库 id
 
 * `pushgroupmsg`: RTMGate主动推送Group消息
     * `data.from`: **(Int64)** 发送者 id
@@ -125,6 +124,7 @@ client.login();
     * `data.mid`: **(Int64)** 消息 id, 当前链接会话内唯一
     * `data.msg`: **(string)** 消息内容
     * `data.attrs`: **(string)** 发送时附加的自定义内容
+    * `data.mtime`: **(Int64)** 消息入库 id
 
 * `pushroommsg`: RTMGate主动推送Room消息
     * `data.from`: **(Int64)** 发送者 id
@@ -133,6 +133,7 @@ client.login();
     * `data.mid`: **(Int64)** 消息 id, 当前链接会话内唯一
     * `data.msg`: **(string)** 消息内容
     * `data.attrs`: **(string)** 发送时附加的自定义内容
+    * `data.mtime`: **(Int64)** 消息入库 id
 
 * `pushbroadcastmsg`: RTMGate主动推送广播消息
     * `data.from`: **(Int64)** 发送者 id
@@ -140,75 +141,41 @@ client.login();
     * `data.mid`: **(Int64)** 消息 id, 当前链接会话内唯一
     * `data.msg`: **(string)** 消息内容
     * `data.attrs`: **(string)** 发送时附加的自定义内容
-
-* `transmsg`: RTMGate主动推送翻译消息(P2P)
-    * `data.from`: **(Int64)** 发送者 id
-    * `data.mid`: **(Int64)** 翻译后的消息 id, 当前链接会话内唯一
-    * `data.omid`: **(Int64)** 原始消息的消息 id
-    * `data.msg`: **(string)** 消息内容
-    * `data.attrs`: **(string)** 翻译后的消息内容
-
-* `transgroupmsg`: RTMGate主动推送翻译消息(Group)
-    * `data.from`: **(Int64)** 发送者 id
-    * `data.gid`: **(Int64)** Group id
-    * `data.mid`: **(Int64)** 翻译后的消息 id, 当前链接会话内唯一
-    * `data.omid`: **(Int64)** 原始消息的消息 id
-    * `data.msg`: **(string)** 消息内容
-    * `data.attrs`: **(string)** 翻译后的消息内容
-    
-* `transroommsg`: RTMGate主动推送翻译消息(Room)
-    * `data.from`: **(Int64)** 发送者 id
-    * `data.rid`: **(Int64)** Room id
-    * `data.mid`: **(Int64)** 翻译后的消息 id, 当前链接会话内唯一
-    * `data.omid`: **(Int64)** 原始消息的消息 id
-    * `data.msg`: **(string)** 消息内容
-    * `data.attrs`: **(string)** 翻译后的消息内容
-    
-* `transbroadcastmsg`: RTMGate主动推送翻译消息(广播)
-    * `data.from`: **(Int64)** 发送者 id
-    * `data.mid`: **(Int64)** 翻译后的消息 id, 当前链接会话内唯一
-    * `data.omid`: **(Int64)** 原始消息的消息 id
-    * `data.msg`: **(string)** 消息内容
-    * `data.attrs`: **(string)** 翻译后的消息内容
-
-* `pushunread`: RTMGate主动推送消息(未读)
-    * `data.p2p`: **(array[Int64])** 有未读消息的发送者 id 列表
-    * `data.group`: **(array[Int64])** 有未读消息的Group id 列表
-    * `data.bc`: **(bool)** `true`代表有未读广播消息
+    * `data.mtime`: **(Int64)** 消息入库 id
 
 * `pushfile`: RTMGate主动推送P2P文件
     * `data.from`: **(Int64)** 发送者 id
-    * `data.mtype`: **(number)** 消息类型
-    * `data.ftype`: **(number)** 文件类型, 请参考 `RTMConfig.FILE_TYPE` 成员
+    * `data.mtype`: **(number)** 文件类型, 请参考 `RTMConfig.FILE_TYPE` 成员
     * `data.mid`: **(Int64)** 消息 id, 当前链接会话内唯一
     * `data.msg`: **(string)** 文件获取地址(url)
     * `data.attrs`: **(string)** 发送时附加的自定义内容
+    * `data.mtime`: **(Int64)** 消息入库 id
 
 * `pushgroupfile`: RTMGate主动推送Group文件
     * `data.from`: **(Int64)** 发送者 id
     * `data.gid`: **(Int64)** Group id
-    * `data.mtype`: **(number)** 消息类型
-    * `data.ftype`: **(number)** 文件类型, 请参考 `RTMConfig.FILE_TYPE` 成员
+    * `data.mtype`: **(number)** 文件类型, 请参考 `RTMConfig.FILE_TYPE` 成员
     * `data.mid`: **(Int64)** 消息 id, 当前链接会话内唯一
     * `data.msg`: **(string)** 文件获取地址(url)
     * `data.attrs`: **(string)** 发送时附加的自定义内容
+    * `data.mtime`: **(Int64)** 消息入库 id
 
 * `pushroomfile`: RTMGate主动推送Room文件
     * `data.from`: **(Int64)** 发送者 id
     * `data.rid`: **(Int64)** Room id
-    * `data.mtype`: **(number)** 消息类型
-    * `data.ftype`: **(number)** 文件类型, 请参考 `RTMConfig.FILE_TYPE` 成员
+    * `data.mtype`: **(number)** 文件类型, 请参考 `RTMConfig.FILE_TYPE` 成员
     * `data.mid`: **(Int64)** 消息 id, 当前链接会话内唯一
     * `data.msg`: **(string)** 文件获取地址(url)
     * `data.attrs`: **(string)** 发送时附加的自定义内容
+    * `data.mtime`: **(Int64)** 消息入库 id
 
 * `pushbroadcastfile`: RTMGate主动推送广播文件
     * `data.from`: **(Int64)** 发送者 id
-    * `data.mtype`: **(number)** 消息类型
-    * `data.ftype`: **(number)** 文件类型, 请参考 `RTMConfig.FILE_TYPE` 成员
+    * `data.mtype`: **(number)** 文件类型, 请参考 `RTMConfig.FILE_TYPE` 成员
     * `data.mid`: **(Int64)** 消息 id, 当前链接会话内唯一
     * `data.msg`: **(string)** 文件获取地址(url)
     * `data.attrs`: **(string)** 发送时附加的自定义内容
+    * `data.mtime`: **(Int64)** 消息入库 id
 
 #### API ####
 * `constructor(options)`: 构造RTMClient
@@ -219,7 +186,7 @@ client.login();
     * `options.autoReconnect`: **(Optional | bool)** 是否自动重连, 默认: `false`
     * `options.connectionTimeout`: **(Optional | number)** 超时时间(ms), 默认: `30 * 1000`
     * `options.version`: **(Optional | string)** 服务器版本号, RTM提供
-    * `options.recvUnreadMsgStatus`: **(Optional | bool)** 是否接收未读消息状态信息, 默认: `true`
+    * `options.attrs`: **(Optional | object[string, string])** 设置用户端信息, 保存在当前链接中, 客户端可以获取到
     * `options.ssl`: **(Optional | string)** 是否开启SSL加密, 若开启需设置代理地址 默认: `true`
     * `options.platformImpl`: **(Optional | Object)** 平台相关接口注入, 默认: `new BrowserImpl()`
     * `options.proxyEndpoint`: **(Optional | string)** 若开启SSL加密, 需设置代理地址, 测试代理: `highras.ifunplus.cn:13550`
@@ -232,54 +199,203 @@ client.login();
 
 * `destroy()`: 断开连接并开始销毁
 
-* `sendMessage(to, mtype, msg, attrs, timeout, callback)`: 发送消息
+* `sendMessage(to, mtype, msg, attrs, mid, timeout, callback)`: 发送消息
     * `to`: **(Required | Int64)** 接收方uid
     * `mtype`: **(Required | number)** 消息类型
     * `msg`: **(Required | string)** 消息内容
     * `attrs`: **(Required | string)** 消息附加信息, 没有可传`''`
+    * `mid`: **(Optional | Int64)** 消息 id, 用于过滤重复消息, 非重发时为`Int64(0)`
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(Error)** 
-        * `data`: **(object)** 
+        * `err`: **(object[mid:Int64, error:Error])** 
+        * `data`: **(object[mid:Int64, payload:object[mtime:Int64]])** 
 
-* `sendMessages(tos, mtype, msg, attrs, timeout, callback)`: 发送多人消息
-    * `tos`: **(Required | array[Int64])** 接收方uids
-    * `mtype`: **(Required | number)** 消息类型
-    * `msg`: **(Required | string)** 消息内容
-    * `attrs`: **(Required | string)** 消息附加信息, 没有可传`''`
-    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
-    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(Error)** 
-        * `data`: **(object)** 
-
-* `sendGroupMessage(gid, mtype, msg, attrs, timeout, callback)`: 发送group消息
+* `sendGroupMessage(gid, mtype, msg, attrs, mid, timeout, callback)`: 发送group消息
     * `gid`: **(Required | Int64)** group id
     * `mtype`: **(Required | number)** 消息类型
     * `msg`: **(Required | string)** 消息内容
     * `attrs`: **(Required | string)** 消息附加信息, 可传`''`
+    * `mid`: **(Optional | Int64)** 消息 id, 用于过滤重复消息, 非重发时为`Int64(0)`
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(Error)** 
-        * `data`: **(object)** 
+        * `err`: **(object[mid:Int64, error:Error])** 
+        * `data`: **(object[mid:Int64, payload:object[mtime:Int64]])** 
 
-* `sendRoomMessage(rid, mtype, msg, attrs, timeout, callback)`: 发送room消息
+* `sendRoomMessage(rid, mtype, msg, attrs, mid, timeout, callback)`: 发送room消息
     * `rid`: **(Required | Int64)** room id
     * `mtype`: **(Required | number)** 消息类型
     * `msg`: **(Required | string)** 消息内容
     * `attrs`: **(Required | string)** 消息附加信息, 可传`''`
+    * `mid`: **(Optional | Int64)** 消息 id, 用于过滤重复消息, 非重发时为`Int64(0)`
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(object[mid:Int64, error:Error])** 
+        * `data`: **(object[mid:Int64, payload:object[mtime:Int64]])** 
+
+* `getUnreadMessage(timeout, callback)`: 检测未读消息数目
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)** 
+        * `data`: **(object[p2p:object[string, number], group:object[string, number]])** 对应值为未读消息数目
+
+* `cleanUnreadMessage(timeout, callback)`: 清除未读消息
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
         * `err`: **(Error)** 
         * `data`: **(object)** 
+
+* `getSession(timeout, callback)`: 获取所有会话
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)** 
+        * `data`: **(object[p2p:object[string, Int64], group:object[string, Int64]])** 对应值为最后一次会话的UTC时间戳
+
+* `getGroupMessage(gid, desc, num, begin, end, lastid, timeout, callback)`: 获取Group历史消息
+    * `gid`: **(Required | Int64)** Group id
+    * `desc`: **(Required | bool)** `true`: 则从`end`的时间戳开始倒序翻页, `false`: 则从`begin`的时间戳顺序翻页
+    * `num`: **(Required | number)** 获取数量, **一次最多获取20条, 建议10条**
+    * `begin`: **(Optional | Int64)** 开始时间戳, 毫秒, 默认`0`, 条件：`>=`
+    * `end`: **(Optional | Int64)** 结束时间戳, 毫秒, 默认`0`, 条件：`<=`
+    * `lastid`: **(Optional | Int64)** 最后一条消息的id, 第一次默认传`0`, 条件：`> or <`
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)** 
+        * `data`: **(object[num:number, lastid:Int64, begin:Int64, end:Int64, msgs:array[GroupMsg]])** 
+            * `GroupMsg.id` **(Int64)**
+            * `GroupMsg.from` **(Int64)**
+            * `GroupMsg.mtype` **(number)**
+            * `GroupMsg.mid` **(Int64)**
+            * `GroupMsg.deleted` **(bool)**
+            * `GroupMsg.msg` **(string)**
+            * `GroupMsg.attrs` **(string)**
+            * `GroupMsg.mtime` **(Int64)**
+
+* `getRoomMessage(rid, desc, num, begin, end, lastid, timeout, callback)`: 获取Room历史消息
+    * `rid`: **(Required | Int64)** Room id
+    * `desc`: **(Required | bool)** `true`: 则从`end`的时间戳开始倒序翻页, `false`: 则从`begin`的时间戳顺序翻页
+    * `num`: **(Required | number)** 获取数量, **一次最多获取20条, 建议10条**
+    * `begin`: **(Optional | Int64)** 开始时间戳, 毫秒, 默认`0`, 条件：`>=`
+    * `end`: **(Optional | Int64)** 结束时间戳, 毫秒, 默认`0`, 条件：`<=`
+    * `lastid`: **(Optional | Int64)** 最后一条消息的id, 第一次默认传`0`, 条件：`> or <`
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)** 
+        * `data`: **(object[num:number, lastid:Int64, begin:Int64, end:Int64, msgs:array[RoomMsg]])** 
+            * `RoomMsg.id` **(Int64)**
+            * `RoomMsg.from` **(Int64)**
+            * `RoomMsg.mtype` **(number)**
+            * `RoomMsg.mid` **(Int64)**
+            * `RoomMsg.deleted` **(bool)**
+            * `RoomMsg.msg` **(string)**
+            * `RoomMsg.attrs` **(string)**
+            * `RoomMsg.mtime` **(Int64)**
+
+* `getBroadcastMessage(desc, num, begin, end, lastid, timeout, callback)`: 获取广播历史消息
+    * `desc`: **(Required | bool)** `true`: 则从`end`的时间戳开始倒序翻页, `false`: 则从`begin`的时间戳顺序翻页
+    * `num`: **(Required | number)** 获取数量, **一次最多获取20条, 建议10条**
+    * `begin`: **(Optional | Int64)** 开始时间戳, 毫秒, 默认`0`, 条件：`>=`
+    * `end`: **(Optional | Int64)** 结束时间戳, 毫秒, 默认`0`, 条件：`<=`
+    * `lastid`: **(Optional | Int64)** 最后一条消息的id, 第一次默认传`0`, 条件：`> or <`
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)** 
+        * `data`: **(object[num:number, lastid:Int64, begin:Int64, end:Int64, msgs:array[BroadcastMsg]])** 
+            * `BroadcastMsg.id` **(Int64)**
+            * `BroadcastMsg.from` **(Int64)**
+            * `BroadcastMsg.mtype` **(number)**
+            * `BroadcastMsg.mid` **(Int64)**
+            * `BroadcastMsg.deleted` **(bool)**
+            * `BroadcastMsg.msg` **(string)**
+            * `BroadcastMsg.attrs` **(string)**
+            * `BroadcastMsg.mtime` **(Int64)**
+
+* `getP2PMessage(ouid, desc, num, begin, end, lastid, timeout, callback)`: 获取P2P历史消息
+    * `ouid`: **(Required | Int64)** 获取和哪个用户id的历史消息
+    * `desc`: **(Required | bool)** `true`: 则从`end`的时间戳开始倒序翻页, `false`: 则从`begin`的时间戳顺序翻页
+    * `num`: **(Required | number)** 获取数量, **一次最多获取20条, 建议10条**
+    * `begin`: **(Optional | Int64)** 开始时间戳, 毫秒, 默认`0`, 条件：`>=`
+    * `end`: **(Optional | Int64)** 结束时间戳, 毫秒, 默认`0`, 条件：`<=`
+    * `lastid`: **(Optional | Int64)** 最后一条消息的id, 第一次默认传`0`, 条件：`> or <`
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)** 
+        * `data`: **(object[num:number, lastid:Int64, begin:Int64, end:Int64, msgs:array[P2PMsg]])** 
+            * `P2PMsg.id` **(Int64)**
+            * `P2PMsg.direction` **(number)**
+            * `P2PMsg.mtype` **(number)**
+            * `P2PMsg.mid` **(Int64)**
+            * `P2PMsg.deleted` **(bool)**
+            * `P2PMsg.msg` **(string)**
+            * `P2PMsg.attrs` **(string)**
+            * `P2PMsg.mtime` **(Int64)**
+
+* `fileToken(cmd, tos, to, rid, gid, timeout, callback)`: 获取发送文件的token
+    * `cmd`: **(Required | string)** 文件发送方式`sendfile | sendroomfile | sendgroupfile`
+    * `tos`: **(Optional | array[Int64])** 接收方 uids
+    * `to`: **(Optional | Int64)** 接收方 uid
+    * `rid`: **(Optional | Int64)** Room id
+    * `gid`: **(Optional | Int64)** Group id
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)**
+        * `data`: **(object[token:string, endpoint:string])**
 
 * `close()`: 断开连接
 
-* `addVariables(dict, timeout, callback)`: 添加属性
-    * `dict`: **(Required | object)** 参数字典, 值必须是`string`类型, 具体参数参见 RTM 文档。
+* `addAttrs(attrs, timeout, callback)`: 设置客户端信息, 保存在当前链接中, 客户端可以获取到
+    * `attrs`: **(Required | object[string, string])** key-value形式的变量
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
         * `err`: **(Error)** 
         * `data`: **(object)** 
+
+* `getAttrs(timeout, callback)`: 获取客户端信息
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)** 
+        * `data`: **(object[attrs:array[Map])** 
+            * `Map.ce` **(string)** 链接的`endpoint`, 需要让其下线可以调用`kickout`
+            * `Map.login` **(string)** 登录时间, UTC时间戳
+            * `Map.my` **(string)** 当前链接的`attrs`
+
+* `addDebugLog(msg, attrs, timeout, callback)`: 添加debug日志
+    * `msg`: **(Required | string)** 调试信息msg 
+    * `attrs`: **(Required | string)** 调试信息attrs 
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)** 
+        * `data`: **(object)** 
+
+* `addDevice(apptype, devicetoken, timeout, callback)`: 添加设备, 应用信息
+    * `apptype`: **(Required | string)** 应用信息
+    * `devicetoken`: **(Required | string)** 设备信息
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)** 
+        * `data`: **(object)** 
+
+* `removeDevice(devicetoken, timeout, callback)`: 删除设备, 应用信息
+    * `devicetoken`: **(Required | string)** 设备信息
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)** 
+        * `data`: **(object)** 
+
+* `setTranslationLanguage(targetLanguage, timeout, callback)`: 设置自动翻译的默认目标语言类型, 如果 targetLanguage 为空字符串, 则取消自动翻译
+    * `targetLanguage`: **(Required | string)** 翻译的目标语言类型
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)** 
+        * `data`: **(object)** 
+
+* `translate(originalMessage, originalLanguage, targetLanguage, timeout, callback)`: 翻译消息
+    * `originalMessage`: **(Required | stirng)** 待翻译的原始消息
+    * `originalLanguage`: **(Optional | string)** 待翻译的消息的语言类型, 可为 `undefined`
+    * `targetLanguage`: **(Required | string)** 本次翻译的目标语言类型
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)** 
+        * `data`: **(object[stext:string, src:string, dtext:string, dst:string])** 
 
 * `addFriends(friends, timeout, callback)`: 添加好友
     * `friends`: **(Required | array[Int64])** 多个好友 id
@@ -357,180 +473,48 @@ client.login();
         * `err`: **(Error)** 
         * `data`: **(array[Int64])** 
 
-* `checkUnreadMessage(timeout, callback)`: 获取离线消息／未读消息数目
-    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
-    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(Error)** 
-        * `data`: **(object[p2p:array[Int64], group:array[Int64], bc:bool])** 
-
-* `getGroupMessage(gid, num, desc, page, localmid, localid, mtypes, timeout, callback)`: 获取Group历史消息
-    * `gid`: **(Required | Int64)** Group id
-    * `num`: **(Required | number)** 获取数量, **一次最多获取10条**
-    * `desc`: **(Required | bool)** `true`: 降序排列, `false`: 升序排列
-    * `page`: **(Required | number)** 翻页索引, 基数为 0
-    * `localmid`: **(Optional | Int64)** 本地保存消息的 mid, 没有传递 -1, 服务器将返回此 mid 之后的新消息
-    * `localid`: **(Optional | Int64)** 本地保存的上一轮获取到的消息的最大消息 id, 没有传递 -1, 服务器将返回大于这个id的所有消息, 翻页时, 本参数传一样的值
-    * `mtypes`: **(Optional | array[number])** 关心的消息类型列表, 空代表所有类型
-    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
-    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(Error)** 
-        * `data`: **(object[num:number, maxid:Int64, msgs:array[GroupMsg]])** 
-            * `GroupMsg.id` **(Int64)**
-            * `GroupMsg.from` **(Int64)**
-            * `GroupMsg.mtype` **(number)**
-            * `GroupMsg.ftype` **(number)**
-            * `GroupMsg.mid` **(Int64)**
-            * `GroupMsg.msg` **(string)**
-            * `GroupMsg.attrs` **(string)**
-            * `GroupMsg.mtime` **(number)**
-
-* `getRoomMessage(rid, num, desc, page, localmid, localid, mtypes, timeout, callback)`: 获取Room历史消息
-    * `rid`: **(Required | Int64)** Room id
-    * `num`: **(Required | number)** 获取数量, **一次最多获取10条**
-    * `desc`: **(Required | bool)** `true`: 降序排列, `false`: 升序排列
-    * `page`: **(Required | number)** 翻页索引, 基数为 0
-    * `localmid`: **(Optional | Int64)** 本地保存消息的 mid, 没有传递 -1, 服务器将返回此 mid 之后的新消息
-    * `localid`: **(Optional | Int64)** 本地保存的上一轮获取到的消息的最大消息 id, 没有传递 -1, 服务器将返回大于这个id的所有消息, 翻页时, 本参数传一样的值
-    * `mtypes`: **(Optional | array[number])** 关心的消息类型列表, 空代表所有类型
-    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
-    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(Error)** 
-        * `data`: **(object[num:number, maxid:Int64, msgs:array[RoomMsg]])** 
-            * `RoomMsg.id` **(Int64)**
-            * `RoomMsg.from` **(Int64)**
-            * `RoomMsg.mtype` **(number)**
-            * `RoomMsg.ftype` **(number)**
-            * `RoomMsg.mid` **(Int64)**
-            * `RoomMsg.msg` **(string)**
-            * `RoomMsg.attrs` **(string)**
-            * `RoomMsg.mtime` **(number)**
-
-* `getBroadcastMessage(num, desc, page, localmid, localid, mtypes, timeout, callback)`: 获取广播历史消息
-    * `num`: **(Required | number)** 获取数量, **一次最多获取10条**
-    * `desc`: **(Required | bool)** `true`: 降序排列, `false`: 升序排列
-    * `page`: **(Required | number)** 翻页索引, 基数为 0
-    * `localmid`: **(Optional | Int64)** 本地保存消息的 mid, 没有传递 -1, 服务器将返回此 mid 之后的新消息
-    * `localid`: **(Optional | Int64)** 本地保存的上一轮获取到的消息的最大消息 id, 没有传递 -1, 服务器将返回大于这个id的所有消息, 翻页时, 本参数传一样的值
-    * `mtypes`: **(Optional | array[number])** 关心的消息类型列表, 空代表所有类型
-    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
-    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(Error)** 
-        * `data`: **(object[num:number, maxid:Int64, msgs:array[BroadcastMsg]])** 
-            * `BroadcastMsg.id` **(Int64)**
-            * `BroadcastMsg.from` **(Int64)**
-            * `BroadcastMsg.mtype` **(number)**
-            * `BroadcastMsg.ftype` **(number)**
-            * `BroadcastMsg.mid` **(Int64)**
-            * `BroadcastMsg.msg` **(string)**
-            * `BroadcastMsg.attrs` **(string)**
-            * `BroadcastMsg.mtime` **(number)**
-
-* `getP2PMessage(peeruid, num, direction, desc, page, localmid, localid, mtypes, timeout, callback)`: 获取P2P历史消息
-    * `peeruid`: **(Required | Int64)** 发送者 id
-    * `num`: **(Required | number)** 获取数量, **一次最多获取10条**
-    * `direction`: **(Required | number)** `0`: sent + recv, `1`: sent, `2`: recv
-    * `desc`: **(Required | bool)** `true`: 降序排列, `false`: 升序排列
-    * `page`: **(Required | number)** 翻页索引, 基数为 0
-    * `localmid`: **(Optional | Int64)** 本地保存消息的 mid, 没有传递 -1, 服务器将返回此 mid 之后的新消息
-    * `localid`: **(Optional | Int64)** 本地保存的上一轮获取到的消息的最大消息 id, 没有传递 -1, 服务器将返回大于这个id的所有消息, 翻页时, 本参数传一样的值
-    * `mtypes`: **(Optional | array[number])** 关心的消息类型列表, 空代表所有类型
-    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
-    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(Error)** 
-        * `data`: **(object[num:number, maxid:Int64, msgs:array[P2PMessage]])** 
-            * `P2PMessage.id` **(Int64)**
-            * `P2PMessage.direction` **(number)**
-            * `P2PMessage.mtype` **(number)**
-            * `P2PMessage.ftype` **(number)**
-            * `P2PMessage.mid` **(Int64)**
-            * `P2PMessage.msg` **(string)**
-            * `P2PMessage.attrs` **(string)**
-            * `P2PMessage.mtime` **(number)**
-
-* `addDevice(apptype, devicetoken, timeout, callback)`: 添加设备, 应用信息
-    * `apptype`: **(Required | string)** 应用信息
-    * `devicetoken`: **(Required | string)** 设备信息
+* `deleteMessage(mid, xid, type, timeout, callback)`: 删除消息
+    * `mid`: **(Required | Int64)** 消息 id
+    * `xid`: **(Required | Int64)** 消息接收方 id (userId/RoomId/GroupId)
+    * `type`: **(Required | number)** 接收方类型 (1:p2p, 2:group, 3:room)
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
         * `err`: **(Error)** 
         * `data`: **(object)** 
 
-* `removeDevice(devicetoken, timeout, callback)`: 删除设备, 应用信息
-    * `devicetoken`: **(Required | string)** 设备信息
+* `kickout(ce, timeout, callback)`: 踢掉一个链接 (只对多用户登录有效, 不能踢掉自己, 可以用来实现同类设备唯一登录)
+    * `ce`: **(Required | string)** 当前链接的`endpoint`, 可以通过调用`getAttrs`获取
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
         * `err`: **(Error)** 
         * `data`: **(object)** 
 
-* `setTranslationLanguage(targetLanguage, timeout, callback)`: 设置自动翻译的默认目标语言类型, 如果 targetLanguage 为空字符串, 则取消自动翻译
-    * `targetLanguage`: **(Required | string)** 翻译的目标语言类型
-    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
-    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(Error)** 
-        * `data`: **(object)** 
-
-* `translate(originalMessage, originalLanguage, targetLanguage, timeout, callback)`: 翻译消息
-    * `originalMessage`: **(Required | stirng)** 待翻译的原始消息
-    * `originalLanguage`: **(Optional | string)** 待翻译的消息的语言类型, 可为 `undefined`
-    * `targetLanguage`: **(Required | string)** 本次翻译的目标语言类型
-    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
-    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(Error)** 
-        * `data`: **(object[stext:string, src:string, dtext:string, dst:string])** 
-
-* `setGeo(lat, lng, timeout, callback)`: 设置位置
-    * `lat`: **(Required | number)** 纬度
-    * `lng`: **(Required | number)** 经度
-    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
-    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(Error)** 
-        * `data`: **(object)** 
-
-* `getGeo(timeout, callback)`: 获取位置
-    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
-    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(Error)** 
-        * `data`: **(object[lat:number, lng:number])** 
-
-* `getGeos(uids, timeout, callback)`: 获取位置
-    * `uids`: **(Required | array[Int64])** 多个用户 id
-    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
-    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(Error)** 
-        * `data`: **(array[array[uid:Int64,lat:number,lng:number])** 
-
-* `sendFile(mtype, to, file, timeout, callback)`: 发送文件
-    * `mtype`: **(Required | number)** 消息类型
+* `sendFile(mtype, to, file, mid, timeout, callback)`: 发送文件
+    * `mtype`: **(Required | number)** 文件类型
     * `to`: **(Required | Int64)** 接收者 id
     * `file`: **(Required | File)** 要发送的文件
+    * `mid`: **(Optional | Int64)** 消息 id, 用于过滤重复消息, 非重发时为`Int64(0)`
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(Error)** 
-        * `data`: **(object)** 
+        * `err`: **(object[mid:Int64, error:Error])** 
+        * `data`: **(object[mid:Int64, payload:object[mtime:Int64]])** 
 
-* `sendFiles(mtype, tos, file, timeout, callback)`: 发送多人文件
-    * `mtype`: **(Required | number)** 消息类型
-    * `tos`: **(Required | array[Int64])** 多个接受者 id
-    * `file`: **(Required | File)** 要发送的文件
-    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
-    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(Error)** 
-        * `data`: **(object)** 
-
-* `sendGroupFile(mtype, gid, file, timeout, callback)`: 发送文件
-    * `mtype`: **(Required | number)** 消息类型
+* `sendGroupFile(mtype, gid, file, mid, timeout, callback)`: 给Group发送文件
+    * `mtype`: **(Required | number)** 文件类型
     * `gid`: **(Required | Int64)** Group id
     * `file`: **(Required | File)** 要发送的文件
+    * `mid`: **(Optional | Int64)** 消息 id, 用于过滤重复消息, 非重发时为`Int64(0)`
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(Error)** 
-        * `data`: **(object)** 
+        * `err`: **(object[mid:Int64, error:Error])** 
+        * `data`: **(object[mid:Int64, payload:object[mtime:Int64]])** 
 
-* `sendRoomFile(mtype, rid, file, timeout, callback)`: 发送文件
-    * `mtype`: **(Required | number)** 消息类型
+* `sendRoomFile(mtype, rid, file, mid, timeout, callback)`: 给Room发送文件
+    * `mtype`: **(Required | number)** 文件类型
     * `rid`: **(Required | Int64)** Room id
     * `file`: **(Required | File)** 要发送的文件
+    * `mid`: **(Optional | Int64)** 消息 id, 用于过滤重复消息, 非重发时为`Int64(0)`
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
-        * `err`: **(Error)** 
-        * `data`: **(object)** 
+        * `err`: **(object[mid:Int64, error:Error])** 
+        * `data`: **(object[mid:Int64, payload:object[mtime:Int64]])** 

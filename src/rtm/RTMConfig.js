@@ -44,11 +44,10 @@ const ERROR_CODE = {
 };
 
 const FILE_TYPE = {
-	message: 0,
-	image: 10,
-	audio: 11,
-	video: 12,
-	file: 100
+	image: 40, 			//图片
+	audio: 41,  		//语音
+	video: 42, 			//视频
+	file: 50 			//泛指文件，服务器会修改此值（如果服务器可以判断出具体类型的话，仅在mtype=50的情况下）
 };
 
 const SERVER_PUSH = {
@@ -62,11 +61,6 @@ const SERVER_PUSH = {
 	recvGroupFile: 'pushgroupfile',
 	recvRoomFile: 'pushroomfile',
 	recvBroadcastFile: 'pushbroadcastfile',
-	recvTranslatedMessage: 'transmsg',
-	recvTranslatedGroupMessage: 'transgroupmsg',
-	recvTranslatedRoomMessage: 'transroommsg',
-	recvTranslatedBroadcastMessage: 'transbroadcastmsg',
-	recvUnreadMsgStatus: 'pushunread',
 	recvPing: 'ping'
 };
 

@@ -101,10 +101,10 @@ class RTMProcessor {
      * 
      * @param {Int64} data.from
      * @param {number} data.mtype
-     * @param {number} data.ftype
      * @param {Int64} data.mid
      * @param {string} data.msg
      * @param {string} data.attrs
+     * @param {Int64} data.mtime
      */
     pushmsg(data) {
 
@@ -122,8 +122,13 @@ class RTMProcessor {
                 return;
             }
         }
+        
+        if (data.mtime) {
+            
+            data.mtime = new RTMConfig.Int64(data.mtime);
+        }
 
-        if (data.ftype > 0) {
+        if (data.mtype >= 40 && data.mtype <= 50) {
 
             this.emit(RTMConfig.SERVER_PUSH.recvFile, data);
             return;
@@ -138,10 +143,10 @@ class RTMProcessor {
      * @param {Int64} data.from
      * @param {Int64} data.gid
      * @param {number} data.mtype
-     * @param {number} data.ftype
      * @param {Int64} data.mid
      * @param {string} data.msg
      * @param {string} data.attrs
+     * @param {Int64} data.mtime
      */
     pushgroupmsg(data) {
         
@@ -165,7 +170,12 @@ class RTMProcessor {
             data.gid = new RTMConfig.Int64(data.gid);
         }
 
-        if (data.ftype > 0) {
+        if (data.mtime) {
+            
+            data.mtime = new RTMConfig.Int64(data.mtime);
+        }
+
+        if (data.mtype >= 40 && data.mtype <= 50) {
 
             this.emit(RTMConfig.SERVER_PUSH.recvGroupFile, data);
             return;
@@ -180,10 +190,10 @@ class RTMProcessor {
      * @param {Int64} data.from
      * @param {Int64} data.rid
      * @param {number} data.mtype
-     * @param {number} data.ftype
      * @param {Int64} data.mid
      * @param {string} data.msg
      * @param {string} data.attrs
+     * @param {Int64} data.mtime
      */
     pushroommsg(data) {
 
@@ -207,7 +217,12 @@ class RTMProcessor {
             data.rid = new RTMConfig.Int64(data.rid);
         }
 
-        if (data.ftype > 0) {
+        if (data.mtime) {
+            
+            data.mtime = new RTMConfig.Int64(data.mtime);
+        }
+
+        if (data.mtype >= 40 && data.mtype <= 50) {
 
             this.emit(RTMConfig.SERVER_PUSH.recvRoomFile, data);
             return;
@@ -221,10 +236,10 @@ class RTMProcessor {
      * 
      * @param {Int64} data.from
      * @param {number} data.mtype
-     * @param {number} data.ftype
      * @param {Int64} data.mid
      * @param {string} data.msg
      * @param {string} data.attrs
+     * @param {Int64} data.mtime
      */
     pushbroadcastmsg(data) {
 
@@ -243,7 +258,12 @@ class RTMProcessor {
             }
         }
 
-        if (data.ftype > 0) {
+        if (data.mtime) {
+            
+            data.mtime = new RTMConfig.Int64(data.mtime);
+        }
+
+        if (data.mtype >= 40 && data.mtype <= 50) {
             
             this.emit(RTMConfig.SERVER_PUSH.recvBroadcastFile, data);
             return;
@@ -251,182 +271,6 @@ class RTMProcessor {
 
         delete data.ftype; 
         this.emit(RTMConfig.SERVER_PUSH.recvBroadcastMessage, data);
-    }
-
-    /**
-     * 
-     * @param {Int64} data.from
-     * @param {Int64} data.mid
-     * @param {Int64} data.omid
-     * @param {string} data.msg
-     */
-    transmsg(data) {
-
-        if (data.from) {
-
-            data.from = new RTMConfig.Int64(data.from);
-        }
-
-        if (data.mid) {
-            
-            data.mid = new RTMConfig.Int64(data.mid);
-
-            if (!checkMid.call(this, 1, data.mid, data.from)) {
-
-                return;
-            }
-        }
-
-        if (data.omid) {
-
-            data.omid = new RTMConfig.Int64(data.omid);
-        }
-
-        this.emit(RTMConfig.SERVER_PUSH.recvTranslatedMessage, data);
-    }
-
-    /**
-     * 
-     * @param {Int64} data.from
-     * @param {Int64} data.gid
-     * @param {Int64} data.mid
-     * @param {Int64} data.omid
-     * @param {string} data.msg
-     */
-    transgroupmsg(data) {
-
-        if (data.from) {
-
-            data.from = new RTMConfig.Int64(data.from);
-        }
-
-        if (data.mid) {
-
-            data.mid = new RTMConfig.Int64(data.mid);
-
-            if (!checkMid.call(this, 2, data.mid, data.from, data.gid)) {
-
-                return;
-            }
-        }
-
-        if (data.gid) {
-            
-            data.gid = new RTMConfig.Int64(data.gid);
-        }
-
-        if (data.omid) {
-
-            data.omid = new RTMConfig.Int64(data.omid);
-        }
-
-        this.emit(RTMConfig.SERVER_PUSH.recvTranslatedGroupMessage, data);
-    }
-
-    /**
-     * 
-     * @param {Int64} data.from
-     * @param {Int64} data.rid
-     * @param {Int64} data.mid
-     * @param {Int64} data.omid
-     * @param {string} data.msg
-     */
-    transroommsg(data) {
-
-        if (data.from) {
-
-            data.from = new RTMConfig.Int64(data.from);
-        }
-
-        if (data.mid) {
-
-            data.mid = new RTMConfig.Int64(data.mid);
-
-            if (!checkMid.call(this, 3, data.mid, data.from, data.rid)) {
-
-                return;
-            }
-        }
-
-        if (data.rid) {
-
-            data.rid = new RTMConfig.Int64(data.rid);
-        }
-
-        if (data.omid) {
-
-            data.omid = new RTMConfig.Int64(data.omid);
-        }
-
-        this.emit(RTMConfig.SERVER_PUSH.recvTranslatedRoomMessage, data);
-    }
-
-    /**
-     * 
-     * @param {Int64} data.from
-     * @param {Int64} data.mid
-     * @param {Int64} data.omid
-     * @param {string} data.msg
-     */
-    transbroadcastmsg(data) {
-
-        if (data.from) {
-
-            data.from = new RTMConfig.Int64(data.from);
-        }
-
-        if (data.mid) {
-
-            data.mid = new RTMConfig.Int64(data.mid);
-
-            if (!checkMid.call(this, 4, data.mid, data.fromt)) {
-
-                return;
-            }
-        }
-
-        if (data.omid) {
-
-            data.omid = new RTMConfig.Int64(data.omid);
-        }
-
-        this.emit(RTMConfig.SERVER_PUSH.recvTranslatedBroadcastMessage, data);
-    }
-
-    /**
-     * 
-     * @param {array<Int64>} data.p2p
-     * @param {array<Int64>} data.group
-     * @param {bool} data.bc
-     */
-    pushunread(data) {
-
-        let self = this;
-
-        if (data.p2p) {
-
-            let bp2p = [];
-
-            data.p2p.forEach(function(item, index) {
-
-                bp2p[index] = new RTMConfig.Int64(item);
-            });
-
-            data.p2p = bp2p;
-        }
-
-        if (data.group) {
-
-            let bgroup = [];
-            data.group.forEach(function(item, index) {
-
-                bgroup[index] = new RTMConfig.Int64(item);
-            });
-
-            data.group = bgroup;
-        }
-
-        this.emit(RTMConfig.SERVER_PUSH.recvUnreadMsgStatus, data);
     }
 
     /**

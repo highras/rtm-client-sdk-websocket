@@ -11,11 +11,10 @@ class FPSocket {
         FPEvent.assign(this);
 
         this._endpoint = options.endpoint || null;
-        this._connectionTimeout = options.connectionTimeout || 10 * 1000;
+        this._timeout = options.connectionTimeout || 10 * 1000;
         this._platform = options.platformImpl || new PlatFormImpl();
 
-        this._writeID = 0;
-        this._timeoutID = 0;
+        this._connectTimeout = 0;
         this._queue = [];
 
         let self = this;
@@ -61,14 +60,7 @@ class FPSocket {
             }
         }
 
-        if (!this._writeID) {
-
-            let self = this;
-            this._writeID = setInterval(function () {
-
-                writeSocket.call(self);
-            }, 0);
-        }
+        writeSocket.call(this);
     }
 
     close(err) {
@@ -91,21 +83,34 @@ class FPSocket {
 
         let self = this;
 
-        this._platform.open(this._endpoint);
+        if (this._connectTimeout) {
 
-        if (this._timeoutID) {
-
-            clearTimeout(this._timeoutID);
-            this._timeoutID = 0;
+            clearTimeout(this._connectTimeout);
+            this._connectTimeout = 0;
         }
 
-        this._timeoutID = setTimeout(function() {
+        this._connectTimeout = setTimeout(function() {
+
+            let err = new Error('connect timeout!');
+
+            if (self.isOpen) {
+
+                self.close(err);
+                return;
+            }
 
             if (self.isConnecting) {
 
-                self.close(new Error('connect timeout!'));
-            }
-        }, this._connectionTimeout);
+                self.close(err);
+                onClose.call(self);
+                return;
+            } 
+
+            onError.call(self, err);
+            onClose.call(self);
+        }, this._timeout);
+
+        this._platform.open(this._endpoint);
     }
 
     get isOpen() {
@@ -124,7 +129,6 @@ class FPSocket {
         this.close();
 
         this._platform.removeEvent();
-        this._platform = null;
 
         onClose.call(this);
     }
@@ -139,8 +143,7 @@ function writeSocket() {
 
     while (this._queue.length) {
 
-        this._platform.send(this._queue[0]);
-        this._queue.shift();
+        this._platform.send(this._queue.shift());
     }
 }
 
@@ -151,29 +154,25 @@ function onData(chunk) {
 
 function onConnect() {
     
-    if (this._timeoutID) {
+    if (this._connectTimeout) {
 
-        clearTimeout(this._timeoutID);
-        this._timeoutID = 0;
+        clearTimeout(this._connectTimeout);
+        this._connectTimeout = 0;
     }
 
+    writeSocket.call(this);
     this.emit('connect');
 }
 
 function onClose() {
 
-    if (this._writeID) {
+    if (this._connectTimeout) {
 
-        clearInterval(this._writeID);
-        this._writeID = 0;
-    }
-    
-    if (this._timeoutID) {
-
-        clearTimeout(this._timeoutID);
-        this._timeoutID = 0;
+        clearTimeout(this._connectTimeout);
+        this._connectTimeout = 0;
     }
 
+    this._queue = [];
     this.emit('close');
 }
 

@@ -21,7 +21,7 @@ class RTMClient {
      * {bool} options.autoReconnect 
      * {number} options.connectionTimeout 
      * {string} options.version
-     * {bool} options.recvUnreadMsgStatus
+     * {object<string, string>} options.attrs
      * {bool} options.ssl
      * {string} options.proxyEndpoint
      */
@@ -33,8 +33,8 @@ class RTMClient {
         this._pid = options.pid;
         this._uid = options.uid;
         this._token = options.token;
-        this._version = options.version;
-        this._recvUnreadMsgStatus = options.recvUnreadMsgStatus !== undefined ? options.recvUnreadMsgStatus : true;
+        this._version = options.version || '';
+        this._attrs = options.attrs;
         this._ssl = options.ssl !== undefined ? options.ssl : true;
         this._autoReconnect = options.autoReconnect !== undefined ? options.autoReconnect : true;
         this._connectionTimeout = options.connectionTimeout || 30 * 1000;
@@ -49,11 +49,10 @@ class RTMClient {
         this._endpoint = null;
         this._ipv6 = false;
 
-        this._rtmClient = null;
+        this._baseClient = null;
         this._dispatchClient = null;
-        this._fileClient = null;
         this._loginOptions = null; 
-        this._reconnectID = 0;
+        this._reconnectTimeout = 0;
 
         this._isClose = false;
 
@@ -71,6 +70,7 @@ class RTMClient {
 
             let endpoint = buildEndpoint.call(this, this._proxyEndpoint);
             this._proxy = new RTMProxy(endpoint);
+            this._fileProxy = new RTMProxy(endpoint);
         }
     }
 
@@ -112,7 +112,8 @@ class RTMClient {
 
             if (err) {
 
-                reConnect.call(self);
+                onClose.call(self, true);
+                self.emit('error', err);
             }
         }, this._connectionTimeout);
     }
@@ -135,10 +136,10 @@ class RTMClient {
             this._processor = null;
         }
 
-        if (this._rtmClient) {
+        if (this._baseClient) {
 
-            this._rtmClient.destroy();
-            this._rtmClient = null;
+            this._baseClient.destroy();
+            this._baseClient = null;
         }
 
         if (this._dispatchClient) {
@@ -147,36 +148,36 @@ class RTMClient {
             this._dispatchClient = null;
         }
 
-        if (this._fileClient) {
-
-            this._fileClient.destroy();
-            this._fileClient = null;
-        }
-
         this.removeEvent();
         onClose.call(this);
     }
 
     /**
+     *  
+     * rtmGate (2)
      * 
      * @param {Int64} to 
      * @param {number} mtype 
      * @param {string} msg 
      * @param {string} attrs 
+     * @param {Int64} mid    
      * @param {number} timeout 
      * @param {function} callback 
      * 
      * @callback
-     * @param {Error} err
-     * @param {object} data
+     * @param {object<mid:Int64, error:Error>} err
+     * @param {object<mid:Int64, payload:object<mtime:Int64>>} data
      */
-    sendMessage(to, mtype, msg, attrs, timeout, callback) {
+    sendMessage(to, mtype, msg, attrs, mid, timeout, callback) {
         
-        attrs = attrs || '';
+        if (!mid || mid.toString() == '0') {
+
+            mid = genMid.call(this);
+        }
 
         let payload = {
             to: to,
-            mid: genMid.call(this),
+            mid: mid,
             mtype: mtype,
             msg: msg,
             attrs: attrs
@@ -188,7 +189,7 @@ class RTMClient {
             payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._rtmClient, options, function(err, data) {
+        sendQuest.call(this, this._baseClient, options, function(err, data) {
 
             if (err) {
 
@@ -196,47 +197,9 @@ class RTMClient {
                 return;
             }
 
-            callback && callback(null, { mid: payload.mid, payload: data });
-        }, timeout);
-    }
+            if (data.mtime !== undefined) {
 
-    /**
-     * 
-     * @param {array<Int64>} tos
-     * @param {number} mtype 
-     * @param {string} msg 
-     * @param {string} attrs 
-     * @param {number} timeout 
-     * @param {function} callback 
-     * 
-     * @callback
-     * @param {Error} err
-     * @param {object} data
-     */
-    sendMessages(tos, mtype, msg, attrs, timeout, callback) {
-
-        attrs = attrs || '';
-
-        let payload = {
-            tos: tos,
-            mid: genMid.call(this),
-            mtype: mtype,
-            msg: msg,
-            attrs: attrs
-        };
-
-        let options = {
-            flag: 1,
-            method: 'sendmsgs',
-            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
-        };
-
-        sendQuest.call(this, this._rtmClient, options, function(err, data) {
-
-            if (err) {
-
-                callback && callback({ mid: payload.mid, error: err }, null);
-                return;
+                data.mtime = new RTMConfig.Int64(data.mtime);
             }
 
             callback && callback(null, { mid: payload.mid, payload: data });
@@ -244,25 +207,31 @@ class RTMClient {
     }
 
     /**
+     *  
+     * rtmGate (3)
      * 
      * @param {Int64} gid
      * @param {number} mtype 
      * @param {string} msg 
      * @param {string} attrs 
+     * @param {Int64} mid    
      * @param {number} timeout 
      * @param {function} callback 
      * 
      * @callback
-     * @param {Error} err
-     * @param {object} data
+     * @param {object<mid:Int64, error:Error>} err
+     * @param {object<mid:Int64, payload:object<mtime:Int64>>} data
      */
-    sendGroupMessage(gid, mtype, msg, attrs, timeout, callback) {
+    sendGroupMessage(gid, mtype, msg, attrs, mid, timeout, callback) {
         
-        attrs = attrs || '';
+        if (!mid || mid.toString() == '0') {
+
+            mid = genMid.call(this);
+        }
 
         let payload = {
             gid: gid,
-            mid: genMid.call(this),
+            mid: mid || genMid.call(this),
             mtype: mtype,
             msg: msg,
             attrs: attrs
@@ -274,7 +243,7 @@ class RTMClient {
             payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._rtmClient, options, function(err, data) {
+        sendQuest.call(this, this._baseClient, options, function(err, data) {
 
             if (err) {
 
@@ -282,30 +251,41 @@ class RTMClient {
                 return;
             }
 
+            if (data.mtime !== undefined) {
+
+                data.mtime = new RTMConfig.Int64(data.mtime);
+            }
+
             callback && callback(null, { mid: payload.mid, payload: data });
         }, timeout);
     }
 
     /**
+     *  
+     * rtmGate (4)
      * 
      * @param {Int64} rid
      * @param {number} mtype 
      * @param {string} msg 
      * @param {string} attrs 
+     * @param {Int64} mid    
      * @param {number} timeout 
      * @param {function} callback 
      * 
      * @callback
-     * @param {Error} err
-     * @param {object} data
+     * @param {object<mid:Int64, error:Error>} err
+     * @param {object<mid:Int64, payload:object<mtime:Int64>>} data
      */
-    sendRoomMessage(rid, mtype, msg, attrs, timeout, callback) {
+    sendRoomMessage(rid, mtype, msg, attrs, mid, timeout, callback) {
 
-        attrs = attrs || '';
+        if (!mid || mid.toString() == '0') {
+
+            mid = genMid.call(this);
+        }
 
         let payload = {
             rid: rid,
-            mid: genMid.call(this),
+            mid: mid || genMid.call(this),
             mtype: mtype,
             msg: msg,
             attrs: attrs
@@ -317,7 +297,7 @@ class RTMClient {
             payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._rtmClient, options, function(err, data) {
+        sendQuest.call(this, this._baseClient, options, function(err, data) {
 
             if (err) {
 
@@ -325,11 +305,504 @@ class RTMClient {
                 return;
             }
 
+            if (data.mtime !== undefined) {
+
+                data.mtime = new RTMConfig.Int64(data.mtime);
+            }
+
             callback && callback(null, { mid: payload.mid, payload: data });
         }, timeout);
     }
 
     /**
+     *  
+     * rtmGate (5)
+     * 
+     * @param {number} timeout 
+     * @param {function} callback 
+     * 
+     * @callback
+     * @param {Error} err
+     * @param {object<p2p:object<string, number>, group:object<string, number>>} data
+     */
+    getUnreadMessage(timeout, callback) {
+
+        let payload = {};
+
+        let options = {
+            flag: 1,
+            method: 'getunreadmsg',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    /**
+     *  
+     * rtmGate (6)
+     * 
+     * @param {number} timeout 
+     * @param {function} callback 
+     * 
+     * @callback
+     * @param {Error} err
+     * @param {object} data
+     */
+    cleanUnreadMessage(timeout, callback) {
+
+        let payload = {};
+
+        let options = {
+            flag: 1,
+            method: 'cleanunreadmsg',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    /**
+     *  
+     * rtmGate (7)
+     * 
+     * @param {number} timeout 
+     * @param {function} callback 
+     * 
+     * @callback
+     * @param {Error} err
+     * @param {object<p2p:object<string, Int64>, group:object<string, Int64>>} data
+     */
+    getSession(timeout, callback) {
+
+        let payload = {};
+
+        let options = {
+            flag: 1,
+            method: 'getsession',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, function(err, data) {
+            
+            if (err) {
+
+                callback && callback(err, null);
+                return;
+            }
+
+            let p2p = data['p2p'];
+
+            for (let key in p2p) {
+
+                p2p[key] = new RTMConfig.Int64(p2p[key]);
+            }
+
+            let group = data['group'];
+
+            for (let key in group) {
+
+                group[key] = new RTMConfig.Int64(group[key]);
+            }
+
+            callback && callback(null, data);
+        }, timeout);
+    }
+
+    /**
+     *  
+     * rtmGate (8)
+     * 
+     * @param {Int64} gid 
+     * @param {bool} desc 
+     * @param {number} num
+     * @param {Int64} begin
+     * @param {Int64} end
+     * @param {Int64} lastid
+     * @param {number} timeout 
+     * @param {function} callback 
+     * 
+     * @callback
+     * @param {Error} err
+     * @param {object<num:number, lastid:Int64, begin:Int64, end:Int64, msgs:array<GroupMsg>>} data 
+     * 
+     * <GroupMsg>
+     * @param {Int64} GroupMsg.id
+     * @param {Int64} GroupMsg.from
+     * @param {number} GroupMsg.mtype
+     * @param {Int64} GroupMsg.mid
+     * @param {bool} GroupMsg.deleted
+     * @param {string} GroupMsg.msg
+     * @param {string} GroupMsg.attrs
+     * @param {Int64} GroupMsg.mtime
+     */
+    getGroupMessage(gid, desc, num, begin, end, lastid, timeout, callback) {
+        
+        let payload = {
+            gid: gid,
+            desc: desc,
+            num: num
+        };
+
+        if (begin !== undefined) {
+
+            payload.begin = begin;
+        }
+
+        if (end !== undefined) {
+
+            payload.end = end;
+        }
+
+        if (lastid !== undefined) {
+
+            payload.lastid = lastid;
+        }
+
+        let options = {
+            flag: 1,
+            method: 'getgroupmsg',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, function(err, data) {
+
+            if (err) {
+
+                callback && callback(err, null);
+                return;
+            }
+
+            let msgs = data['msgs'];
+
+            if (msgs) {
+
+                msgs.forEach(function(item, index) {
+
+                    msgs[index] = {
+                        id: new RTMConfig.Int64(item[0]),
+                        from: new RTMConfig.Int64(item[1]),
+                        mtype: Number(item[2]),
+                        mid: new RTMConfig.Int64(item[3]),
+                        deleted: item[4],
+                        msg: item[5],
+                        attrs: item[6],
+                        mtime: new RTMConfig.Int64(item[7])
+                    };
+                });
+            }
+
+            callback && callback(null, data);
+        }, timeout);
+    }
+
+    /**
+     *  
+     * rtmGate (9)
+     * 
+     * @param {Int64} rid 
+     * @param {bool} desc 
+     * @param {number} num
+     * @param {Int64} begin
+     * @param {Int64} end
+     * @param {Int64} lastid
+     * @param {number} timeout 
+     * @param {function} callback 
+     * 
+     * @callback
+     * @param {Error} err
+     * @param {object<num:number, lastid:Int64, begin:Int64, end:Int64, msgs:array<RoomMsg>>} data 
+     * 
+     * <RoomMsg>
+     * @param {Int64} RoomMsg.id
+     * @param {Int64} RoomMsg.from
+     * @param {number} RoomMsg.mtype
+     * @param {Int64} RoomMsg.mid
+     * @param {bool} RoomMsg.deleted
+     * @param {string} RoomMsg.msg
+     * @param {string} RoomMsg.attrs
+     * @param {Int64} RoomMsg.mtime
+     */
+    getRoomMessage(rid, desc, num, begin, end, lastid, timeout, callback) {
+
+        let payload = {
+            rid: rid,
+            desc: desc,
+            num: num
+        };
+
+        if (begin !== undefined) {
+
+            payload.begin = begin;
+        }
+
+        if (end !== undefined) {
+
+            payload.end = end;
+        }
+
+        if (lastid !== undefined) {
+
+            payload.lastid = lastid;
+        }
+
+        let options = {
+            flag: 1,
+            method: 'getroommsg',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, function(err, data) {
+
+            if (err) {
+
+                callback && callback(err, null);
+                return;
+            }
+
+            let msgs = data['msgs'];
+
+            if (msgs) {
+
+                msgs.forEach(function(item, index) {
+
+                    msgs[index] = {
+                        id: new RTMConfig.Int64(item[0]),
+                        from: new RTMConfig.Int64(item[1]),
+                        mtype: Number(item[2]),
+                        mid: new RTMConfig.Int64(item[3]),
+                        deleted: item[4],
+                        msg: item[5],
+                        attrs: item[6],
+                        mtime: new RTMConfig.Int64(item[7])
+                    };
+                });
+            }
+
+            callback && callback(null, data);
+        }, timeout);
+    }
+
+    /**
+     *  
+     * rtmGate (10)
+     * 
+     * @param {bool} desc 
+     * @param {number} num
+     * @param {Int64} begin
+     * @param {Int64} end
+     * @param {Int64} lastid
+     * @param {number} timeout 
+     * @param {function} callback 
+     * 
+     * @callback
+     * @param {Error} err
+     * @param {object<num:number, lastid:Int64, begin:Int64, end:Int64, msgs:array<BroadcastMsg>>} data 
+     * 
+     * <BroadcastMsg>
+     * @param {Int64} BroadcastMsg.id
+     * @param {Int64} BroadcastMsg.from
+     * @param {number} BroadcastMsg.mtype
+     * @param {Int64} BroadcastMsg.mid
+     * @param {bool} BroadcastMsg.deleted
+     * @param {string} BroadcastMsg.msg
+     * @param {string} BroadcastMsg.attrs
+     * @param {Int64} BroadcastMsg.mtime
+     */
+    getBroadcastMessage(desc, num, begin, end, lastid, timeout, callback) {
+
+        let payload = {
+            desc: desc,
+            num: num
+        };
+
+        if (begin !== undefined) {
+
+            payload.begin = begin;
+        }
+
+        if (end !== undefined) {
+
+            payload.end = end;
+        }
+
+        if (lastid !== undefined) {
+
+            payload.lastid = lastid;
+        }
+
+        let options = {
+            flag: 1,
+            method: 'getbroadcastmsg',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, function(err, data) {
+
+            if (err) {
+
+                callback && callback(err, null);
+                return;
+            }
+
+            let msgs = data['msgs'];
+
+            if (msgs) {
+
+                msgs.forEach(function(item, index) {
+
+                    msgs[index] = {
+                        id: new RTMConfig.Int64(item[0]),
+                        from: new RTMConfig.Int64(item[1]),
+                        mtype: Number(item[2]),
+                        mid: new RTMConfig.Int64(item[3]),
+                        deleted: item[4],
+                        msg: item[5],
+                        attrs: item[6],
+                        mtime: new RTMConfig.Int64(item[7])
+                    };
+                });
+            }
+
+            callback && callback(null, data);
+        }, timeout);
+    }
+
+    /**
+     *  
+     * rtmGate (11)
+     * 
+     * @param {Int64} ouid 
+     * @param {bool} desc
+     * @param {number} num 
+     * @param {Int64} begin 
+     * @param {Int64} end
+     * @param {Int64} lastid
+     * @param {number} timeout 
+     * @param {function} callback 
+     * 
+     * @callback
+     * @param {Error} err
+     * @param {object<num:number, lastid:Int64, begin:Int64, end:Int64, msgs:array<P2PMsg>>} data 
+     * 
+     * <P2PMsg>
+     * @param {Int64} P2PMsg.id
+     * @param {number} P2PMsg.direction
+     * @param {number} P2PMsg.mtype
+     * @param {Int64} P2PMsg.mid
+     * @param {bool} P2PMsg.deleted
+     * @param {string} P2PMsg.msg
+     * @param {string} P2PMsg.attrs
+     * @param {Int64} P2PMsg.mtime
+     */
+    getP2PMessage(ouid, desc, num, begin, end, lastid, timeout, callback) {
+
+        let payload = {
+            ouid: ouid,
+            desc: desc,
+            num: num
+        };
+
+        if (begin !== undefined) {
+
+            payload.begin = begin;
+        }
+
+        if (end !== undefined) {
+
+            payload.end = end;
+        }
+
+        if (lastid !== undefined) {
+
+            payload.lastid = lastid;
+        }
+
+        let options = {
+            flag: 1,
+            method: 'getp2pmsg',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, function(err, data) {
+
+            if (err) {
+
+                callback && callback(err, null);
+                return;
+            }
+
+            let msgs = data['msgs'];
+
+            if (msgs) {
+
+                msgs.forEach(function(item, index) {
+
+                    msgs[index] = {
+                        id: new RTMConfig.Int64(item[0]),
+                        direction: Number(item[1]),
+                        mtype: Number(item[2]),
+                        mid: new RTMConfig.Int64(item[3]),
+                        deleted: item[4],
+                        msg: item[5],
+                        attrs: item[6],
+                        mtime: new RTMConfig.Int64(item[7])
+                    };
+                });
+            }
+
+            callback && callback(null, data);
+        }, timeout);
+    }
+
+    /**
+     *  
+     * rtmGate (12)
+     * 
+     * @param {string} cmd 
+     * @param {array<Int64>} tos
+     * @param {Int64} to 
+     * @param {Int64} rid 
+     * @param {Int64} gid
+     * @param {number} timeout 
+     * @param {function} callback 
+     * 
+     * @callback
+     * @param {Error} err
+     * @param {object<token:string, endpoint:string>} data 
+     */
+    fileToken(cmd, tos, to, rid, gid, timeout, callback) {
+
+        let options = {
+            cmd: cmd
+        }
+
+        if (tos !== undefined) {
+
+            options.tos = tos;
+        }
+
+        if (to !== undefined) {
+
+            options.to = to;
+        }
+
+        if (rid !== undefined) {
+
+            options.rid = rid;
+        }
+
+        if (gid !== undefined) {
+
+            options.gid = gid;
+        }
+
+        filetoken.call(this, options, callback, timeout); 
+    }
+
+    /**
+     *  
+     * rtmGate (13)
      * 
      */
     close() {
@@ -345,853 +818,103 @@ class RTMClient {
         let self = this;
         this._isClose = true;
 
-        sendQuest.call(this, this._rtmClient, options, function(err, data) {
+        sendQuest.call(this, this._baseClient, options, function(err, data) {
 
-            if (self._rtmClient) {
+            if (self._baseClient) {
 
-                self._rtmClient.close();
+                self._baseClient.close();
             }
         });
     }
 
     /**
+     *  
+     * rtmGate (14)
      * 
-     * @param {object} dict 
-     * @param {number} timeout 
-     * @param {function} callback 
-     * 
-     * @callback
-     * @param {Error} err
-     * @param {object} data
-     */
-    addVariables(dict, timeout, callback) {
-
-        let payload = {
-            var: dict
-        };
-
-        let options = {
-            flag: 1,
-            method: 'addvariables',
-            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
-        };
-
-        sendQuest.call(this, this._rtmClient, options, callback, timeout);
-    }
-
-    /**
-     * 
-     * @param {array<Int64>} friends 
-     * @param {number} timeout 
-     * @param {function} callback 
+     * @param {object<string, string>} attrs
+     * @param {number} timeout
+     * @param {function} callback
      * 
      * @callback
      * @param {Error} err
      * @param {object} data
      */
-    addFriends(friends, timeout, callback) {
+    addAttrs(attrs, timeout, callback) {
 
         let payload = {
-            friends: friends
+            attrs: attrs
         };
 
         let options = {
             flag: 1,
-            method: 'addfriends',
+            method: 'addattrs',
             payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._rtmClient, options, callback, timeout);
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
     }
 
     /**
+     *  
+     * rtmGate (15)
      * 
-     * @param {array<Int64>} friends 
-     * @param {number} timeout 
-     * @param {function} callback 
-     * 
-     * @callback
-     * @param {Error} err
-     * @param {object} data
-     */
-    deleteFriends(friends, timeout, callback) {
-
-        let payload = {
-            friends: friends
-        };
-
-        let options = {
-            flag: 1,
-            method: 'delfriends',
-            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
-        };
-
-        sendQuest.call(this, this._rtmClient, options, callback, timeout);
-    }
-
-    /**
-     * 
-     * @param {number} timeout 
-     * @param {function} callback 
+     * @param {number} timeout
+     * @param {function} callback
      * 
      * @callback
      * @param {Error} err
-     * @param {array<Int64>} data
+     * @param {object<attrs:array<Map>>} data
+     *  
+     * <Map>
+     * @param {string} Map.ce
+     * @param {string} Map.login
+     * @param {string} Map.my
      */
-    getFriends(timeout, callback) {
+    getAttrs(timeout, callback) {
 
         let payload = {};
 
         let options = {
             flag: 1,
-            method: 'getfriends',
+            method: 'getattrs',
             payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._rtmClient, options, function(err, data) {
-
-            if (err) {
-
-                callback && callback(err, null);
-                return;
-            }
-
-            let uids = data['uids'];
-
-            if (uids) {
-
-                let buids = [];
-
-                uids.forEach(function(item, index) {
-
-                    buids[index] = new RTMConfig.Int64(item);
-                });
-
-                callback && callback(null, buids);
-                return;
-            }
-
-            callback && callback(null, data);
-        }, timeout);
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
     }
 
     /**
+     *  
+     * rtmGate (16)
      * 
-     * @param {Int64} gid 
-     * @param {array<Int64>} uids 
-     * @param {number} timeout 
-     * @param {function} callback 
+     * @param {string} msg
+     * @param {string} attrs
+     * @param {number} timeout
+     * @param {function} callback
      * 
      * @callback
      * @param {Error} err
      * @param {object} data
      */
-    addGroupMembers(gid, uids, timeout, callback) {
+    addDebugLog(msg, attrs, timeout, callback) {
 
         let payload = {
-            gid: gid,
-            uids: uids
+            msg: msg,
+            attrs: attrs
         };
 
         let options = {
             flag: 1,
-            method: 'addgroupmembers',
-            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
-        };
-        
-        sendQuest.call(this, this._rtmClient, options, callback, timeout);
-    }
-
-    /**
-     * 
-     * @param {Int64} gid 
-     * @param {array<Int64>} uids 
-     * @param {number} timeout 
-     * @param {function} callback 
-     * 
-     * @callback
-     * @param {Error} err
-     * @param {object} data
-     */
-    deleteGroupMembers(gid, uids, timeout, callback) {
-        
-        let payload = {
-            gid: gid,
-            uids: uids
-        };
-
-        let options = {
-            flag: 1,
-            method: 'delgroupmembers',
+            method: 'adddebuglog',
             payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._rtmClient, options, callback, timeout);
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
     }
 
     /**
-     * 
-     * @param {Int64} gid 
-     * @param {number} timeout 
-     * @param {function} callback 
-     * 
-     * @callback
-     * @param {Error} err
-     * @param {array<Int64>} data
-     */
-    getGroupMembers(gid, timeout, callback) {
-
-        let payload = {
-            gid: gid
-        };
-
-        let options = {
-            flag: 1,
-            method: 'getgroupmembers',
-            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
-        };
-
-        sendQuest.call(this, this._rtmClient, options, function(err, data) {
-
-            if (err) {
-
-                callback && callback(err, null);
-                return;
-            }
-
-            let uids = data['uids'];
-
-            if (uids) {
-
-                let buids = [];
-                uids.forEach(function(item, index) {
-
-                    buids[index] = new RTMConfig.Int64(item);
-                });
-
-                callback && callback(null, buids);
-                return;
-            }
-
-            callback && callback(null, data);
-        }, timeout);
-    }
-
-    /**
-     * 
-     * @param {number} timeout 
-     * @param {function} callback 
-     * 
-     * @callback
-     * @param {Error} err
-     * @param {array<Int64>} data
-     */
-    getUserGroups(timeout, callback) {
-
-        let payload = {};
-
-        let options = {
-            flag: 1,
-            method: 'getusergroups',
-            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
-        };
-
-        sendQuest.call(this, this._rtmClient, options, function(err, data) {
-
-            if (err) {
-
-                callback && callback(err, null);
-                return;
-            }
-
-            let gids = data['gids'];
-
-            if (gids) {
-
-                let bgids = [];
-
-                gids.forEach(function(item, index) {
-
-                    bgids[index] = new RTMConfig.Int64(item);
-                });
-
-                callback && callback(null, bgids);
-                return;
-            }
-
-            callback && callback(null, data);
-        }, timeout);
-    }
-
-    /**
-     * 
-     * @param {Int64} rid 
-     * @param {number} timeout 
-     * @param {function} callback 
-     * 
-     * @callback
-     * @param {Error} err
-     * @param {object} data
-     */
-    enterRoom(rid, timeout, callback) {
-
-        let payload = {
-            rid: rid
-        };
-
-        let options = {
-            flag: 1,
-            method: 'enterroom',
-            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
-        };
-
-        sendQuest.call(this, this._rtmClient, options, callback, timeout);
-    }
-
-    /**
-     * 
-     * @param {Int64} rid 
-     * @param {number} timeout 
-     * @param {function} callback 
-     * 
-     * @callback
-     * @param {Error} err
-     * @param {object} data
-     */
-    leaveRoom(rid, timeout, callback) {
-
-        let payload = {
-            rid: rid
-        };
-
-        let options = {
-            flag: 1,
-            method: 'leaveroom',
-            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
-        };
-
-        sendQuest.call(this, this._rtmClient, options, callback, timeout);
-    }
-
-    /**
-     * 
-     * @param {number} timeout 
-     * @param {function} callback 
-     * 
-     * @callback
-     * @param {Error} err
-     * @param {array<Int64>} data
-     */
-    getUserRooms(timeout, callback) {
-
-        let payload = {};
-
-        let options = {
-            flag: 1,
-            method: 'getuserrooms',
-            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
-        };
-
-        sendQuest.call(this, this._rtmClient, options, function(err, data) {
-
-            if (err) {
-
-                callback && callback(err, null);
-                return;
-            }
-
-            let rids = data['rooms'];
-
-            if (rids) {
-
-                let brids = [];
-
-                rids.forEach(function(item, index) {
-                    
-                    brids[index] = new RTMConfig.Int64(item);
-                });
-
-                callback && callback(null, brids);
-                return;
-            }
-
-            callback && callback(null, data);
-        }, timeout);
-    }
-
-    /**
-     * 
-     * @param {array<Int64>} uids 
-     * @param {number} timeout 
-     * @param {function} callback 
-     * 
-     * @callback
-     * @param {Error} err
-     * @param {array<Int64>} data
-     */
-    getOnlineUsers(uids, timeout, callback) {
-        
-        let payload = {
-            uids: uids
-        };
-
-        let options = {
-            flag: 1,
-            method: 'getonlineusers',
-            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
-        };
-
-        sendQuest.call(this, this._rtmClient, options, function(err, data) {
-
-            if (err) {
-
-                callback && callback(err, null);
-                return;
-            }
-
-            let uids = data['uids'];
-
-            if (uids) {
-
-                let buids = [];
-
-                uids.forEach(function(item, index) {
-
-                    buids[index] = new RTMConfig.Int64(item);
-                });
-
-                callback && callback(null, buids);
-                return;
-            }
-
-            callback && callback(null, data);
-        }, timeout);
-    }
-
-    /**
-     * 
-     * @param {number} timeout 
-     * @param {function} callback 
-     * 
-     * @callback
-     * @param {Error} err
-     * @param {object<p2p:array<Int64>, group:array<Int64>, bc:bool>} data
-     */
-    checkUnreadMessage(timeout, callback) {
-
-        let payload = {};
-
-        let options = {
-            flag: 1,
-            method: 'checkunreadmsg',
-            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
-        };
-
-        sendQuest.call(this, this._rtmClient, options, function(err, data) {
-            
-            if (err) {
-
-                callback && callback(err, null);
-                return;
-            }
-
-            let uids = data['p2p'];
-
-            if (uids) {
-
-                let buids = [];
-
-                uids.forEach(function(item, index) {
-
-                    buids[index] = new RTMConfig.Int64(item);
-                });
-
-                data.p2p = buids;
-            }
-
-            let gids = data['group'];
-
-            if (gids) {
-
-                let bgids = [];
-
-                gids.forEach(function(item, index) {
-
-                    bgids[index] = new RTMConfig.Int64(item);
-                });
-
-                data.group = bgids;
-            }
-
-            callback && callback(null, data);
-        }, timeout);
-    }
-
-    /**
-     * 
-     * @param {Int64} gid 
-     * @param {number} num
-     * @param {bool} desc 
-     * @param {number} page
-     * @param {Int64} localmid
-     * @param {Int64} localid
-     * @param {array<number>} mtypes
-     * @param {number} timeout 
-     * @param {function} callback 
-     * 
-     * @callback
-     * @param {Error} err
-     * @param {object<num:number, maxid:Int64, msgs:array<GroupMsg>>} data 
-     * 
-     * <GroupMsg>
-     * @param {Int64} GroupMsg.id
-     * @param {Int64} GroupMsg.from
-     * @param {number} GroupMsg.mtype
-     * @param {number} GroupMsg.ftype
-     * @param {Int64} GroupMsg.mid
-     * @param {string} GroupMsg.msg
-     * @param {string} GroupMsg.attrs
-     * @param {number} GroupMsg.mtime
-     */
-    getGroupMessage(gid, num, desc, page, localmid, localid, mtypes, timeout, callback) {
-        
-        let payload = {
-            gid: gid,
-            num: num,
-            desc: desc,
-            page: page
-        };
-
-        if (localmid !== undefined) {
-
-            payload.localmid = localmid;
-        }
-
-        if (localid !== undefined) {
-
-            payload.localid = localid;
-        }
-
-        if (mtypes !== undefined) {
-
-            payload.mtypes = mtypes;
-        }
-
-        let options = {
-            flag: 1,
-            method: 'getgroupmsg',
-            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
-        };
-
-        sendQuest.call(this, this._rtmClient, options, function(err, data) {
-
-            if (err) {
-
-                callback && callback(err, null);
-                return;
-            }
-
-            let msgs = data['msgs'];
-
-            if (msgs) {
-
-                let bmsgs = [];
-
-                msgs.forEach(function(item, index) {
-
-                    bmsgs[index] = {
-                        id: new RTMConfig.Int64(item[0]),
-                        from: new RTMConfig.Int64(item[1]),
-                        mtype: Number(item[2]),
-                        ftype: Number(item[3]),
-                        mid: new RTMConfig.Int64(item[4]),
-                        msg: item[5],
-                        attrs: item[6],
-                        mtime: Number(item[7])
-                    };
-                });
-
-                data.msgs = bmsgs;
-            }
-
-            callback && callback(null, data);
-        }, timeout);
-    }
-
-    /**
-     * 
-     * @param {Int64} rid 
-     * @param {number} num
-     * @param {bool} desc 
-     * @param {number} page
-     * @param {Int64} localmid
-     * @param {Int64} localid
-     * @param {array<number>} mtypes
-     * @param {number} timeout 
-     * @param {function} callback 
-     * 
-     * @callback
-     * @param {Error} err
-     * @param {object<num:number, maxid:Int64, msgs:array<RoomMsg>>} data 
-     * 
-     * <RoomMsg>
-     * @param {Int64} RoomMsg.id
-     * @param {Int64} RoomMsg.from
-     * @param {number} RoomMsg.mtype
-     * @param {number} RoomMsg.ftype
-     * @param {Int64} RoomMsg.mid
-     * @param {string} RoomMsg.msg
-     * @param {string} RoomMsg.attrs
-     * @param {number} RoomMsg.mtime
-     */
-    getRoomMessage(rid, num, desc, page, localmid, localid, mtypes, timeout, callback) {
-
-        let payload = {
-            rid: rid,
-            num: num,
-            desc: desc,
-            page: page
-        };
-
-        if (localmid !== undefined) {
-
-            payload.localmid = localmid;
-        }
-
-        if (localid !== undefined) {
-
-            payload.localid = localid;
-        }
-
-        if (mtypes !== undefined) {
-
-            payload.mtypes = mtypes;
-        }
-
-        let options = {
-            flag: 1,
-            method: 'getroommsg',
-            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
-        };
-
-        sendQuest.call(this, this._rtmClient, options, function(err, data) {
-
-            if (err) {
-
-                callback && callback(err, null);
-                return;
-            }
-
-            let msgs = data['msgs'];
-
-            if (msgs) {
-
-                let bmsgs = [];
-
-                msgs.forEach(function(item, index) {
-
-                    bmsgs[index] = {
-                        id: new RTMConfig.Int64(item[0]),
-                        from: new RTMConfig.Int64(item[1]),
-                        mtype: Number(item[2]),
-                        ftype: Number(item[3]),
-                        mid: new RTMConfig.Int64(item[4]),
-                        msg: item[5],
-                        attrs: item[6],
-                        mtime: Number(item[7])
-                    };
-                });
-
-                data.msgs = bmsgs;
-            }
-
-            callback && callback(null, data);
-        }, timeout);
-    }
-
-    /**
-     * 
-     * @param {number} num
-     * @param {bool} desc 
-     * @param {number} page
-     * @param {Int64} localmid
-     * @param {Int64} localid
-     * @param {array<number>} mtypes
-     * @param {number} timeout 
-     * @param {function} callback 
-     * 
-     * @callback
-     * @param {Error} err
-     * @param {object<num:number, maxid:Int64, msgs:array<BroadcastMsg>>} data 
-     * 
-     * <BroadcastMsg>
-     * @param {Int64} BroadcastMsg.id
-     * @param {Int64} BroadcastMsg.from
-     * @param {number} BroadcastMsg.mtype
-     * @param {number} BroadcastMsg.ftype
-     * @param {Int64} BroadcastMsg.mid
-     * @param {string} BroadcastMsg.msg
-     * @param {string} BroadcastMsg.attrs
-     * @param {number} BroadcastMsg.mtime
-     */
-    getBroadcastMessage(num, desc, page, localmid, localid, mtypes, timeout, callback) {
-
-        let payload = {
-            num: num,
-            desc: desc,
-            page: page
-        };
-
-        if (localmid !== undefined) {
-
-            payload.localmid = localmid;
-        }
-
-        if (localid !== undefined) {
-
-            payload.localid = localid;
-        }
-
-        if (mtypes !== undefined) {
-
-            payload.mtypes = mtypes;
-        }
-
-        let options = {
-            flag: 1,
-            method: 'getbroadcastmsg',
-            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
-        };
-
-        sendQuest.call(this, this._rtmClient, options, function(err, data) {
-
-            if (err) {
-
-                callback && callback(err, null);
-                return;
-            }
-
-            let msgs = data['msgs'];
-
-            if (msgs) {
-
-                let bmsgs = [];
-
-                msgs.forEach(function(item, index) {
-
-                    bmsgs[index] = {
-                        id: new RTMConfig.Int64(item[0]),
-                        from: new RTMConfig.Int64(item[1]),
-                        mtype: Number(item[2]),
-                        ftype: Number(item[3]),
-                        mid: new RTMConfig.Int64(item[4]),
-                        msg: item[5],
-                        attrs: item[6],
-                        mtime: Number(item[7])
-                    };
-                });
-
-                data.msgs = bmsgs;
-            }
-
-            callback && callback(null, data);
-        }, timeout);
-    }
-
-    /**
-     * 
-     * @param {Int64} peeruid 
-     * @param {number} num
-     * @param {number} direction 
-     * @param {bool} desc 
-     * @param {number} page
-     * @param {Int64} localmid
-     * @param {Int64} localid
-     * @param {array<number>} mtypes
-     * @param {number} timeout 
-     * @param {function} callback 
-     * 
-     * @callback
-     * @param {Error} err
-     * @param {object<num:number, maxid:Int64, msgs:array<P2PMessage>>} data 
-     * 
-     * <P2PMessage>
-     * @param {Int64} P2PMessage.id
-     * @param {number} P2PMessage.direction
-     * @param {number} P2PMessage.mtype
-     * @param {number} P2PMessage.ftype
-     * @param {Int64} P2PMessage.mid
-     * @param {string} P2PMessage.msg
-     * @param {string} P2PMessage.attrs
-     * @param {number} P2PMessage.mtime
-     */
-    getP2PMessage(peeruid, num, direction, desc, page, localmid, localid, mtypes, timeout, callback) {
-
-        let payload = {
-            ouid: peeruid,
-            num: num,
-            direction: direction,
-            desc: desc,
-            page: page
-        };
-
-        if (localmid !== undefined) {
-
-            payload.localmid = localmid;
-        }
-
-        if (localid !== undefined) {
-
-            payload.localid = localid;
-        }
-
-        if (mtypes !== undefined) {
-
-            payload.mtypes = mtypes;
-        }
-
-        let options = {
-            flag: 1,
-            method: 'getp2pmsg',
-            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
-        };
-
-        sendQuest.call(this, this._rtmClient, options, function(err, data) {
-
-            if (err) {
-
-                callback && callback(err, null);
-                return;
-            }
-
-            let msgs = data['msgs'];
-
-            if (msgs) {
-
-                let bmsgs = [];
-
-                msgs.forEach(function(item, index) {
-
-                    bmsgs[index] = {
-                        id: new RTMConfig.Int64(item[0]),
-                        direction: Number(item[1]),
-                        mtype: Number(item[2]),
-                        ftype: Number(item[3]),
-                        mid: new RTMConfig.Int64(item[4]),
-                        msg: item[5],
-                        attrs: item[6],
-                        mtime: Number(item[7])
-                    };
-                });
-
-                data.msgs = bmsgs;
-            }
-
-            callback && callback(null, data);
-        }, timeout);
-    }
-
-    /**
+     *  
+     * rtmGate (17)
      * 
      * @param {string} apptype 
      * @param {string} devicetoken 
@@ -1215,10 +938,12 @@ class RTMClient {
             payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._rtmClient, options, callback, timeout);
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
     }
 
     /**
+     *  
+     * rtmGate (18)
      * 
      * @param {string} devicetoken 
      * @param {number} timeout 
@@ -1240,10 +965,12 @@ class RTMClient {
             payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._rtmClient, options, callback, timeout);
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
     }
 
     /**
+     *  
+     * rtmGate (19)
      * 
      * @param {string} targetLanguage 
      * @param {number} timeout 
@@ -1265,10 +992,12 @@ class RTMClient {
             payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._rtmClient, options, callback, timeout);
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
     }
 
     /**
+     *  
+     * rtmGate (20)
      * 
      * @param {string} originalMessage 
      * @param {string} originalLanguage 
@@ -1298,81 +1027,85 @@ class RTMClient {
             payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._rtmClient, options, callback, timeout);
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
     }
 
     /**
+     *  
+     * rtmGate (21)
      * 
-     * @param {number} lat 
-     * @param {number} lng 
+     * @param {array<Int64>} friends 
      * @param {number} timeout 
      * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
-     * @param {object} data 
+     * @param {object} data
      */
-    setGeo(lat, lng, timeout, callback) {
+    addFriends(friends, timeout, callback) {
 
         let payload = {
-            lat: lat,
-            lng: lng
+            friends: friends
         };
 
         let options = {
             flag: 1,
-            method: 'setgeo',
+            method: 'addfriends',
             payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._rtmClient, options, callback, timeout);
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
     }
 
     /**
+     *  
+     * rtmGate (22)
+     * 
+     * @param {array<Int64>} friends 
+     * @param {number} timeout 
+     * @param {function} callback 
+     * 
+     * @callback
+     * @param {Error} err
+     * @param {object} data
+     */
+    deleteFriends(friends, timeout, callback) {
+
+        let payload = {
+            friends: friends
+        };
+
+        let options = {
+            flag: 1,
+            method: 'delfriends',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    /**
+     *  
+     * rtmGate (23)
      * 
      * @param {number} timeout 
      * @param {function} callback 
      * 
      * @callback
      * @param {Error} err
-     * @param {object<lat:number, lng:number>} data 
+     * @param {array<Int64>} data
      */
-    getGeo(timeout, callback) {
+    getFriends(timeout, callback) {
 
         let payload = {};
 
         let options = {
             flag: 1,
-            method: 'getgeo',
+            method: 'getfriends',
             payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._rtmClient, options, callback, timeout);
-    }
-
-    /**
-     * 
-     * @param {array<Int64>} uids
-     * @param {number} timeout 
-     * @param {function} callback 
-     * 
-     * @callback
-     * @param {Error} err
-     * @param {array<array<uid:Int64,lat:number,lng:number>>} data 
-     */
-    getGeos(uids, timeout, callback) {
-
-        let payload = {
-            uids: uids
-        };
-
-        let options = {
-            flag: 1,
-            method: 'getgeos',
-            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
-        };
-
-        sendQuest.call(this, this._rtmClient, options, function(err, data) {
+        sendQuest.call(this, this._baseClient, options, function(err, data) {
 
             if (err) {
 
@@ -1380,19 +1113,18 @@ class RTMClient {
                 return;
             }
 
-            let geos = data['geos'];
+            let uids = data['uids'];
 
-            if (geos) {
+            if (uids) {
 
-                let bgeos = [];
+                let buids = [];
 
-                geos.forEach(function(item, index) {
+                uids.forEach(function(item, index) {
 
-                    item[0] = new RTMConfig.Int64(item[0]);
-                    bgeos[index] = item;
+                    buids[index] = new RTMConfig.Int64(item);
                 });
 
-                callback && callback(null, bgeos);
+                callback && callback(null, buids);
                 return;
             }
 
@@ -1401,271 +1133,596 @@ class RTMClient {
     }
 
     /**
+     *  
+     * rtmGate (24)
+     * 
+     * @param {Int64} gid 
+     * @param {array<Int64>} uids 
+     * @param {number} timeout 
+     * @param {function} callback 
+     * 
+     * @callback
+     * @param {Error} err
+     * @param {object} data
+     */
+    addGroupMembers(gid, uids, timeout, callback) {
+
+        let payload = {
+            gid: gid,
+            uids: uids
+        };
+
+        let options = {
+            flag: 1,
+            method: 'addgroupmembers',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+        
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    /**
+     *  
+     * rtmGate (25)
+     * 
+     * @param {Int64} gid 
+     * @param {array<Int64>} uids 
+     * @param {number} timeout 
+     * @param {function} callback 
+     * 
+     * @callback
+     * @param {Error} err
+     * @param {object} data
+     */
+    deleteGroupMembers(gid, uids, timeout, callback) {
+        
+        let payload = {
+            gid: gid,
+            uids: uids
+        };
+
+        let options = {
+            flag: 1,
+            method: 'delgroupmembers',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    /**
+     *  
+     * rtmGate (26)
+     * 
+     * @param {Int64} gid 
+     * @param {number} timeout 
+     * @param {function} callback 
+     * 
+     * @callback
+     * @param {Error} err
+     * @param {array<Int64>} data
+     */
+    getGroupMembers(gid, timeout, callback) {
+
+        let payload = {
+            gid: gid
+        };
+
+        let options = {
+            flag: 1,
+            method: 'getgroupmembers',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, function(err, data) {
+
+            if (err) {
+
+                callback && callback(err, null);
+                return;
+            }
+
+            let uids = data['uids'];
+
+            if (uids) {
+
+                let buids = [];
+                uids.forEach(function(item, index) {
+
+                    buids[index] = new RTMConfig.Int64(item);
+                });
+
+                callback && callback(null, buids);
+                return;
+            }
+
+            callback && callback(null, data);
+        }, timeout);
+    }
+
+    /**
+     *  
+     * rtmGate (27)
+     * 
+     * @param {number} timeout 
+     * @param {function} callback 
+     * 
+     * @callback
+     * @param {Error} err
+     * @param {array<Int64>} data
+     */
+    getUserGroups(timeout, callback) {
+
+        let payload = {};
+
+        let options = {
+            flag: 1,
+            method: 'getusergroups',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, function(err, data) {
+
+            if (err) {
+
+                callback && callback(err, null);
+                return;
+            }
+
+            let gids = data['gids'];
+
+            if (gids) {
+
+                let bgids = [];
+
+                gids.forEach(function(item, index) {
+
+                    bgids[index] = new RTMConfig.Int64(item);
+                });
+
+                callback && callback(null, bgids);
+                return;
+            }
+
+            callback && callback(null, data);
+        }, timeout);
+    }
+
+    /**
+     *  
+     * rtmGate (28)
+     * 
+     * @param {Int64} rid 
+     * @param {number} timeout 
+     * @param {function} callback 
+     * 
+     * @callback
+     * @param {Error} err
+     * @param {object} data
+     */
+    enterRoom(rid, timeout, callback) {
+
+        let payload = {
+            rid: rid
+        };
+
+        let options = {
+            flag: 1,
+            method: 'enterroom',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    /**
+     *  
+     * rtmGate (29)
+     * 
+     * @param {Int64} rid 
+     * @param {number} timeout 
+     * @param {function} callback 
+     * 
+     * @callback
+     * @param {Error} err
+     * @param {object} data
+     */
+    leaveRoom(rid, timeout, callback) {
+
+        let payload = {
+            rid: rid
+        };
+
+        let options = {
+            flag: 1,
+            method: 'leaveroom',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    /**
+     *  
+     * rtmGate (30)
+     * 
+     * @param {number} timeout 
+     * @param {function} callback 
+     * 
+     * @callback
+     * @param {Error} err
+     * @param {array<Int64>} data
+     */
+    getUserRooms(timeout, callback) {
+
+        let payload = {};
+
+        let options = {
+            flag: 1,
+            method: 'getuserrooms',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, function(err, data) {
+
+            if (err) {
+
+                callback && callback(err, null);
+                return;
+            }
+
+            let rids = data['rooms'];
+
+            if (rids) {
+
+                let brids = [];
+
+                rids.forEach(function(item, index) {
+                    
+                    brids[index] = new RTMConfig.Int64(item);
+                });
+
+                callback && callback(null, brids);
+                return;
+            }
+
+            callback && callback(null, data);
+        }, timeout);
+    }
+
+    /**
+     *  
+     * rtmGate (31)
+     * 
+     * @param {array<Int64>} uids 
+     * @param {number} timeout 
+     * @param {function} callback 
+     * 
+     * @callback
+     * @param {Error} err
+     * @param {array<Int64>} data
+     */
+    getOnlineUsers(uids, timeout, callback) {
+        
+        let payload = {
+            uids: uids
+        };
+
+        let options = {
+            flag: 1,
+            method: 'getonlineusers',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, function(err, data) {
+
+            if (err) {
+
+                callback && callback(err, null);
+                return;
+            }
+
+            let uids = data['uids'];
+
+            if (uids) {
+
+                let buids = [];
+
+                uids.forEach(function(item, index) {
+
+                    buids[index] = new RTMConfig.Int64(item);
+                });
+
+                callback && callback(null, buids);
+                return;
+            }
+
+            callback && callback(null, data);
+        }, timeout);
+    }
+
+    /**
+     *  
+     * rtmGate (32)
+     * 
+     * @param {Int64} mid
+     * @param {Int64} xid
+     * @param {number} type
+     * @param {number} timeout
+     * @param {function} callback
+     * 
+     * @callback
+     * @param {Error} err
+     * @param {object} data
+     */
+    deleteMessage(mid, xid, type, timeout, callback) {
+
+        let payload = {
+            mid: mid,
+            xid: xid,
+            type: type
+        };
+
+        let options = {
+            flag: 1,
+            method: 'delmsg',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    /**
+     *  
+     * rtmGate (33)
+     * 
+     * @param {string} ce
+     * @param {number} timeout
+     * @param {function} callback
+     * 
+     * @callback
+     * @param {Error} err
+     * @param {object} data
+     */
+    kickout(ce, timeout, callback) {
+
+        let payload = {
+            ce: ce
+        };
+
+        let options = {
+            flag: 1,
+            method: 'kickout',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    /**
+     *  
+     * fileGate (1)
      * 
      * @param {number} mtype 
      * @param {Int64} to 
      * @param {File} file
+     * @param {Int64} mid
      * @param {number} timeout 
      * @param {function} callback 
      * 
      * @callback
-     * @param {Error} err
-     * @param {object} data 
+     * @param {object<mid:Int64, error:Error>} err
+     * @param {object<mid:Int64, payload:object<mtime:Int64>>} data
      */
-    sendFile(mtype, to, file, timeout, callback) {
+    sendFile(mtype, to, file, mid, timeout, callback) {
 
         let ops = {
-            cmd: 'sendfile',
-            mtype: mtype,
             to: to,
-            file: file
-        };
-
-        fileSendProcess.call(this, ops, callback, timeout);
-    }
-
-    /**
-     * 
-     * @param {number} mtype 
-     * @param {array<Int64>} tos 
-     * @param {File} file
-     * @param {number} timeout 
-     * @param {function} callback 
-     * 
-     * @callback
-     * @param {Error} err
-     * @param {object} data 
-     */
-    sendFiles(mtype, tos, file, timeout, callback) {
-
-        let ops = {
-            cmd: 'sendfiles',
             mtype: mtype,
-            tos: tos,
-            file: file
+            cmd: 'sendfile'
         };
 
-        fileSendProcess.call(this, ops, callback, timeout);
+        fileSendProcess.call(this, ops, file, mid, callback, timeout);
     }
 
     /**
+     *  
+     * fileGate (3)
      * 
      * @param {number} mtype 
      * @param {Int64} gid 
      * @param {File} file
+     * @param {Int64} mid
      * @param {number} timeout 
      * @param {function} callback 
      * 
      * @callback
-     * @param {Error} err
-     * @param {object} data 
+     * @param {object<mid:Int64, error:Error>} err
+     * @param {object<mid:Int64, payload:object<mtime:Int64>>} data
      */
-    sendGroupFile(mtype, gid, file, timeout, callback) {
+    sendGroupFile(mtype, gid, file, mid, timeout, callback) {
 
         let ops = {
-            cmd: 'sendgroupfile',
-            mtype: mtype,
             gid: gid,
-            file: file
+            mtype: mtype,
+            cmd: 'sendgroupfile'
         };
 
-        fileSendProcess.call(this, ops, callback, timeout);
+        fileSendProcess.call(this, ops, file, mid, callback, timeout);
     }
 
     /**
+     *  
+     * fileGate (4)
      * 
      * @param {number} mtype 
      * @param {Int64} rid 
      * @param {File} file
+     * @param {Int64} mid
      * @param {number} timeout 
      * @param {function} callback 
      * 
      * @callback
-     * @param {Error} err
-     * @param {object} data 
+     * @param {object<mid:Int64, error:Error>} err
+     * @param {object<mid:Int64, payload:object<mtime:Int64>>} data
      */
-    sendRoomFile(mtype, rid, file, timeout, callback) {
+    sendRoomFile(mtype, rid, file, mid, timeout, callback) {
 
         let ops = {
-            cmd: 'sendroomfile',
-            mtype: mtype,
             rid: rid,
-            file: file
+            mtype: mtype,
+            cmd: 'sendroomfile'
         };
 
-        fileSendProcess.call(this, ops, callback, timeout);
+        fileSendProcess.call(this, ops, file, mid, callback, timeout);
     }
 
+    // Code for AsyncStressTester
+    /* 
     sendQuest(options, callback, timeout) {
 
-        sendQuest.call(this, this._rtmClient, options, callback, timeout);
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
     }
 
     connect(endpoint, timeout) {
 
-        if (this._rtmClient != null && this._rtmClient.isOpen) {
+        if (this._baseClient != null && this._baseClient.isOpen) {
 
-            this._rtmClient.close();
+            this._baseClient.destroy();
             return;
         }
 
         this._endpoint = endpoint;
     
-        this._rtmClient = new FPClient({ 
+        this._baseClient = new FPClient({ 
             endpoint: buildEndpoint.call(this, this._endpoint), 
-            autoReconnect: true,
+            autoReconnect: false,
             connectionTimeout: this._connectionTimeout,
             proxy: this._proxy
         });
     
         let self = this;
     
-        this._rtmClient.connect();
-    
-        this._rtmClient.on('connect', function() {
+        this._baseClient.on('connect', function() {
     
             self.emit('connect');
         });
     
-        this._rtmClient.on('close', function() {
+        this._baseClient.on('close', function() {
     
             onClose.call(self);
         });
     
-        this._rtmClient.on('error', function(err) {
+        this._baseClient.on('error', function(err) {
             
             self.emit('error', err);
         });
     
-        this._rtmClient.processor = this._processor;
+        this._baseClient.processor = this._processor;
+        this._baseClient.connect();
     }
-
-
+    */
 }
 
-function fileSendProcess(ops, callback, timeout) {
+function fileSendProcess(ops, file, mid, callback, timeout) {
 
     let self = this;
-    let reader = new FileReader();
 
-    reader.onload = function(e) {
+    if (!mid || mid.toString() == '0') {
 
-        ops.fileContent = Buffer.from(e.target.result);
+        mid = genMid.call(this);
+    }
 
-        if (!ops.fileContent) {
+    filetoken.call(self, ops, function(err, data) {
 
-            self.emit('error', new Error('no file content!'));
+        if (err) {
+
+            callback && callback({ mid: mid, error: err }, null);
             return;
         }
 
-        filetoken.call(self, ops, function(err, data) {
+        let token = data["token"];
+        let endpoint = data["endpoint"];
 
-            if (err) {
+        let ext = null;
+        let index = file.name.lastIndexOf('.');
 
-                self.emit('error', err);
+        if (index != -1) {
+
+            ext = file.name.slice(index + 1);
+        }
+
+        if (!token || !endpoint) {
+
+            callback && callback({ mid: mid, error: new Error(JSON.stringify(data)) }, null);
+            return;
+        }
+
+        let reader = new FileReader();
+
+        reader.onload = function(e) {
+
+            let content = Buffer.from(e.target.result);
+
+            if (!content) {
+
+                callback && callback({ mid: mid, error: new Error('no file content!') }, null);
                 return;
             }
 
-            let token = data["token"];
-            let endpoint = data["endpoint"];
+            let sign = cyrMD5.call(self, cyrMD5.call(self, content) + ':' + token);
 
-            let ext = null;
+            let fileClient = new FPClient({ 
 
-            if (!ext) {
+                endpoint: buildEndpoint.call(self, endpoint),
+                autoReconnect: false,
+                connectionTimeout: timeout,
+                proxy: self._fileProxy 
+            });
 
-                let extIdx = ops.file.name.lastIndexOf('.');
+            fileClient.on('close', function(){
 
-                if (extIdx > 0 && extIdx < ops.file.name.length - 1) {
+                self.destroy();
+            });
 
-                    ext = ops.file.name.slice(extIdx + 1);
-                }
-            }
+            fileClient.on('error', function(err) {
 
-            let sign = cyrMD5.call(self, cyrMD5.call(self, ops.fileContent) + ':' + token);
+                self.emit('error', new Error('file client: ' + err.message));
+            });
 
-            if (!self._fileClient) {
-
-                self._fileClient = new FPClient({ 
-                    endpoint: buildEndpoint.call(self, endpoint),
-                    autoReconnect: false,
-                    connectionTimeout: timeout,
-                    proxy: self._proxy
-                });
-
-                // self._fileClient.on('connect', function() {});
-                // self._fileClient.on('close', function() {});
-                self._fileClient.on('error', function(err) {
-
-                    self.emit('error', new Error('file client: ' + err.message));
-                });
-            }
-
-            if (!self._fileClient.hasConnect) {
-
-                self._fileClient.connect();
-            }
+            fileClient.connect();
 
             let options = {
-                method: ops.cmd,
                 token: token,
-                from: self._uid,
-                mtype: ops.mtype,
                 sign: sign,
                 ext: ext,
-                data: ops.fileContent
+                file: content
             };
 
-            if (ops.tos !== undefined) {
+            for (let key in ops) {
 
-                options.tos = ops.tos;
+                options[key] = ops[key];
             }
+
+            sendfile.call(self, fileClient, options, mid, callback, timeout);
+        };
         
-            if (ops.to !== undefined) {
-
-                options.to = ops.to;
-            }
-        
-            if (ops.rid !== undefined) {
-
-                options.rid = ops.rid;
-            }
-        
-            if (ops.gid !== undefined) {
-
-                options.gid = ops.gid;
-            }
-
-            fileSend.call(self, self._fileClient, options, callback, timeout);
-        }, timeout);
-    };
-
-    reader.readAsArrayBuffer(ops.file);
+        reader.readAsArrayBuffer(file);
+    });
 }
 
 function filetoken(ops, callback, timeout) {
 
-    let payload = {
-        cmd: ops.cmd
-    };
+    let payload = {};
 
-    if (ops.tos !== undefined) {
+    for (let key in ops) {
 
-		payload.tos = ops.tos;
-    }
+        if (key == 'mtype') {
 
-	if (ops.to !== undefined) {
+            continue;
+        }
 
-		payload.to = ops.to;
-    }
-
-	if (ops.rid !== undefined) {
-
-		payload.rid = ops.rid;
-    }
-
-	if (ops.gid !== undefined) {
-
-		payload.gid = ops.gid;
+        payload[key] = ops[key];
     }
 
     let options = {
@@ -1674,29 +1731,61 @@ function filetoken(ops, callback, timeout) {
         payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
     };
 
-    sendQuest.call(this, this._rtmClient, options, callback, timeout);
+    sendQuest.call(this, this._baseClient, options, callback, timeout);
 }
 
-function fileSend(client, ops, callback, timeout) {
+function sendfile(fileClient, ops, mid, callback, timeout) {
 
     let payload = {
         pid: this._pid,
-        token: ops.token,
-        mtype: ops.mtype,
-        from: ops.from,
-        to: ops.to,
-        mid: genMid.call(this),
-        file: ops.data,
-        attrs: JSON.stringify({ sign: ops.sign, ext: ops.ext })
+        from: this._uid,
+        mid: mid
     };
+
+    for (let key in ops) {
+
+        if (key == 'sign') {
+
+            payload.attrs = JSON.stringify({ sign: ops.sign, ext: ops.ext });
+            continue;
+        }
+
+        if (key == 'ext') {
+
+            continue;
+        }
+
+        if (key == 'cmd') {
+
+            continue;
+        }
+
+        payload[key] = ops[key];
+    }
 
     let options = {
         flag: 1,
-        method: ops.method,
+        method: ops.cmd,
         payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
     };
 
-    sendQuest.call(this, client, options, callback, timeout);
+    sendQuest.call(this, fileClient, options, function(err, data){
+
+        fileClient.destroy();
+
+        if (err) {
+
+            callback && callback({ mid: payload.mid, error: err }, null);
+            return;
+        }
+
+        if (data.mtime !== undefined) {
+
+            data.mtime = new RTMConfig.Int64(data.mtime);
+        }
+
+        callback && callback(null, { mid: payload.mid, payload: data });
+    }, timeout);
 }
 
 function genMid() {
@@ -1714,11 +1803,11 @@ function cyrMD5(data) {
     return require('../../libs/md5.min')(data);
 }
 
-function isException(data) {
-    
+function isException(isAnswerErr, data) {
+
     if (!data) {
 
-        return null;
+        return new Error('data is null!');
     }
 
     if (data instanceof Error) {
@@ -1726,9 +1815,12 @@ function isException(data) {
         return data;
     }
 
-    if (data.hasOwnProperty('code') && data.hasOwnProperty('ex')) {
+    if (isAnswerErr) {
 
-        return new Error('code: ' + data.code + ', ex: ' + data.ex);
+        if (data.hasOwnProperty('code') && data.hasOwnProperty('ex')) {
+
+            return new Error('code: ' + data.code + ', ex: ' + data.ex);
+        }
     }
 
     return null;
@@ -1752,11 +1844,18 @@ function sendQuest(client, options, callback, timeout) {
         }
 
         let err = null;
+        let isAnswerErr = false;
 
         if (data.payload) {
 
             let payload = RTMConfig.MsgPack.decode(data.payload, self._msgOptions);
-            err = isException.call(self, payload);
+
+            if (data.mtype == 2) {
+
+                isAnswerErr = data.ss != 0;
+            }
+
+            err = isException.call(self, isAnswerErr, payload);
 
             if (err) {
 
@@ -1768,7 +1867,7 @@ function sendQuest(client, options, callback, timeout) {
             return;
         }
 
-        err = isException.call(self, data);
+        err = isException.call(self, isAnswerErr, data);
 
         if (err) {
 
@@ -1793,49 +1892,17 @@ function getRTMGate(service, callback, timeout) {
             proxy: this._proxy
         });
 
-        this._dispatchClient.on('connect', function() {
-
-            let payload = {
-                pid: self._pid,
-                uid: self._uid,
-                what: service,
-                addrType: self._ipv6 ? 'ipv6' : 'ipv4',
-                version: self._version
-            };
-        
-            let options = {
-                flag: 1,
-                method: 'which',
-                payload: RTMConfig.MsgPack.encode(payload, self._msgOptions)
-            };
-        
-            sendQuest.call(self, self._dispatchClient, options, function (err, data){
-
-
-                if (self._dispatchClient) {
-
-                    self._dispatchClient.destroy();
-                    self._dispatchClient = null;
-                }
-                
-                if (data) {
-                    
-                    callback && callback(null, data);
-                }
-
-                if (err) {
-
-                    callback && callback(err, null);
-                }
-            }, timeout);
-        });
-
         this._dispatchClient.on('close', function() {
 
             if (self._dispatchClient) {
 
                 self._dispatchClient.destroy();
                 self._dispatchClient = null;
+            }
+
+            if (!self._endpoint) {
+
+                callback && callback(new Error('dispatch client close with err'), null);
             }
         });
     }
@@ -1844,6 +1911,46 @@ function getRTMGate(service, callback, timeout) {
 
         this._dispatchClient.connect();
     }
+
+    which.call(this, service, callback, timeout);
+}
+
+function which(service, callback, timeout) {
+
+    let payload = {
+        pid: this._pid,
+        uid: this._uid,
+        what: service,
+        addrType: this._ipv6 ? 'ipv6' : 'ipv4',
+        version: this._version
+    };
+
+    let options = {
+        flag: 1,
+        method: 'which',
+        payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+    };
+
+    let self = this;
+
+    sendQuest.call(this, this._dispatchClient, options, function (err, data){
+
+        if (self._dispatchClient) {
+
+            self._dispatchClient.destroy();
+            self._dispatchClient = null;
+        }
+        
+        if (data) {
+            
+            callback && callback(null, data);
+        }
+
+        if (err) {
+
+            callback && callback(err, null);
+        }
+    }, timeout);
 }
 
 function buildEndpoint(endpoint) {
@@ -1865,13 +1972,12 @@ function buildEndpoint(endpoint) {
 
 function connectRTMGate(timeout) {
 
-    if (this._rtmClient != null && this._rtmClient.isOpen) {
+    if (this._baseClient != null) {
 
-        this._rtmClient.close();
-        return;
+        this._baseClient.destroy();
     }
 
-    this._rtmClient = new FPClient({ 
+    this._baseClient = new FPClient({ 
         endpoint: buildEndpoint.call(this, this._endpoint), 
         autoReconnect: false,
         connectionTimeout: this._connectionTimeout,
@@ -1880,43 +1986,50 @@ function connectRTMGate(timeout) {
 
     let self = this;
 
-    this._rtmClient.connect();
+    this._baseClient.on('close', function() {
 
-    this._rtmClient.on('connect', function() {
-
-        self._processor.on(RTMConfig.SERVER_PUSH.kickOut, function(data) {
-            
-            self._isClose = true;
-            self._rtmClient.close();
-        });
-
-        auth.call(self, timeout);
+        onClose.call(self, true);
     });
 
-    this._rtmClient.on('close', function() {
-
-        self._rtmClient.removeEvent();
-        onClose.call(self);
-        reConnect.call(self);
-    });
-
-    this._rtmClient.on('error', function(err) {
+    this._baseClient.on('error', function(err) {
         
         self.emit('error', err);
     });
 
-    this._rtmClient.processor = this._processor;
+    this._processor.on(RTMConfig.SERVER_PUSH.kickOut, function(data) {
+        
+        self._isClose = true;
+        self._baseClient.close();
+    });
+
+    this._baseClient.processor = this._processor;
+    this._baseClient.connect();
+
+    auth.call(this, timeout);
 }
 
+/**
+ *  
+ * rtmGate (1)
+ *  
+ */
 function auth(timeout) {
 
     let payload = {
         pid: this._pid,
 		uid: this._uid,
-		token: this._token,
-		version: this._version,
-		unread: this._recvUnreadMsgStatus
+		token: this._token
     };
+
+    if (this._version) {
+
+        payload.version = this._version;
+    }
+
+    if (this._attrs) {
+
+        payload.attrs = this._attrs;
+    }
 
     let options = {
         flag: 1,
@@ -1926,14 +2039,14 @@ function auth(timeout) {
 
     let self = this;
 
-    sendQuest.call(this, this._rtmClient, options, function(err, data) {
-        
+    sendQuest.call(this, this._baseClient, options, function(err, data) {
+
         if (data && data.ok) {
 
-            if (self._reconnectID) {
+            if (self._reconnectTimeout) {
 
-                clearTimeout(self._reconnectID);
-                self._reconnectID = 0;
+                clearTimeout(self._reconnectTimeout);
+                self._reconnectTimeout = 0;
             }
 
             self.emit('login', { endpoint: self._endpoint });
@@ -1945,7 +2058,7 @@ function auth(timeout) {
             if (data.gate) {
                 
                 self._endpoint = data.gate;
-                self._rtmClient.close();
+                onClose.call(self, true);
                 return;
             }
 
@@ -1955,17 +2068,23 @@ function auth(timeout) {
 
         if (err) {
 
-            self._rtmClient.close(err);
+            self._baseClient.close(err);
         }
     }, timeout);
 }
 
-function onClose() {
+function onClose(reconnect) {
 
-    if (this._reconnectID) {
+    if (this._reconnectTimeout) {
 
-        clearTimeout(this._reconnectID);
-        this._reconnectID = 0;
+        clearTimeout(this._reconnectTimeout);
+        this._reconnectTimeout = 0;
+    }
+
+    if (reconnect) {
+
+        reConnect.call(this);
+        return;
     }
 
     this.emit('close', !this._isClose && this._autoReconnect);
@@ -1978,7 +2097,7 @@ function reConnect() {
         return;
     }
 
-    if (this._reconnectID) {
+    if (this._reconnectTimeout) {
 
         return;
     }
@@ -1990,7 +2109,7 @@ function reConnect() {
 
     let self = this;
 
-    this._reconnectID = setTimeout(function() {
+    this._reconnectTimeout = setTimeout(function() {
 
         self.login(self._endpoint, self._ipv6);
     }, 100);

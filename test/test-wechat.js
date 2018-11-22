@@ -25,7 +25,6 @@ let client = new Rtm.RTMClient({
     autoReconnect: true,
     connectionTimeout: 20 * 1000,
     pid: 1000012,
-    recvUnreadMsgStatus: false,
     ssl: true,
     // proxyEndpoint: 'highras.ifunplus.cn:13555'
     proxyEndpoint: 'infra-dev.ifunplus.cn:13555',
@@ -52,14 +51,27 @@ client.on('login', function (data) {
     }
 
     //send to server
-    client.sendMessage(new Rtm.RTMConfig.Int64(123789), 8, 'hello !', '', 10 * 1000, function (err, data) {
+    client.sendMessage(new Rtm.RTMConfig.Int64(123789), 8, 'hello !', '', new Rtm.RTMConfig.Int64(0), 10 * 1000, function (err, data) {
 
         if (err) {
 
-            console.error('\n[ERR]', err.message);
+            if (err.mid) {
+
+                console.error('\n[ERR] mid:' + err.mid.toString(), err.error);
+                return;
+            }
+
+            console.error('\n[ERR]', err);
+
         }
 
         if (data) {
+
+            if (data.mid) {
+
+                console.log('\n[DATA] mid:' + data.mid.toString(), data.payload);
+                return;
+            }
 
             console.log('\n[DATA]', data);
         }

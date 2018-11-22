@@ -11,6 +11,7 @@
         <script src="./test-rtm.js"></script>
 
         <script type="text/javascript">
+            let tester;
             function checkInput() {
 
                 var inputFrom = document.getElementById("rtmInfoFrom");
@@ -76,13 +77,13 @@
                 inputFrom.to.disabled = true;
                 inputFrom.login.disabled = true;
             
-                test(inputFrom.endpoint.value, pid, inputFrom.token.value, from, to);
+                tester = baseTest(inputFrom.endpoint.value, pid, inputFrom.token.value, from, to);
             }
         </script>
             
         <form id="rtmInfoFrom">
-            RTM Dispatch Endpoint: <input type="text" name="endpoint" value="35.167.185.139:13325">&nbsp;&nbsp;&nbsp;&nbsp; Project ID: <input type="text" name="pid" value="1000012"><br>
-            Login token: <input type="text" name="token" value="2AF792599FE29CE17ED045A960465D95">&nbsp;&nbsp;&nbsp;&nbsp; From ID: <input type="text" name="from" value="654321">&nbsp;&nbsp;&nbsp;&nbsp; To ID: <input type="text" name="to" value="123789"><br>
+            RTM Dispatch Endpoint: <input type="text" name="endpoint" value="52.83.245.22:13325">&nbsp;&nbsp;&nbsp;&nbsp; Project ID: <input type="text" name="pid" value="1000012"><br>
+            Login token: <input type="text" name="token" value="DCF97A02772AD4E1319F79854518A8BA">&nbsp;&nbsp;&nbsp;&nbsp; From ID: <input type="text" name="from" value="654321">&nbsp;&nbsp;&nbsp;&nbsp; To ID: <input type="text" name="to" value="123789"><br>
             <input type="button" name="login" value="login" onclick="checkInput()">
         </form>
 
@@ -111,9 +112,14 @@
                                 f.size, ' bytes, last modified: ',
                                 f.lastModifiedDate.toLocaleDateString(), '</li>');
 
-                    if (client.authed) {
+                    if (tester) {
 
-                        client.sendFile(8, new Rtm.RTMConfig.Int64(0, 778899), f, function(err, data) {
+                        let mid = new Rtm.RTMConfig.Int64(0);
+                        let to = new Rtm.RTMConfig.Int64(0, 778899);
+                        let gid = new Rtm.RTMConfig.Int64(0, 999999);
+                        let rid = new Rtm.RTMConfig.Int64(0, 666666);
+
+                        tester.client.sendFile(50, to, f, mid, 30 * 1000, function(err, data) {
 
                             if (data) {
 
@@ -125,10 +131,41 @@
                                 console.error('\n[ERR] sendFile:\n', err)
                             }
                         });
-                    } else {
 
-                        console.log('do not authed!');
-                    }
+                        setTimeout(function() {
+
+                            tester.client.sendGroupFile(50, gid, f, mid, 30 * 1000, function(err, data) {
+
+                                if (data) {
+
+                                    console.log('\n[DATA] sendGroupFile:\n', data);
+                                }
+
+                                if (err) {
+
+                                    console.error('\n[ERR] sendGroupFile:\n', err)
+                                }
+                            });
+                        }, 2000);
+
+                        setTimeout(function() {
+
+                            tester.client.sendRoomFile(50, rid, f, mid, 30 * 1000, function(err, data) {
+
+                                if (data) {
+
+                                    console.log('\n[DATA] sendRoomFile:\n', data);
+                                }
+
+                                if (err) {
+
+                                    console.error('\n[ERR] sendRoomFile:\n', err)
+                                }
+                            });
+                        }, 4000);
+
+
+                    } 
                 }
 
                 document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
