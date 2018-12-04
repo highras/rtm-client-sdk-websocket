@@ -34,8 +34,7 @@ let client = new Rtm.RTMClient({
     connectionTimeout: 10 * 1000,
     pid: 1000012,
     ssl: true,
-    platformImpl: null,
-    proxyEndpoint: 'highras.ifunplus.cn:13555',
+    proxyEndpoint: 'highras.ifunplus.cn:13556',
 });
 
 client.on('error', function(err) {
@@ -62,12 +61,24 @@ client.on('login', function(data) {
 
         if (err) {
 
-            console.error('\n[ERR]', err);
+            if (err.hasOwnProperty('mid')) {
+
+                console.error('\n mid:' + err.mid.toString(), err.error);
+                return;
+            }
+
+            console.error('\n ', err);
         }
 
         if (data) {
 
-            console.log('\n[DATA]', data);
+            if (data.hasOwnProperty('mid')) {
+
+                console.log('\n mid:' + data.mid.toString(), data.payload);
+                return;
+            }
+
+            console.log('\n ', data);
         }
     });
 });
@@ -85,6 +96,9 @@ client.login();
 // destroy
 // client.destroy();
 ```
+
+#### Wechat ####
+[Wechat Version](README-WECHAT.md)
 
 #### Events ####
 * `event`:

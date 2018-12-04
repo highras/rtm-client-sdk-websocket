@@ -1,3 +1,59 @@
+# FPNN RTM WebJs SDK #
+
+* 不支持`FPNN`加密链接, 支持`SSL`加密链接
+* 源码方式接入
+
+#### 关于三方包依赖 ####
+* [base64](https://github.com/dankogai/js-base64) `./libs/base64-js.js`
+* [ieee754](https://github.com/feross/ieee754) `./libs/ieee754.js`
+* [buffer](https://github.com/feross/buffer) `./libs/buffer.js`
+* [md5](https://github.com/emn178/js-md5) `./libs/md5.min.js`
+* [int64-buffer](https://github.com/kawanet/int64-buffer) `./lib/int64-buffer.min.js`
+* [msgpack-lite](https://github.com/kawanet/msgpack-lite) `./lib/msgpack.min.js`
+
+#### Promise支持 ####
+* 支持动态转Promise接口
+* 参考:[Promise.promisifyAll](http://bluebirdjs.com/docs/api/promise.promisifyall.html)
+
+#### 关于编译 ####
+* 支持源码编译[详见: `./webpack.config.js` `./package.json`]
+* 编译依赖的模块[`babel-loader` `babel-preset-es2015` `webpack` `webpack-cli`]
+* 编译内置的模块[`buffer`]
+```
+yarn run build
+```
+
+#### 一个例子 ####
+* 添加依赖包到`libs`文件夹中
+* 创建`livedata`文件夹并导入SDK源代码
+* 目录结构(推荐) 
+```
+- js/
+    + base/
+    - libs/
+        - base64-js.js
+        - buffer.js
+        - ieee754.js
+        - int64-buffer.min.js
+        - md5.min.js
+        - msgpack.min.js
+        ...
+    - livedata/
+        + fpnn/
+        + rtm/
+    + npc/
+    + player/
+    + runtime/
+    - main.js
+    ...
+- game.js
+- game.json
+...
+```
+
+* 参考 `./test/test-wechat.js`
+
+```javascript
 import Rtm from './js/livedata/rtm/RTMClient.js'
 import WechatImpl from './js/livedata/fpnn/platform/WechatImpl'
 
@@ -67,3 +123,4 @@ client.processor.on(pushName, function (data) {
 });
 
 client.login();
+```

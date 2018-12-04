@@ -13,7 +13,6 @@ function baseTest(endpoint, pid, token, from, to) {
         pid: pid,
         attrs: { user: 'test user attrs' },
         ssl: true,
-        // proxyEndpoint: 'highras.ifunplus.cn:13556'
         proxyEndpoint: 'infra-dev.ifunplus.cn:13556'
     }, from, to);
 
