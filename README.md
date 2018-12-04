@@ -1,4 +1,4 @@
-# FPNN RTM WebJs SDK #
+# fpnn rtm sdk websocket #
 
 * 不支持`FPNN`加密链接, 支持`SSL`加密链接
 * 支持源码方式接入, 支持自定义构建
