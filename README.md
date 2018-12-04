@@ -489,6 +489,21 @@ client.login();
         * `err`: **(Error)** 
         * `data`: **(object)** 
 
+* `dbGet(key, timeout, callback)`: 获取存储的数据信息, 返回值不包含`val`表示`key`不存在
+    * `key`: **(Required | string)** 存储数据对应键值, 最长128字节
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)** 
+        * `data`: **(object[val:string])** 
+
+* `dbSet(key, value, timeout, callback)`: 设置存储的数据信息, `value`为空则删除对应`key`
+    * `key`: **(Required | string)** 存储数据对应键值, 最长128字节
+    * `value`: **(Optional | string)** 存储数据实际内容, 最长1024*1024*2字节
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)** 
+        * `data`: **(object)** 
+
 * `sendFile(mtype, to, file, mid, timeout, callback)`: 发送文件
     * `mtype`: **(Required | number)** 文件类型
     * `to`: **(Required | Int64)** 接收者 id

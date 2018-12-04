@@ -1501,6 +1501,62 @@ class RTMClient {
 
     /**
      *  
+     * rtmGate (34)
+     * 
+     * @param {string} key
+     * @param {number} timeout
+     * @param {function} callback
+     * 
+     * @callback
+     * @param {Error} err
+     * @param {object<val:string>} data
+     */
+    dbGet(key, timeout, callback) {
+
+        let payload = {
+            key: key && key.toString()
+        };
+
+        let options = {
+            flag: 1,
+            method: 'dbget',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    /**
+     *  
+     * rtmGate (35)
+     * 
+     * @param {string} key
+     * @param {string} value 
+     * @param {number} timeout
+     * @param {function} callback
+     * 
+     * @callback
+     * @param {Error} err
+     * @param {object} data
+     */
+    dbSet(key, value, timeout, callback) {
+
+        let payload = {
+            key: key && key.toString(),
+            val: (value && value.toString()) || ''
+        };
+
+        let options = {
+            flag: 1,
+            method: 'dbset',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    /**
+     *  
      * fileGate (1)
      * 
      * @param {number} mtype 

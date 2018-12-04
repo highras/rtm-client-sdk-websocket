@@ -26,8 +26,8 @@ let client = new Rtm.RTMClient({
     connectionTimeout: 20 * 1000,
     pid: 1000012,
     ssl: true,
-    // proxyEndpoint: 'highras.ifunplus.cn:13555'
-    proxyEndpoint: 'infra-dev.ifunplus.cn:13555',
+    // proxyEndpoint: 'highras.ifunplus.cn:13556'
+    proxyEndpoint: 'infra-dev.ifunplus.cn:13556',
     platformImpl: new WechatImpl()
 });
 

@@ -302,7 +302,19 @@ function TestCase (options, from, to) {
                 t.call(self, function(name, cb) {
 
                     client[name].call(client, '', timeout, cb);
-                }, 'kickout');
+                }, 'kickout'); 
+
+                //rtmGate (35)
+                t.call(self, function(name, cb) {
+
+                    client[name].call(client, 'db-test-key', 'db-test-value', timeout, cb);
+                }, 'dbSet'); 
+
+                //rtmGate (34)
+                t.call(self, function(name, cb) {
+
+                    client[name].call(client, 'db-test-key', timeout, cb);
+                }, 'dbGet'); 
 
                 //rtmGate (13)
                 t.call(self, function(name, cb) {
