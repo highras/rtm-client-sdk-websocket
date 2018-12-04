@@ -1,6 +1,7 @@
 # FPNN RTM WebJs SDK #
 
-* 不支持`FPNN`加密链接。
+* 不支持`FPNN`加密链接, 支持`SSL`加密链接
+* 支持源码方式接入, 支持自定义构建
 
 #### 关于三方包依赖 ####
 * [int64-buffer](https://github.com/kawanet/int64-buffer) `./lib/int64-buffer.min.js`
