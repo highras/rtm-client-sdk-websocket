@@ -15,14 +15,6 @@
 * 支持动态转Promise接口
 * 参考:[Promise.promisifyAll](http://bluebirdjs.com/docs/api/promise.promisifyall.html)
 
-#### 关于编译 ####
-* 支持源码编译[详见: `./webpack.config.js` `./package.json`]
-* 编译依赖的模块[`babel-loader` `babel-preset-es2015` `webpack` `webpack-cli`]
-* 编译内置的模块[`buffer`]
-```
-yarn run build
-```
-
 #### 一个例子 ####
 * 添加依赖包到`libs`文件夹中
 * 创建`livedata`文件夹并导入SDK源代码
