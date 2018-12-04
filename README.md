@@ -490,15 +490,15 @@ client.login();
         * `data`: **(object)** 
 
 * `dbGet(key, timeout, callback)`: 获取存储的数据信息, 返回值不包含`val`表示`key`不存在
-    * `key`: **(Required | string)** 存储数据对应键值, 最长`128字节`
+    * `key`: **(Required | string)** 存储数据对应键值, 最长`128 字节`
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
         * `err`: **(Error)** 
         * `data`: **(object[val:string])** 
 
 * `dbSet(key, value, timeout, callback)`: 设置存储的数据信息, `value`为空则删除对应`key`
-    * `key`: **(Required | string)** 存储数据对应键值, 最长`128`字节
-    * `value`: **(Optional | string)** 存储数据实际内容, 最长`1024 * 1024 * 2字节`
+    * `key`: **(Required | string)** 存储数据对应键值, 最长`128 字节`
+    * `value`: **(Optional | string)** 存储数据实际内容, 最长`1024 * 1024 * 2 字节`
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
         * `err`: **(Error)** 
