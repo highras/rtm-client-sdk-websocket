@@ -25,6 +25,7 @@ yarn run build
 * 参考 `./test/test-wechat.js`
 
 ```javascript
+GameGlobal.md5 = require('./js/libs/md5.min.js')
 GameGlobal.msgpack = require('./js/libs/msgpack.min.js')
 GameGlobal.Int64BE = require('./js/libs/int64-buffer.min.js').Int64BE
 GameGlobal.fpnn = require('./js/libs/fpnn.min.js')
