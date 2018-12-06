@@ -4,8 +4,10 @@
 * 支持源码方式接入, 支持自定义构建
 
 #### 关于三方包依赖 ####
-* [int64-buffer](https://github.com/kawanet/int64-buffer) `./lib/int64-buffer.min.js`
-* [msgpack-lite](https://github.com/kawanet/msgpack-lite) `./lib/msgpack.min.js`
+* [fpnn](https://github.com/highras/fpnn-sdk-webjs) `./libs/fpnn.min.js`
+* [md5](https://github.com/emn178/js-md5) `./libs/md5.min.js`
+* [msgpack](https://github.com/kawanet/msgpack-lite) `./libs/msgpack.min.js`
+* [Int64BE](https://github.com/kawanet/int64-buffer) `./libs/int64-buffer.min.js`
 
 #### Promise支持 ####
 * 支持动态转Promise接口
@@ -22,13 +24,18 @@ yarn run build
 #### 一个例子 ####
 * 参考 `./test/index.html` `./test/test-rtm.js` 打开浏览器console输出
 ```html
+<script src="../libs/md5.min.js"></script>
+<script src="../libs/int64-buffer.min.js"></script>
+<script src="../libs/msgpack.min.js"></script>
+<script src="../libs/fpnn.min.js"></script>
+
 <script src="./dist/rtm.min.js"></script>
 ```
 
 ```javascript
-let client = new Rtm.RTMClient({ 
+let client = new rtm.RTMClient({ 
     dispatch: 'rtm-nx-front.ifunplus.cn:13325',
-    uid: new Rtm.RTMConfig.Int64(0, 654321),
+    uid: new rtm.RTMConfig.Int64(0, 654321),
     token: '5C65CD872903AAB37211EC468B4A1364',
     autoReconnect: false,
     connectionTimeout: 10 * 1000,
@@ -57,7 +64,7 @@ client.on('login', function(data) {
     }
 
     //send to server
-    client.sendMessage(new Rtm.RTMConfig.Int64(123789), 8, 'hello !', '', new Rtm.RTMConfig.Int64(0), 10 * 1000, function(err, data) {
+    client.sendMessage(new rtm.RTMConfig.Int64(123789), 8, 'hello !', '', new rtm.RTMConfig.Int64(0), 10 * 1000, function(err, data) {
 
         if (err) {
 
@@ -84,7 +91,7 @@ client.on('login', function(data) {
 });
 
 //push service
-let pushName = Rtm.RTMConfig.SERVER_PUSH.recvMessage;
+let pushName = rtm.RTMConfig.SERVER_PUSH.recvMessage;
 client.processor.on(pushName, function(data) {
 
     console.log('\n[PUSH] ' + pushName + ':\n', data);

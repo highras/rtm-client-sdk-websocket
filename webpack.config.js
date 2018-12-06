@@ -1,14 +1,14 @@
 const path = require('path');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
-    entry: './src/rtm/RTMClient.js',
+    entry: './src/rtm.js',
     output: {
         filename: 'rtm.min.js',
         path: path.resolve(__dirname, 'dist'),
-        library: 'Rtm',
+        library: 'rtm',
+        libraryTarget: 'umd'
     },
-    devtool: 'source-map',
+    // devtool: 'source-map',
     target: 'web',
     module: {
         rules: [
@@ -18,7 +18,7 @@ module.exports = {
                     path.resolve(__dirname, 'src')
                 ],
                 exclude: [
-                    path.resolve(__dirname, 'lib')
+                    path.resolve(__dirname, 'libs')
                 ],
                 loader: 'babel-loader',
                 options: {

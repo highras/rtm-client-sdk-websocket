@@ -4,6 +4,11 @@
         <title>Getting Started</title>
     </head>
     <body>
+        <script src="../libs/md5.min.js"></script>
+        <script src="../libs/int64-buffer.min.js"></script>
+        <script src="../libs/msgpack.min.js"></script>
+        <script src="../libs/fpnn.min.js"></script>
+
         <script src="../dist/rtm.min.js"></script>
 
         <script src="./TestCase.js"></script>
@@ -85,7 +90,7 @@
             
         <form id="rtmInfoFrom">
             RTM Dispatch Endpoint: <input type="text" name="endpoint" value="52.83.245.22:13325">&nbsp;&nbsp;&nbsp;&nbsp; Project ID: <input type="text" name="pid" value="1000012"><br>
-            Login token: <input type="text" name="token" value="8C0E46914852AD15F7A70105F90AF045">&nbsp;&nbsp;&nbsp;&nbsp; From ID: <input type="text" name="from" value="654321">&nbsp;&nbsp;&nbsp;&nbsp; To ID: <input type="text" name="to" value="123789"><br>
+            Login token: <input type="text" name="token" value="824FD716BD8278D0A23D21D83151F3E6">&nbsp;&nbsp;&nbsp;&nbsp; From ID: <input type="text" name="from" value="654321">&nbsp;&nbsp;&nbsp;&nbsp; To ID: <input type="text" name="to" value="123789"><br>
             <input type="button" name="login" value="login" onclick="checkInput()">
         </form>
 
@@ -116,10 +121,10 @@
 
                     if (tester) {
 
-                        let mid = new Rtm.RTMConfig.Int64(0);
-                        let to = new Rtm.RTMConfig.Int64(0, 778899);
-                        let gid = new Rtm.RTMConfig.Int64(0, 999999);
-                        let rid = new Rtm.RTMConfig.Int64(0, 666666);
+                        let mid = new rtm.RTMConfig.Int64(0);
+                        let to = new rtm.RTMConfig.Int64(0, 778899);
+                        let gid = new rtm.RTMConfig.Int64(0, 999999);
+                        let rid = new rtm.RTMConfig.Int64(0, 666666);
 
                         tester.client.sendFile(50, to, f, mid, 30 * 1000, function(err, data) {
 

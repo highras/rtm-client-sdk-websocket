@@ -1,16 +1,19 @@
-import Rtm from './js/livedata/rtm/RTMClient.js'
-import WechatImpl from './js/livedata/fpnn/platform/WechatImpl'
+GameGlobal.fpnn = require('../libs/fpnn.min.js')
+GameGlobal.msgpack = require('../libs/msgpack.min.js')
+GameGlobal.Int64BE = require('../libs/int64-buffer.min.js').Int64BE
 
-let client = new Rtm.RTMClient({
+GameGlobal.rtm = require('../dist/rtm.min.js')
+
+let client = new rtm.RTMClient({
     dispatch: '35.167.185.139:13325',
-    uid: new Rtm.RTMConfig.Int64(654321),
+    uid: new rtm.RTMConfig.Int64(654321),
     token: '609C0728A2D9115280E1A00ACE4873B3',
     autoReconnect: true,
     connectionTimeout: 20 * 1000,
     pid: 1000012,
     ssl: true,
     proxyEndpoint: 'infra-dev.ifunplus.cn:13556',
-    platformImpl: new WechatImpl()
+    platformImpl: new fpnn.WechatImpl()
 });
 
 client.on('error', function (err) {
@@ -33,7 +36,7 @@ client.on('login', function (data) {
     }
 
     //send to server
-    client.sendMessage(new Rtm.RTMConfig.Int64(123789), 8, 'hello !', '', new Rtm.RTMConfig.Int64(0), 10 * 1000, function (err, data) {
+    client.sendMessage(new rtm.RTMConfig.Int64(123789), 8, 'hello !', '', new rtm.RTMConfig.Int64(0), 10 * 1000, function (err, data) {
 
         if (err) {
 
@@ -60,7 +63,7 @@ client.on('login', function (data) {
 });
 
 //push service
-let pushName = Rtm.RTMConfig.SERVER_PUSH.recvPing;
+let pushName = rtm.RTMConfig.SERVER_PUSH.recvPing;
 client.processor.on(pushName, function (data) {
 
     console.log('\n[PUSH] ' + pushName, data);

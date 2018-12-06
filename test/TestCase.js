@@ -5,22 +5,22 @@ let index = 0;
 
 function TestCase (options, from, to) {
 
-    from = new Rtm.RTMConfig.Int64(from);
-    to = new Rtm.RTMConfig.Int64(to);
+    from = new rtm.RTMConfig.Int64(from);
+    to = new rtm.RTMConfig.Int64(to);
 
-    let tos = [to, new Rtm.RTMConfig.Int64(0, 778877)];
-    let gid = new Rtm.RTMConfig.Int64(0, 999999);
-    let rid = new Rtm.RTMConfig.Int64(0, 666666);
-    let friends = [to, new Rtm.RTMConfig.Int64(0, 778877)];
+    let tos = [to, new rtm.RTMConfig.Int64(0, 778877)];
+    let gid = new rtm.RTMConfig.Int64(0, 999999);
+    let rid = new rtm.RTMConfig.Int64(0, 666666);
+    let friends = [to, new rtm.RTMConfig.Int64(0, 778877)];
     let fuid = to;
     let lat = 39239.1123;
     let lng = 69394.4850;
     let timeout = 10 * 1000;
-    let del_mid = new Rtm.RTMConfig.Int64(0);
+    let del_mid = new rtm.RTMConfig.Int64(0);
 
     let self = this;
 
-    let client = new Rtm.RTMClient(options);
+    let client = new rtm.RTMClient(options);
     
     let t = function(fn, name) {
 
@@ -81,13 +81,13 @@ function TestCase (options, from, to) {
             });
 
             //receive from server
-            let pushName = Rtm.RTMConfig.SERVER_PUSH.recvMessage;
+            let pushName = rtm.RTMConfig.SERVER_PUSH.recvMessage;
             client.processor.on(pushName, function(data) {
 
                 console.log('\n[PUSH] ' + pushName + ':\n', data);
             });
 
-            pushName = Rtm.RTMConfig.SERVER_PUSH.recvPing;
+            pushName = rtm.RTMConfig.SERVER_PUSH.recvPing;
             client.processor.on(pushName, function(data) {
 
                 console.log('\n[PUSH] ' + pushName + ':\n', data);
@@ -113,7 +113,7 @@ function TestCase (options, from, to) {
                 //rtmGate (2)
                 t.call(self, function(name, cb) {
 
-                    client[name].call(client, to, 8, 'hello !', '', new Rtm.RTMConfig.Int64(0), timeout, function(err, data){
+                    client[name].call(client, to, 8, 'hello !', '', new rtm.RTMConfig.Int64(0), timeout, function(err, data){
 
                         if (data && data.mid) {
 
@@ -127,13 +127,13 @@ function TestCase (options, from, to) {
                 //rtmGate (3)
                 t.call(self, function(name, cb) {
 
-                    client[name].call(client, gid, 8, 'hello !', '', new Rtm.RTMConfig.Int64(0), timeout, cb);
+                    client[name].call(client, gid, 8, 'hello !', '', new rtm.RTMConfig.Int64(0), timeout, cb);
                 }, 'sendGroupMessage');
 
                 //rtmGate (4)
                 t.call(self, function(name, cb) {
 
-                    client[name].call(client, rid, 8, 'hello !', '', new Rtm.RTMConfig.Int64(0), timeout, cb);
+                    client[name].call(client, rid, 8, 'hello !', '', new rtm.RTMConfig.Int64(0), timeout, cb);
                 }, 'sendRoomMessage');
 
                 //rtmGate (5)
@@ -235,7 +235,7 @@ function TestCase (options, from, to) {
                 //rtmGate (22)
                 t.call(self, function(name, cb) {
 
-                    client[name].call(client, [new Rtm.RTMConfig.Int64(0, 778899)], timeout, cb);
+                    client[name].call(client, [new rtm.RTMConfig.Int64(0, 778899)], timeout, cb);
                 }, 'deleteFriends');
 
                 //rtmGate (23)

@@ -1,13 +1,12 @@
 'use strict'
 
-const FPEvent = require('../fpnn/FPEvent');
 const RTMConfig = require('./RTMConfig');
 
 class RTMProcessor {
 
     constructor() {
 
-        FPEvent.assign(this);
+        fpnn.FPEvent.assign(this);
 
         this._map = {};
 

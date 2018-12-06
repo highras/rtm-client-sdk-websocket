@@ -1,8 +1,5 @@
 'use strict'
 
-const Int64BE = require("../../libs/int64-buffer.min").Int64BE;
-const Pack = require('../../libs/msgpack.min');
-
 const ERROR_CODE = {
 	RTM_EC_INVALID_PROJECT_ID_OR_USER_ID: 200001,
 	RTM_EC_INVALID_PROJECT_ID_OR_SIGN: 200002,
@@ -73,7 +70,7 @@ class RTMConfig {
 
 	static get MsgPack() {
 
-		return Pack;
+		return msgpack;
 	}
 
 	static get FILE_TYPE() {

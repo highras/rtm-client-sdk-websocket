@@ -1,8 +1,5 @@
 'use strict'
 
-const FPConfig = require('../fpnn/FPConfig');
-const FPEvent = require('../fpnn/FPEvent');
-const FPClient = require('../fpnn/FPClient');
 const RTMConfig = require('./RTMConfig');
 const RTMProcessor = require('./RTMProcessor');
 const RTMProxy = require('./RTMProxy');
@@ -27,7 +24,7 @@ class RTMClient {
      */
     constructor(options) {
 
-        FPEvent.assign(this);
+        fpnn.FPEvent.assign(this);
 
         this._dispatch = options.dispatch;
         this._pid = options.pid;
@@ -1650,7 +1647,7 @@ class RTMClient {
 
         this._endpoint = endpoint;
     
-        this._baseClient = new FPClient({ 
+        this._baseClient = new fpnn.FPClient({ 
             endpoint: buildEndpoint.call(this, this._endpoint), 
             autoReconnect: false,
             connectionTimeout: this._connectionTimeout,
@@ -1726,9 +1723,9 @@ function fileSendProcess(ops, file, mid, callback, timeout) {
                 return;
             }
 
-            let sign = cyrMD5.call(self, cyrMD5.call(self, content) + ':' + token);
+            let sign = md5(md5(content) + ':' + token);
 
-            let fileClient = new FPClient({ 
+            let fileClient = new fpnn.FPClient({ 
 
                 endpoint: buildEndpoint.call(self, endpoint),
                 autoReconnect: false,
@@ -1854,11 +1851,6 @@ function genMid() {
     return new RTMConfig.Int64(Date.now().toString() + this._midSeq);
 }
 
-function cyrMD5(data) {
-
-    return require('../../libs/md5.min')(data);
-}
-
 function isException(isAnswerErr, data) {
 
     if (!data) {
@@ -1941,7 +1933,7 @@ function getRTMGate(service, callback, timeout) {
 
     if (this._dispatchClient == null) {
 
-        this._dispatchClient = new FPClient({
+        this._dispatchClient = new fpnn.FPClient({
             endpoint: buildEndpoint.call(this, this._dispatch),
             autoReconnect: false,
             connectionTimeout: this._connectionTimeout,
@@ -2033,7 +2025,7 @@ function connectRTMGate(timeout) {
         this._baseClient.destroy();
     }
 
-    this._baseClient = new FPClient({ 
+    this._baseClient = new fpnn.FPClient({ 
         endpoint: buildEndpoint.call(this, this._endpoint), 
         autoReconnect: false,
         connectionTimeout: this._connectionTimeout,
@@ -2171,4 +2163,4 @@ function reConnect() {
     }, 100);
 }
 
-module.exports = { RTMClient, RTMConfig };
+module.exports = RTMClient;
