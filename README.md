@@ -28,8 +28,7 @@ yarn run build
 <script src="../libs/int64-buffer.min.js"></script>
 <script src="../libs/msgpack.min.js"></script>
 <script src="../libs/fpnn.min.js"></script>
-
-<script src="./dist/rtm.min.js"></script>
+<script src="../libs/rtm.min.js"></script>
 ```
 
 ```javascript
