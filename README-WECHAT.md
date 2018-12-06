@@ -17,11 +17,10 @@
 * 参考 `./test/test-wechat.js`
 
 ```javascript
-GameGlobal.fpnn = require('../libs/fpnn.min.js')
-GameGlobal.msgpack = require('../libs/msgpack.min.js')
-GameGlobal.Int64BE = require('../libs/int64-buffer.min.js').Int64BE
-
-GameGlobal.rtm = require('../dist/rtm.min.js')
+GameGlobal.msgpack = require('./js/libs/msgpack.min.js')
+GameGlobal.Int64BE = require('./js/libs/int64-buffer.min.js').Int64BE
+GameGlobal.fpnn = require('./js/libs/fpnn.min.js')
+GameGlobal.rtm = require('./js/libs/rtm.min.js')
 
 let client = new rtm.RTMClient({
     dispatch: '35.167.185.139:13325',
