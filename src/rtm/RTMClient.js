@@ -71,11 +71,6 @@ class RTMClient {
         }
     }
 
-    get msgOptions() {
-
-        return this._msgOptions;
-    }
-
     get processor() {
 
         return this._processor;

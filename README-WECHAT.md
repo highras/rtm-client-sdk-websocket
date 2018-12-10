@@ -7,7 +7,7 @@
 * [fpnn](https://github.com/highras/fpnn-sdk-webjs) `./libs/fpnn.min.js`
 * [md5](https://github.com/emn178/js-md5) `./libs/md5.min.js`
 * [msgpack](https://github.com/kawanet/msgpack-lite) `./libs/msgpack.min.js`
-* [Int64BE](https://github.com/kawanet/int64-buffer) `./libs/int64-buffer.min.js`
+* [Int64BE](https://github.com/kawanet/int64-buffer) `./libs/int64.min.js`
 
 #### Promise支持 ####
 * 支持动态转Promise接口
@@ -27,7 +27,7 @@ yarn run build
 ```javascript
 GameGlobal.md5 = require('./js/libs/md5.min.js')
 GameGlobal.msgpack = require('./js/libs/msgpack.min.js')
-GameGlobal.Int64BE = require('./js/libs/int64-buffer.min.js').Int64BE
+GameGlobal.Int64BE = require('./js/libs/int64.min.js').Int64BE
 GameGlobal.fpnn = require('./js/libs/fpnn.min.js')
 GameGlobal.rtm = require('./js/libs/rtm.min.js')
 

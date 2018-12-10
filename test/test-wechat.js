@@ -1,6 +1,6 @@
 GameGlobal.md5 = require('./js/libs/md5.min.js')
 GameGlobal.msgpack = require('./js/libs/msgpack.min.js')
-GameGlobal.Int64BE = require('./js/libs/int64-buffer.min.js').Int64BE
+GameGlobal.Int64BE = require('./js/libs/int64.min.js').Int64BE
 GameGlobal.fpnn = require('./js/libs/fpnn.min.js')
 GameGlobal.rtm = require('./js/libs/rtm.min.js')
 

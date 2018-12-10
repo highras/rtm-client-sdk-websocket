@@ -7,7 +7,7 @@
 * [fpnn](https://github.com/highras/fpnn-sdk-webjs) `./libs/fpnn.min.js`
 * [md5](https://github.com/emn178/js-md5) `./libs/md5.min.js`
 * [msgpack](https://github.com/kawanet/msgpack-lite) `./libs/msgpack.min.js`
-* [Int64BE](https://github.com/kawanet/int64-buffer) `./libs/int64-buffer.min.js`
+* [Int64BE](https://github.com/kawanet/int64-buffer) `./libs/int64.min.js`
 
 #### Promise支持 ####
 * 支持动态转Promise接口
@@ -26,7 +26,7 @@ yarn run build
 
 ```html
 <script src="../libs/md5.min.js"></script>
-<script src="../libs/int64-buffer.min.js"></script>
+<script src="../libs/int64.min.js"></script>
 <script src="../libs/msgpack.min.js"></script>
 <script src="../libs/fpnn.min.js"></script>
 <script src="../libs/rtm.min.js"></script>
