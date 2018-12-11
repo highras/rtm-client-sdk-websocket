@@ -109,3 +109,5 @@ declare module fpnn {
         removeEvent();
     }
 }
+
+declare var require: any;
