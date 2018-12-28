@@ -21,6 +21,7 @@ class RTMClient {
      * {object<string, string>} options.attrs
      * {bool} options.ssl
      * {string} options.proxyEndpoint
+     * {function} options.md5
      */
     constructor(options) {
 
@@ -40,6 +41,8 @@ class RTMClient {
 
             this._proxyEndpoint = options.proxyEndpoint; 
         }
+
+        this._md5 = options.md5 || null;
 
         this._midSeq = 0;
         this._saltSeq = 0;
@@ -1718,7 +1721,8 @@ function fileSendProcess(ops, file, mid, callback, timeout) {
                 return;
             }
 
-            let sign = md5(md5(content) + ':' + token);
+            let md5_content = md5_encode.call(self, content);
+            let sign = md5_encode.call(self, md5_content + ':' + token);
 
             let fileClient = new fpnn.FPClient({ 
 
@@ -2156,6 +2160,16 @@ function reConnect() {
 
         self.login(self._endpoint, self._ipv6);
     }, 100);
+}
+
+function md5_encode(str) {
+
+    if (this._md5) {
+
+        return this._md5(str).toUpperCase();
+    }
+
+    return md5(str).toUpperCase();
 }
 
 module.exports = RTMClient;

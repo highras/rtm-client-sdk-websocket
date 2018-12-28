@@ -212,6 +212,7 @@ client.login();
     * `options.ssl`: **(Optional | string)** 是否开启SSL加密, 若开启需设置代理地址 默认: `true`
     * `options.platformImpl`: **(Optional | Object)** 平台相关接口注入, 默认: `new BrowserImpl()`
     * `options.proxyEndpoint`: **(Optional | string)** 若开启SSL加密, 需设置代理地址, 测试代理: `highras.ifunplus.cn:13550`
+    * `options.md5`: **(Optional | function)** `md5`加密方法
 
 * `processor`: **(RTMProcessor)** 监听PushService的句柄
 
