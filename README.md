@@ -137,7 +137,7 @@ client.login();
     * `data.mid`: **(Int64)** 消息 id, 当前链接会话内唯一
     * `data.msg`: **(string)** 消息内容
     * `data.attrs`: **(string)** 发送时附加的自定义内容
-    * `data.mtime`: **(Int64)** 消息入库 id
+    * `data.mtime`: **(Int64)**
 
 * `pushgroupmsg`: RTMGate主动推送Group消息
     * `data.from`: **(Int64)** 发送者 id
@@ -146,7 +146,7 @@ client.login();
     * `data.mid`: **(Int64)** 消息 id, 当前链接会话内唯一
     * `data.msg`: **(string)** 消息内容
     * `data.attrs`: **(string)** 发送时附加的自定义内容
-    * `data.mtime`: **(Int64)** 消息入库 id
+    * `data.mtime`: **(Int64)**
 
 * `pushroommsg`: RTMGate主动推送Room消息
     * `data.from`: **(Int64)** 发送者 id
@@ -155,7 +155,7 @@ client.login();
     * `data.mid`: **(Int64)** 消息 id, 当前链接会话内唯一
     * `data.msg`: **(string)** 消息内容
     * `data.attrs`: **(string)** 发送时附加的自定义内容
-    * `data.mtime`: **(Int64)** 消息入库 id
+    * `data.mtime`: **(Int64)**
 
 * `pushbroadcastmsg`: RTMGate主动推送广播消息
     * `data.from`: **(Int64)** 发送者 id
@@ -163,7 +163,7 @@ client.login();
     * `data.mid`: **(Int64)** 消息 id, 当前链接会话内唯一
     * `data.msg`: **(string)** 消息内容
     * `data.attrs`: **(string)** 发送时附加的自定义内容
-    * `data.mtime`: **(Int64)** 消息入库 id
+    * `data.mtime`: **(Int64)**
 
 * `pushfile`: RTMGate主动推送P2P文件
     * `data.from`: **(Int64)** 发送者 id
@@ -171,7 +171,7 @@ client.login();
     * `data.mid`: **(Int64)** 消息 id, 当前链接会话内唯一
     * `data.msg`: **(string)** 文件获取地址(url)
     * `data.attrs`: **(string)** 发送时附加的自定义内容
-    * `data.mtime`: **(Int64)** 消息入库 id
+    * `data.mtime`: **(Int64)**
 
 * `pushgroupfile`: RTMGate主动推送Group文件
     * `data.from`: **(Int64)** 发送者 id
@@ -180,7 +180,7 @@ client.login();
     * `data.mid`: **(Int64)** 消息 id, 当前链接会话内唯一
     * `data.msg`: **(string)** 文件获取地址(url)
     * `data.attrs`: **(string)** 发送时附加的自定义内容
-    * `data.mtime`: **(Int64)** 消息入库 id
+    * `data.mtime`: **(Int64)**
 
 * `pushroomfile`: RTMGate主动推送Room文件
     * `data.from`: **(Int64)** 发送者 id
@@ -189,7 +189,7 @@ client.login();
     * `data.mid`: **(Int64)** 消息 id, 当前链接会话内唯一
     * `data.msg`: **(string)** 文件获取地址(url)
     * `data.attrs`: **(string)** 发送时附加的自定义内容
-    * `data.mtime`: **(Int64)** 消息入库 id
+    * `data.mtime`: **(Int64)**
 
 * `pushbroadcastfile`: RTMGate主动推送广播文件
     * `data.from`: **(Int64)** 发送者 id
@@ -197,7 +197,7 @@ client.login();
     * `data.mid`: **(Int64)** 消息 id, 当前链接会话内唯一
     * `data.msg`: **(string)** 文件获取地址(url)
     * `data.attrs`: **(string)** 发送时附加的自定义内容
-    * `data.mtime`: **(Int64)** 消息入库 id
+    * `data.mtime`: **(Int64)**
 
 #### API ####
 * `constructor(options)`: 构造RTMClient
@@ -212,7 +212,7 @@ client.login();
     * `options.ssl`: **(Optional | string)** 是否开启SSL加密, 若开启需设置代理地址 默认: `true`
     * `options.platformImpl`: **(Optional | Object)** 平台相关接口注入, 默认: `new BrowserImpl()`
     * `options.proxyEndpoint`: **(Optional | string)** 若开启SSL加密, 需设置代理地址, 测试代理: `highras.ifunplus.cn:13550`
-    * `options.md5`: **(Optional | function)** `md5`加密方法
+    * `options.md5`: **(Optional | function)** `md5`字符串加密方法
 
 * `processor`: **(RTMProcessor)** 监听PushService的句柄
 
