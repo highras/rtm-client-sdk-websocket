@@ -64,7 +64,13 @@ class RTMClient {
             }) 
         };
 
+        let self = this;
         this._processor = new RTMProcessor();
+        this._processor.on(RTMConfig.SERVER_PUSH.kickOut, function(data) {
+            
+            self._isClose = true;
+            self._baseClient.close();
+        });
 
         if (this._proxyEndpoint) {
 
@@ -2041,12 +2047,6 @@ function connectRTMGate(timeout) {
     this._baseClient.on('error', function(err) {
         
         self.emit('error', err);
-    });
-
-    this._processor.on(RTMConfig.SERVER_PUSH.kickOut, function(data) {
-        
-        self._isClose = true;
-        self._baseClient.close();
     });
 
     this._baseClient.processor = this._processor;

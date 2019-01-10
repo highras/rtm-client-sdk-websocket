@@ -70,7 +70,6 @@ class RTMProcessor {
     destroy() {
 
         this._map = {};
-        this.removeEvent();
     }
 
     /**
