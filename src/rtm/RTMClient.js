@@ -2115,7 +2115,8 @@ function auth(timeout) {
 
         if (err) {
 
-            self._baseClient.close(err);
+            onClose.call(self, true);
+            self.emit('error', err);
         }
     }, timeout);
 }
