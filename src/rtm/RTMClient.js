@@ -1848,12 +1848,25 @@ function sendfile(fileClient, ops, mid, callback, timeout) {
 
 function genMid() {
 
+
     if (++this._midSeq >= 999) {
 
         this._midSeq = 0;
     }
 
-    return new RTMConfig.Int64(Date.now().toString() + this._midSeq);
+    let strFix = this._midSeq.toString();
+
+    if (this._midSeq < 100) {
+
+        strFix = '0' + strFix;
+    }
+
+    if (this._midSeq < 10) {
+
+        strFix = '0' + strFix;
+    }
+
+    return new RTMConfig.Int64(Date.now().toString() + strFix);
 }
 
 function isException(isAnswerErr, data) {
@@ -1947,6 +1960,8 @@ function getRTMGate(service, callback, timeout) {
 
         this._dispatchClient.on('close', function() {
 
+            console.log('[DispatchClient] closed!');
+
             if (self._dispatchClient) {
 
                 self._dispatchClient.destroy();
@@ -1988,12 +2003,6 @@ function which(service, callback, timeout) {
 
     sendQuest.call(this, this._dispatchClient, options, function (err, data){
 
-        if (self._dispatchClient) {
-
-            self._dispatchClient.destroy();
-            self._dispatchClient = null;
-        }
-        
         if (data) {
             
             callback && callback(null, data);
@@ -2041,6 +2050,7 @@ function connectRTMGate(timeout) {
 
     this._baseClient.on('close', function() {
 
+        self._endpoint = null;
         onClose.call(self, true);
     });
 
