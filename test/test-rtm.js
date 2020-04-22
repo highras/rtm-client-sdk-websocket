@@ -13,7 +13,7 @@ function baseTest(endpoint, pid, token, from, to) {
         pid: pid,
         attrs: { user: 'test user attrs' },
         ssl: true,
-        proxyEndpoint: 'infra-dev.ifunplus.cn:13556'
+        proxyEndpoint: 'rtm-wss-test-nx.livedata.top:13556'
     }, from, to);
 
     tester.test();
@@ -30,7 +30,7 @@ function asyncStressTest() {
         connectionTimeout: 30 * 1000,
         pid: 0,
         ssl: true,
-        proxyEndpoint: 'infra-dev.ifunplus.cn:13556'
+        proxyEndpoint: 'rtm-wss-test-nx.livedata.top:13556'
     }, '10.63.2.47:13013');
 
     tester.buildTesters(1, 150);

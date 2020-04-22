@@ -132,6 +132,21 @@ class RTMProcessor {
             return;
         }
 
+        if (data.mtype == RTMConfig.CHAT_TYPE.text) {
+            this.emit(RTMConfig.SERVER_PUSH.recvChat, data);
+            return;
+        }
+
+        if (data.mtype == RTMConfig.CHAT_TYPE.audio) {
+            this.emit(RTMConfig.SERVER_PUSH.recvAudio, data);
+            return;
+        }
+
+        if (data.mtype == RTMConfig.CHAT_TYPE.cmd) {
+            this.emit(RTMConfig.SERVER_PUSH.recvCmd, data);
+            return;
+        }
+
         delete data.ftype; 
         this.emit(RTMConfig.SERVER_PUSH.recvMessage, data);
     }
@@ -176,6 +191,21 @@ class RTMProcessor {
         if (data.mtype >= 40 && data.mtype <= 50) {
 
             this.emit(RTMConfig.SERVER_PUSH.recvGroupFile, data);
+            return;
+        }
+
+        if (data.mtype == RTMConfig.CHAT_TYPE.text) {
+            this.emit(RTMConfig.SERVER_PUSH.recvGroupChat, data);
+            return;
+        }
+
+        if (data.mtype == RTMConfig.CHAT_TYPE.audio) {
+            this.emit(RTMConfig.SERVER_PUSH.recvGroupAudio, data);
+            return;
+        }
+
+        if (data.mtype == RTMConfig.CHAT_TYPE.cmd) {
+            this.emit(RTMConfig.SERVER_PUSH.recvGroupCmd, data);
             return;
         }
 
@@ -226,6 +256,21 @@ class RTMProcessor {
             return;
         }
 
+        if (data.mtype == RTMConfig.CHAT_TYPE.text) {
+            this.emit(RTMConfig.SERVER_PUSH.recvRoomChat, data);
+            return;
+        }
+
+        if (data.mtype == RTMConfig.CHAT_TYPE.audio) {
+            this.emit(RTMConfig.SERVER_PUSH.recvRoomAudio, data);
+            return;
+        }
+
+        if (data.mtype == RTMConfig.CHAT_TYPE.cmd) {
+            this.emit(RTMConfig.SERVER_PUSH.recvRoomCmd, data);
+            return;
+        }
+
         delete data.ftype; 
         this.emit(RTMConfig.SERVER_PUSH.recvRoomMessage, data);
     }
@@ -264,6 +309,21 @@ class RTMProcessor {
         if (data.mtype >= 40 && data.mtype <= 50) {
             
             this.emit(RTMConfig.SERVER_PUSH.recvBroadcastFile, data);
+            return;
+        }
+
+        if (data.mtype == RTMConfig.CHAT_TYPE.text) {
+            this.emit(RTMConfig.SERVER_PUSH.recvBroadcastChat, data);
+            return;
+        }
+
+        if (data.mtype == RTMConfig.CHAT_TYPE.audio) {
+            this.emit(RTMConfig.SERVER_PUSH.recvBroadcastAudio, data);
+            return;
+        }
+
+        if (data.mtype == RTMConfig.CHAT_TYPE.cmd) {
+            this.emit(RTMConfig.SERVER_PUSH.recvBroadcastCmd, data);
             return;
         }
 

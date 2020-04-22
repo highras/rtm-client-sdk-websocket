@@ -47,6 +47,12 @@ const FILE_TYPE = {
 	file: 50 			//泛指文件，服务器会修改此值（如果服务器可以判断出具体类型的话，仅在mtype=50的情况下）
 };
 
+const CHAT_TYPE = {
+	text: 30,
+	audio: 31,
+	cmd: 32
+};
+
 const SERVER_PUSH = {
 	kickOut: 'kickout',
 	kickOutRoom: 'kickoutroom',
@@ -58,7 +64,19 @@ const SERVER_PUSH = {
 	recvGroupFile: 'pushgroupfile',
 	recvRoomFile: 'pushroomfile',
 	recvBroadcastFile: 'pushbroadcastfile',
-	recvPing: 'ping'
+	recvPing: 'ping',
+	recvChat: 'pushchat',
+	recvAudio: 'pushaudio',
+	recvCmd: 'pushcmd',
+	recvGroupChat: 'pushgroupchat',
+	recvGroupAudio: 'pushgroupaudio',
+	recvGroupCmd: 'pushgroupcmd',
+	recvRoomChat: 'pushroomchat',
+	recvRoomAudio: 'pushroomaudio',
+	recvRoomCmd: 'pushroomcmd',
+	recvBroadcastChat: 'pushbroadcastchat',
+	recvBroadcastAudio: 'pushbroadcastaudio',
+	recvBroadcastCmd: 'pushbroadcastcmd'
 };
 
 class RTMConfig {
@@ -76,6 +94,11 @@ class RTMConfig {
 	static get FILE_TYPE() {
 
 		return FILE_TYPE;
+	}
+
+	static get CHAT_TYPE() {
+
+		return CHAT_TYPE;
 	}
 
 	static get SERVER_PUSH() {

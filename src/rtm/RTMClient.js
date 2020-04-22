@@ -324,19 +324,48 @@ class RTMClient {
      * 
      * @callback
      * @param {Error} err
-     * @param {object<p2p:object<string, number>, group:object<string, number>>} data
+     * @param {object<p2p:array(Int64), group:array(Int64)} data
      */
-    getUnreadMessage(timeout, callback) {
+    getUnreadMessage(clear, timeout, callback) {
 
-        let payload = {};
+        let payload = {
+            clear: clear
+        };
 
         let options = {
             flag: 1,
-            method: 'getunreadmsg',
+            method: 'getunread',
             payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
-        sendQuest.call(this, this._baseClient, options, callback, timeout);
+        sendQuest.call(this, this._baseClient, options, function(err, data) {
+
+            if (err) {
+
+                callback && callback(err, null);
+                return;
+            }
+
+            let p2p = data['p2p'];
+            if (p2p) {
+                let bp2p = [];
+                p2p.forEach(function(item, index) {
+                    bp2p[index] = new RTMConfig.Int64(item);
+                });
+                data.p2p = p2p;
+            }
+
+            let group = data['group'];
+            if (group) {
+                let bgroup = [];
+                group.forEach(function(item, index) {
+                    bgroup[index] = new RTMConfig.Int64(item);
+                });
+                data.group = group;
+            }
+
+            callback && callback(null, data);
+        }, timeout);
     }
 
     /**
@@ -356,7 +385,7 @@ class RTMClient {
 
         let options = {
             flag: 1,
-            method: 'cleanunreadmsg',
+            method: 'cleanunread',
             payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
@@ -393,17 +422,21 @@ class RTMClient {
             }
 
             let p2p = data['p2p'];
-
-            for (let key in p2p) {
-
-                p2p[key] = new RTMConfig.Int64(p2p[key]);
+            if (p2p) {
+                let bp2p = [];
+                p2p.forEach(function(item, index) {
+                    bp2p[index] = new RTMConfig.Int64(item);
+                });
+                data.p2p = p2p;
             }
 
             let group = data['group'];
-
-            for (let key in group) {
-
-                group[key] = new RTMConfig.Int64(group[key]);
+            if (group) {
+                let bgroup = [];
+                group.forEach(function(item, index) {
+                    bgroup[index] = new RTMConfig.Int64(item);
+                });
+                data.group = group;
             }
 
             callback && callback(null, data);
@@ -420,6 +453,7 @@ class RTMClient {
      * @param {Int64} begin
      * @param {Int64} end
      * @param {Int64} lastid
+     * @param {array(number)} mtypes
      * @param {number} timeout 
      * @param {function} callback 
      * 
@@ -437,7 +471,7 @@ class RTMClient {
      * @param {string} GroupMsg.attrs
      * @param {Int64} GroupMsg.mtime
      */
-    getGroupMessage(gid, desc, num, begin, end, lastid, timeout, callback) {
+    getGroupMessage(gid, desc, num, begin, end, lastid, mtypes, timeout, callback) {
         
         let payload = {
             gid: gid,
@@ -458,6 +492,11 @@ class RTMClient {
         if (lastid !== undefined) {
 
             payload.lastid = lastid;
+        }
+
+        if (mtypes !== undefined) {
+
+            payload.mtypes = mtypes;
         }
 
         let options = {
@@ -507,6 +546,7 @@ class RTMClient {
      * @param {Int64} begin
      * @param {Int64} end
      * @param {Int64} lastid
+     * @param {array(number)} mtypes
      * @param {number} timeout 
      * @param {function} callback 
      * 
@@ -524,7 +564,7 @@ class RTMClient {
      * @param {string} RoomMsg.attrs
      * @param {Int64} RoomMsg.mtime
      */
-    getRoomMessage(rid, desc, num, begin, end, lastid, timeout, callback) {
+    getRoomMessage(rid, desc, num, begin, end, lastid, mtypes, timeout, callback) {
 
         let payload = {
             rid: rid,
@@ -545,6 +585,11 @@ class RTMClient {
         if (lastid !== undefined) {
 
             payload.lastid = lastid;
+        }
+
+        if (mtypes !== undefined) {
+
+            payload.mtypes = mtypes;
         }
 
         let options = {
@@ -593,6 +638,7 @@ class RTMClient {
      * @param {Int64} begin
      * @param {Int64} end
      * @param {Int64} lastid
+     * @param {array(number)} mtypes
      * @param {number} timeout 
      * @param {function} callback 
      * 
@@ -610,7 +656,7 @@ class RTMClient {
      * @param {string} BroadcastMsg.attrs
      * @param {Int64} BroadcastMsg.mtime
      */
-    getBroadcastMessage(desc, num, begin, end, lastid, timeout, callback) {
+    getBroadcastMessage(desc, num, begin, end, lastid, mtypes, timeout, callback) {
 
         let payload = {
             desc: desc,
@@ -630,6 +676,11 @@ class RTMClient {
         if (lastid !== undefined) {
 
             payload.lastid = lastid;
+        }
+
+        if (mtypes !== undefined) {
+
+            payload.mtypes = mtypes;
         }
 
         let options = {
@@ -679,6 +730,7 @@ class RTMClient {
      * @param {Int64} begin 
      * @param {Int64} end
      * @param {Int64} lastid
+     * @param {array(number)} mtypes
      * @param {number} timeout 
      * @param {function} callback 
      * 
@@ -696,7 +748,7 @@ class RTMClient {
      * @param {string} P2PMsg.attrs
      * @param {Int64} P2PMsg.mtime
      */
-    getP2PMessage(ouid, desc, num, begin, end, lastid, timeout, callback) {
+    getP2PMessage(ouid, desc, num, begin, end, lastid, mtypes, timeout, callback) {
 
         let payload = {
             ouid: ouid,
@@ -717,6 +769,11 @@ class RTMClient {
         if (lastid !== undefined) {
 
             payload.lastid = lastid;
+        }
+
+        if (mtypes !== undefined) {
+
+            payload.mtypes = mtypes;
         }
 
         let options = {
@@ -1010,7 +1067,7 @@ class RTMClient {
      * @param {Error} err
      * @param {object<stext:string, src:string, dtext:string, dst:string>} data 
      */
-    translate(originalMessage, originalLanguage, targetLanguage, timeout, callback) {
+    translate(originalMessage, originalLanguage, targetLanguage, type, profanity, postProfanity, timeout, callback) {
 
         let payload = {
             text: originalMessage,
@@ -1022,9 +1079,44 @@ class RTMClient {
             payload.src = originalLanguage;
         }
 
+        if (type !== undefined) {
+
+            payload.type = type;
+        }
+
+        if (profanity !== undefined) {
+
+            payload.profanity = profanity;
+        }
+
+        if (postProfanity !== undefined) {
+
+            payload.postProfanity = postProfanity;
+        }
+
         let options = {
             flag: 1,
             method: 'translate',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    profanity(text, classify, timeout, callback) {
+
+        let payload = {
+            text: text
+        };
+
+        if (classify !== undefined) {
+
+            payload.classify = classify;
+        }
+
+        let options = {
+            flag: 1,
+            method: 'profanity',
             payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
@@ -1475,6 +1567,53 @@ class RTMClient {
 
     /**
      *  
+     * 
+     * @param {Int64} mid
+     * @param {Int64} xid
+     * @param {number} type
+     * @param {number} timeout
+     * @param {function} callback
+     * 
+     * @callback
+     * @param {Error} err
+     * @param {object} data
+     */
+    getMessage(mid, xid, type, timeout, callback) {
+        
+        let payload = {
+            mid: mid,
+            xid: xid,
+            type: type
+        };
+
+        let options = {
+            flag: 1,
+            method: 'getmsg',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, function(err, data) {
+
+            if (err) {
+
+                callback && callback(err, null);
+                return;
+            }
+
+            if (data.id !== undefined) {
+                data.id = new RTMConfig.Int64(data.id);
+            }
+
+            if (data.mtime !== undefined) {
+                data.mtime = new RTMConfig.Int64(data.mtime);
+            }
+
+            callback && callback(null, data);
+        }, timeout);
+    }
+
+    /**
+     *  
      * rtmGate (33)
      * 
      * @param {string} ce
@@ -1500,56 +1639,261 @@ class RTMClient {
         sendQuest.call(this, this._baseClient, options, callback, timeout);
     }
 
-    /**
-     *  
-     * rtmGate (34)
-     * 
-     * @param {string} key
-     * @param {number} timeout
-     * @param {function} callback
-     * 
-     * @callback
-     * @param {Error} err
-     * @param {object<val:string>} data
-     */
-    dbGet(key, timeout, callback) {
+    sendChat(to, msg, attrs, mid, timeout, callback) {
+        this.sendMessage.call(this, to, RTMConfig.CHAT_TYPE.text, msg, attrs, mid, timeout, callback)
+    }
 
-        let payload = {
-            key: key && key.toString()
-        };
+    sendAudio(to, msg, attrs, mid, timeout, callback) {
+        this.sendMessage.call(this, to, RTMConfig.CHAT_TYPE.audio, msg, attrs, mid, timeout, callback)
+    }
+
+    sendCmd(to, msg, attrs, mid, timeout, callback) {
+        this.sendMessage.call(this, to, RTMConfig.CHAT_TYPE.cmd, msg, attrs, mid, timeout, callback)
+    }
+
+    sendGroupChat(gid, msg, attrs, mid, timeout, callback) {
+        this.sendGroupMessage.call(this, gid, RTMConfig.CHAT_TYPE.text, msg, attrs, mid, timeout, callback)
+    }
+
+    sendGroupAudio(gid, msg, attrs, mid, timeout, callback) {
+        this.sendGroupMessage.call(this, gid, RTMConfig.CHAT_TYPE.audio, msg, attrs, mid, timeout, callback)
+    }
+
+    sendGroupCmd(gid, msg, attrs, mid, timeout, callback) {
+        this.sendGroupMessage.call(this, gid, RTMConfig.CHAT_TYPE.cmd, msg, attrs, mid, timeout, callback)
+    }
+
+    sendRoomChat(rid, msg, attrs, mid, timeout, callback) {
+        this.sendRoomMessage.call(this, rid, RTMConfig.CHAT_TYPE.text, msg, attrs, mid, timeout, callback)
+    }
+
+    sendRoomAudio(rid, msg, attrs, mid, timeout, callback) {
+        this.sendRoomMessage.call(this, rid, RTMConfig.CHAT_TYPE.audio, msg, attrs, mid, timeout, callback)
+    }
+
+    sendRoomCmd(rid, msg, attrs, mid, timeout, callback) {
+        this.sendRoomMessage.call(this, rid, RTMConfig.CHAT_TYPE.cmd, msg, attrs, mid, timeout, callback)
+    }
+
+    getGroupChat(gid, desc, num, begin, end, lastid, timeout, callback) {
+        this.getGroupMessage.call(this, gid, desc, num, begin, end, lastid, [RTMConfig.CHAT_TYPE.text, RTMConfig.CHAT_TYPE.audio, RTMConfig.CHAT_TYPE.cmd], timeout, callback);
+    }
+
+    getRoomChat(rid, desc, num, begin, end, lastid, timeout, callback) {
+        this.getRoomMessage.call(this, rid, desc, num, begin, end, lastid, [RTMConfig.CHAT_TYPE.text, RTMConfig.CHAT_TYPE.audio, RTMConfig.CHAT_TYPE.cmd], timeout, callback);
+    }
+
+    getP2PChat(ouid, desc, num, begin, end, lastid, timeout, callback) {
+        this.getP2PMessage.call(this, ouid, desc, num, begin, end, lastid, [RTMConfig.CHAT_TYPE.text, RTMConfig.CHAT_TYPE.audio, RTMConfig.CHAT_TYPE.cmd], timeout, callback);
+    }
+
+    getBroadcastChat(desc, num, begin, end, lastid, timeout, callback) {
+        this.getBroadcastMessage.call(this, desc, num, begin, end, lastid, [RTMConfig.CHAT_TYPE.text, RTMConfig.CHAT_TYPE.audio, RTMConfig.CHAT_TYPE.cmd], timeout, callback);
+    }
+
+    deleteChat(mid, xid, type, timeout, callback) {
+        this.deleteMessage(this, mid, xid, type, timeout, callback);
+    }
+
+    getChat(mid, xid, type, timeout, callback) {
+        this.getChat(this, mid, xid, type, timeout, callback);
+    }
+
+    setUserInfo(oinfo, pinfo, timeout, callback) {
+
+        let payload = {};
+
+        if (oinfo !== undefined) {
+            payload.oinfo = oinfo;
+        }
+
+        if (pinfo !== undefined) {
+            payload.pinfo = pinfo;
+        }
 
         let options = {
             flag: 1,
-            method: 'dbget',
+            method: 'setuserinfo',
             payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
         sendQuest.call(this, this._baseClient, options, callback, timeout);
     }
 
-    /**
-     *  
-     * rtmGate (35)
-     * 
-     * @param {string} key
-     * @param {string} value 
-     * @param {number} timeout
-     * @param {function} callback
-     * 
-     * @callback
-     * @param {Error} err
-     * @param {object} data
-     */
-    dbSet(key, value, timeout, callback) {
+    getUserInfo(timeout, callback) {
+
+        let payload = {};
+
+        let options = {
+            flag: 1,
+            method: 'getuserinfo',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    getUserOpenInfo(uids, timeout, callback) {
 
         let payload = {
-            key: key && key.toString(),
-            val: (value && value.toString()) || ''
+            uids: uids
         };
 
         let options = {
             flag: 1,
-            method: 'dbset',
+            method: 'getuseropeninfo',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    setGroupInfo(gid, oinfo, pinfo, timeout, callback) {
+
+        let payload = {
+            gid: gid
+        };
+
+        if (oinfo !== undefined) {
+            payload.oinfo = oinfo;
+        }
+
+        if (pinfo !== undefined) {
+            payload.pinfo = pinfo;
+        }
+
+        let options = {
+            flag: 1,
+            method: 'setgroupinfo',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    getGroupInfo(gid, timeout, callback) {
+
+        let payload = {
+            gid: gid
+        };
+
+        let options = {
+            flag: 1,
+            method: 'getgroupinfo',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    getGroupOpenInfo(gid, timeout, callback) {
+
+        let payload = {
+            gid: gid
+        };
+
+        let options = {
+            flag: 1,
+            method: 'getgroupopeninfo',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    setRoomInfo(rid, oinfo, pinfo, timeout, callback) {
+
+        let payload = {
+            rid: rid
+        };
+
+        if (oinfo !== undefined) {
+            payload.oinfo = oinfo;
+        }
+
+        if (pinfo !== undefined) {
+            payload.pinfo = pinfo;
+        }
+
+        let options = {
+            flag: 1,
+            method: 'setroominfo',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    getRoomInfo(rid, timeout, callback) {
+
+        let payload = {
+            rid: rid
+        };
+
+        let options = {
+            flag: 1,
+            method: 'getroominfo',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    getRoomOpenInfo(rid, timeout, callback) {
+
+        let payload = {
+            rid: rid
+        };
+
+        let options = {
+            flag: 1,
+            method: 'getroomopeninfo',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    dataSet(key, value, timeout, callback) {
+
+        let payload = {
+            key: key,
+            val: value
+        };
+
+        let options = {
+            flag: 1,
+            method: 'dataset',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    dataGet(key, timeout, callback) {
+
+        let payload = {
+            key: key
+        };
+
+        let options = {
+            flag: 1,
+            method: 'dataget',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    dataDelete(key, timeout, callback) {
+
+        let payload = {
+            key: key
+        };
+
+        let options = {
+            flag: 1,
+            method: 'datadel',
             payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
         };
 
@@ -1635,7 +1979,7 @@ class RTMClient {
     }
 
     // Code for AsyncStressTester
-    /* 
+    /*
     sendQuest(options, callback, timeout) {
 
         sendQuest.call(this, this._baseClient, options, callback, timeout);

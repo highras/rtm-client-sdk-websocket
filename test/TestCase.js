@@ -81,16 +81,22 @@ function TestCase (options, from, to) {
             });
 
             //receive from server
-            let pushName = rtm.RTMConfig.SERVER_PUSH.recvMessage;
-            client.processor.on(pushName, function(data) {
+            let pushName1 = rtm.RTMConfig.SERVER_PUSH.recvMessage;
+            client.processor.on(pushName1, function(data) {
 
-                console.log('\n[PUSH] ' + pushName + ':\n', data);
+                console.log('\n[PUSH] ' + pushName1 + ':\n', data);
             });
 
-            pushName = rtm.RTMConfig.SERVER_PUSH.recvPing;
-            client.processor.on(pushName, function(data) {
+            let pushName2 = rtm.RTMConfig.SERVER_PUSH.recvPing;
+            client.processor.on(pushName2, function(data) {
 
-                console.log('\n[PUSH] ' + pushName + ':\n', data);
+                console.log('\n[PUSH] ' + pushName2 + ':\n', data);
+            });
+
+            let pushName3 = rtm.RTMConfig.SERVER_PUSH.recvChat;
+            client.processor.on(pushName3, function(data) {
+
+                console.log('\n[PUSH] ' + pushName3 + ':\n', data);
             });
 
             //send to server
@@ -109,6 +115,37 @@ function TestCase (options, from, to) {
 
                     console.log('---------------begin!-----------------')
                 });
+
+                t.call(self, function(name, cb) {
+
+                    client[name].call(client, to, 'hello !', '', new rtm.RTMConfig.Int64(0), timeout, function(err, data){
+
+                        if (data && data.mid) {
+
+                            del_mid = data.mid;
+                        }
+
+                        cb && cb(err, data); 
+                    });
+                }, 'sendChat');
+
+                t.call(self, function(name, cb) {
+
+                    client[name].call(client, rid, 'hello !', '', new rtm.RTMConfig.Int64(0), timeout, function(err, data){
+
+                        if (data && data.mid) {
+
+                            del_mid = data.mid;
+                        }
+
+                        cb && cb(err, data); 
+                    });
+                }, 'sendRoomChat');
+
+                t.call(self, function(name, cb) {
+
+                    client[name].call(client, rid, true, 10, 0, 0, 0, timeout, cb);
+                }, 'getRoomChat');
                 
                 //rtmGate (2)
                 t.call(self, function(name, cb) {
@@ -139,7 +176,7 @@ function TestCase (options, from, to) {
                 //rtmGate (5)
                 t.call(self, function(name, cb) {
 
-                    client[name].call(client, timeout, cb);
+                    client[name].call(client, false, timeout, cb);
                 }, 'getUnreadMessage');
 
                 //rtmGate (6)
@@ -223,8 +260,14 @@ function TestCase (options, from, to) {
                 //rtmGate (20)
                 t.call(self, function(name, cb) {
 
-                    client[name].call(client, '你好!', undefined, 'en', timeout, cb);
+                    client[name].call(client, '你好!', 'zh-CN', 'en', undefined, undefined, undefined, timeout, cb);
                 }, 'translate');
+
+                t.call(self, function(name, cb) {
+
+                    client[name].call(client, '出售 海洛因', true, timeout, cb);
+                }, 'profanity');
+
 
                 //rtmGate (21)
                 t.call(self, function(name, cb) {
@@ -303,18 +346,6 @@ function TestCase (options, from, to) {
 
                     client[name].call(client, '', timeout, cb);
                 }, 'kickout'); 
-
-                //rtmGate (35)
-                t.call(self, function(name, cb) {
-
-                    client[name].call(client, 'db-test-key', 'db-test-value', timeout, cb);
-                }, 'dbSet'); 
-
-                //rtmGate (34)
-                t.call(self, function(name, cb) {
-
-                    client[name].call(client, 'db-test-key', timeout, cb);
-                }, 'dbGet'); 
 
                 //rtmGate (13)
                 t.call(self, function(name, cb) {
