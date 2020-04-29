@@ -64,6 +64,15 @@ class RTMClient {
             }) 
         };
 
+        this._binaryOptions = {
+
+            codec: RTMConfig.MsgPack.createCodec({  
+
+                int64: true,
+                useraw: true
+            }) 
+        };
+
         let self = this;
         this._processor = new RTMProcessor();
         this._processor.on(RTMConfig.SERVER_PUSH.kickOut, function(data) {
@@ -519,21 +528,31 @@ class RTMClient {
 
                 msgs.forEach(function(item, index) {
 
+                    let msg = item[5];
+                    let attrs = item[6];
+                    try {
+                        msg = new TextDecoder("utf-8", {"fatal":true}).decode(msg);
+                    } catch (err) {}
+
+                    try {
+                        attrs = new TextDecoder("utf-8", {"fatal":true}).decode(attrs);
+                    } catch (err) {}
+
                     msgs[index] = {
                         id: new RTMConfig.Int64(item[0]),
                         from: new RTMConfig.Int64(item[1]),
                         mtype: Number(item[2]),
                         mid: new RTMConfig.Int64(item[3]),
                         deleted: item[4],
-                        msg: item[5],
-                        attrs: item[6],
+                        msg: msg,
+                        attrs: attrs,
                         mtime: new RTMConfig.Int64(item[7])
                     };
                 });
             }
 
             callback && callback(null, data);
-        }, timeout);
+        }, timeout, true);
     }
 
     /**
@@ -612,21 +631,31 @@ class RTMClient {
 
                 msgs.forEach(function(item, index) {
 
+                    let msg = item[5];
+                    let attrs = item[6];
+                    try {
+                        msg = new TextDecoder("utf-8", {"fatal":true}).decode(msg);
+                    } catch (err) {}
+
+                    try {
+                        attrs = new TextDecoder("utf-8", {"fatal":true}).decode(attrs);
+                    } catch (err) {}
+
                     msgs[index] = {
                         id: new RTMConfig.Int64(item[0]),
                         from: new RTMConfig.Int64(item[1]),
                         mtype: Number(item[2]),
                         mid: new RTMConfig.Int64(item[3]),
                         deleted: item[4],
-                        msg: item[5],
-                        attrs: item[6],
+                        msg: msg,
+                        attrs: attrs,
                         mtime: new RTMConfig.Int64(item[7])
                     };
                 });
             }
 
             callback && callback(null, data);
-        }, timeout);
+        }, timeout, true);
     }
 
     /**
@@ -703,21 +732,31 @@ class RTMClient {
 
                 msgs.forEach(function(item, index) {
 
+                    let msg = item[5];
+                    let attrs = item[6];
+                    try {
+                        msg = new TextDecoder("utf-8", {"fatal":true}).decode(msg);
+                    } catch (err) {}
+
+                    try {
+                        attrs = new TextDecoder("utf-8", {"fatal":true}).decode(attrs);
+                    } catch (err) {}
+
                     msgs[index] = {
                         id: new RTMConfig.Int64(item[0]),
                         from: new RTMConfig.Int64(item[1]),
                         mtype: Number(item[2]),
                         mid: new RTMConfig.Int64(item[3]),
                         deleted: item[4],
-                        msg: item[5],
-                        attrs: item[6],
+                        msg: msg,
+                        attrs: attrs,
                         mtime: new RTMConfig.Int64(item[7])
                     };
                 });
             }
 
             callback && callback(null, data);
-        }, timeout);
+        }, timeout, true);
     }
 
     /**
@@ -796,21 +835,31 @@ class RTMClient {
 
                 msgs.forEach(function(item, index) {
 
+                    let msg = item[5];
+                    let attrs = item[6];
+                    try {
+                        msg = new TextDecoder("utf-8", {"fatal":true}).decode(msg);
+                    } catch (err) {}
+
+                    try {
+                        attrs = new TextDecoder("utf-8", {"fatal":true}).decode(attrs);
+                    } catch (err) {}
+
                     msgs[index] = {
                         id: new RTMConfig.Int64(item[0]),
                         direction: Number(item[1]),
                         mtype: Number(item[2]),
                         mid: new RTMConfig.Int64(item[3]),
                         deleted: item[4],
-                        msg: item[5],
-                        attrs: item[6],
+                        msg: msg,
+                        attrs: attrs,
                         mtime: new RTMConfig.Int64(item[7])
                     };
                 });
             }
 
             callback && callback(null, data);
-        }, timeout);
+        }, timeout, true);
     }
 
     /**
@@ -1609,7 +1658,7 @@ class RTMClient {
             }
 
             callback && callback(null, data);
-        }, timeout);
+        }, timeout, true);
     }
 
     /**
@@ -2236,7 +2285,7 @@ function isException(isAnswerErr, data) {
     return null;
 }
 
-function sendQuest(client, options, callback, timeout) {
+function sendQuest(client, options, callback, timeout, hasBinary = false) {
 
     let self = this;
 
@@ -2258,7 +2307,13 @@ function sendQuest(client, options, callback, timeout) {
 
         if (data.payload) {
 
-            let payload = RTMConfig.MsgPack.decode(data.payload, self._msgOptions);
+            let payload = null;
+
+            if (hasBinary) {
+                payload = RTMConfig.MsgPack.decode(data.payload, self._binaryOptions);
+            } else {
+                payload = RTMConfig.MsgPack.decode(data.payload, self._msgOptions);
+            }
 
             if (data.mtype == 2) {
 

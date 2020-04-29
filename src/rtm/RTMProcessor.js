@@ -18,6 +18,25 @@ class RTMProcessor {
             }) 
         };
 
+        this._binaryOptions = {
+
+            codec: RTMConfig.MsgPack.createCodec({  
+
+                int64: true,
+                useraw: true
+            })
+        };
+
+        this._binaryMessageMethodList = [
+            RTMConfig.SERVER_PUSH.recvMessage,
+            RTMConfig.SERVER_PUSH.recvGroupMessage,
+            RTMConfig.SERVER_PUSH.recvRoomMessage,
+            RTMConfig.SERVER_PUSH.recvBroadcastMessage,
+            RTMConfig.SERVER_PUSH.recvFile,
+            RTMConfig.SERVER_PUSH.recvGroupFile,
+            RTMConfig.SERVER_PUSH.recvRoomFile,
+            RTMConfig.SERVER_PUSH.recvBroadcastFile
+        ];
 
         checkExpire.call(this);
     }
@@ -57,8 +76,18 @@ class RTMProcessor {
         }
 
         if (data.flag == 1) {
+            if (this._binaryMessageMethodList.indexOf(data.method) !== -1) {
+                payload = RTMConfig.MsgPack.decode(data.payload, this._binaryOptions);
+                try {
+                    payload.msg = new TextDecoder("utf-8", {"fatal":true}).decode(payload.msg);
+                } catch (err) {}
 
-            payload = RTMConfig.MsgPack.decode(data.payload, this._msgOptions);
+                try {
+                    payload.attrs = new TextDecoder("utf-8", {"fatal":true}).decode(payload.attrs);
+                } catch (err) {}
+            } else {
+                payload = RTMConfig.MsgPack.decode(data.payload, this._msgOptions);
+            }
         }
 
         if (payload) {
