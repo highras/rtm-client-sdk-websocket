@@ -529,14 +529,12 @@ class RTMClient {
                 msgs.forEach(function(item, index) {
 
                     let msg = item[5];
-                    let attrs = item[6];
+                    let binary = msg;
                     try {
                         msg = new TextDecoder("utf-8", {"fatal":true}).decode(msg);
-                    } catch (err) {}
-
-                    try {
-                        attrs = new TextDecoder("utf-8", {"fatal":true}).decode(attrs);
-                    } catch (err) {}
+                    } catch (err) {
+                        msg = undefined;
+                    }
 
                     msgs[index] = {
                         id: new RTMConfig.Int64(item[0]),
@@ -545,7 +543,8 @@ class RTMClient {
                         mid: new RTMConfig.Int64(item[3]),
                         deleted: item[4],
                         msg: msg,
-                        attrs: attrs,
+                        binary: binary,
+                        attrs: item[6],
                         mtime: new RTMConfig.Int64(item[7])
                     };
                 });
@@ -632,14 +631,12 @@ class RTMClient {
                 msgs.forEach(function(item, index) {
 
                     let msg = item[5];
-                    let attrs = item[6];
+                    let binary = msg;
                     try {
                         msg = new TextDecoder("utf-8", {"fatal":true}).decode(msg);
-                    } catch (err) {}
-
-                    try {
-                        attrs = new TextDecoder("utf-8", {"fatal":true}).decode(attrs);
-                    } catch (err) {}
+                    } catch (err) {
+                        msg = undefined;
+                    }
 
                     msgs[index] = {
                         id: new RTMConfig.Int64(item[0]),
@@ -648,7 +645,8 @@ class RTMClient {
                         mid: new RTMConfig.Int64(item[3]),
                         deleted: item[4],
                         msg: msg,
-                        attrs: attrs,
+                        binary: binary,
+                        attrs: item[6],
                         mtime: new RTMConfig.Int64(item[7])
                     };
                 });
@@ -733,14 +731,12 @@ class RTMClient {
                 msgs.forEach(function(item, index) {
 
                     let msg = item[5];
-                    let attrs = item[6];
+                    let binary = msg;
                     try {
                         msg = new TextDecoder("utf-8", {"fatal":true}).decode(msg);
-                    } catch (err) {}
-
-                    try {
-                        attrs = new TextDecoder("utf-8", {"fatal":true}).decode(attrs);
-                    } catch (err) {}
+                    } catch (err) {
+                        msg = undefined;
+                    }
 
                     msgs[index] = {
                         id: new RTMConfig.Int64(item[0]),
@@ -749,7 +745,8 @@ class RTMClient {
                         mid: new RTMConfig.Int64(item[3]),
                         deleted: item[4],
                         msg: msg,
-                        attrs: attrs,
+                        binary: binary,
+                        attrs: item[6],
                         mtime: new RTMConfig.Int64(item[7])
                     };
                 });
@@ -836,14 +833,12 @@ class RTMClient {
                 msgs.forEach(function(item, index) {
 
                     let msg = item[5];
-                    let attrs = item[6];
+                    let binary = msg;
                     try {
                         msg = new TextDecoder("utf-8", {"fatal":true}).decode(msg);
-                    } catch (err) {}
-
-                    try {
-                        attrs = new TextDecoder("utf-8", {"fatal":true}).decode(attrs);
-                    } catch (err) {}
+                    } catch (err) {
+                        msg = undefined;
+                    }
 
                     msgs[index] = {
                         id: new RTMConfig.Int64(item[0]),
@@ -852,7 +847,8 @@ class RTMClient {
                         mid: new RTMConfig.Int64(item[3]),
                         deleted: item[4],
                         msg: msg,
-                        attrs: attrs,
+                        binary: binary,
+                        attrs: item[6],
                         mtime: new RTMConfig.Int64(item[7])
                     };
                 });

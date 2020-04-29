@@ -78,13 +78,12 @@ class RTMProcessor {
         if (data.flag == 1) {
             if (this._binaryMessageMethodList.indexOf(data.method) !== -1) {
                 payload = RTMConfig.MsgPack.decode(data.payload, this._binaryOptions);
+                payload.binary = payload.msg;
                 try {
                     payload.msg = new TextDecoder("utf-8", {"fatal":true}).decode(payload.msg);
-                } catch (err) {}
-
-                try {
-                    payload.attrs = new TextDecoder("utf-8", {"fatal":true}).decode(payload.attrs);
-                } catch (err) {}
+                } catch (err) {
+                    payload.msg = undefined;
+                }
             } else {
                 payload = RTMConfig.MsgPack.decode(data.payload, this._msgOptions);
             }
