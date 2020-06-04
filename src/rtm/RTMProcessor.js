@@ -78,11 +78,15 @@ class RTMProcessor {
         if (data.flag == 1) {
             if (this._binaryMessageMethodList.indexOf(data.method) !== -1) {
                 payload = RTMConfig.MsgPack.decode(data.payload, this._binaryOptions);
-                payload.binary = payload.msg;
-                try {
-                    payload.msg = new TextDecoder("utf-8", {"fatal":true}).decode(payload.msg);
-                } catch (err) {
-                    payload.msg = undefined;
+                if (payload.mtype == RTMConfig.CHAT_TYPE.text) {
+                    payload = RTMConfig.MsgPack.decode(data.payload, this._msgOptions);
+                } else {
+                    payload.binary = payload.msg;
+                    try {
+                        payload.msg = new TextDecoder("utf-8", {"fatal":true}).decode(payload.msg);
+                    } catch (err) {
+                        payload.msg = undefined;
+                    }
                 }
             } else {
                 payload = RTMConfig.MsgPack.decode(data.payload, this._msgOptions);
