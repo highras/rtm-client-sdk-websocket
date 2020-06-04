@@ -15,7 +15,7 @@ class RTMClient {
      * {number} options.pid 
      * {Int64} options.uid
      * {string} options.token
-     * {bool} options.autoReconnect 
+     * {bool} options.autoReconnect
      * {number} options.connectionTimeout 
      * {string} options.version
      * {object<string, string>} options.attrs
@@ -536,6 +536,11 @@ class RTMClient {
                         msg = undefined;
                     }
 
+                    let attrs = item[6];
+                    try {
+                        attrs = new TextDecoder("utf-8", {"fatal":true}).decode(attrs);
+                    } catch (err) {}
+
                     msgs[index] = {
                         id: new RTMConfig.Int64(item[0]),
                         from: new RTMConfig.Int64(item[1]),
@@ -544,7 +549,7 @@ class RTMClient {
                         deleted: item[4],
                         msg: msg,
                         binary: binary,
-                        attrs: item[6],
+                        attrs: attrs,
                         mtime: new RTMConfig.Int64(item[7])
                     };
                 });
@@ -638,6 +643,11 @@ class RTMClient {
                         msg = undefined;
                     }
 
+                    let attrs = item[6];
+                    try {
+                        attrs = new TextDecoder("utf-8", {"fatal":true}).decode(attrs);
+                    } catch (err) {}
+
                     msgs[index] = {
                         id: new RTMConfig.Int64(item[0]),
                         from: new RTMConfig.Int64(item[1]),
@@ -646,7 +656,7 @@ class RTMClient {
                         deleted: item[4],
                         msg: msg,
                         binary: binary,
-                        attrs: item[6],
+                        attrs: attrs,
                         mtime: new RTMConfig.Int64(item[7])
                     };
                 });
@@ -738,6 +748,11 @@ class RTMClient {
                         msg = undefined;
                     }
 
+                    let attrs = item[6];
+                    try {
+                        attrs = new TextDecoder("utf-8", {"fatal":true}).decode(attrs);
+                    } catch (err) {}
+
                     msgs[index] = {
                         id: new RTMConfig.Int64(item[0]),
                         from: new RTMConfig.Int64(item[1]),
@@ -746,7 +761,7 @@ class RTMClient {
                         deleted: item[4],
                         msg: msg,
                         binary: binary,
-                        attrs: item[6],
+                        attrs: attrs,
                         mtime: new RTMConfig.Int64(item[7])
                     };
                 });
@@ -839,6 +854,11 @@ class RTMClient {
                     } catch (err) {
                         msg = undefined;
                     }
+
+                    let attrs = item[6];
+                    try {
+                        attrs = new TextDecoder("utf-8", {"fatal":true}).decode(attrs);
+                    } catch (err) {}
 
                     msgs[index] = {
                         id: new RTMConfig.Int64(item[0]),
@@ -2450,7 +2470,6 @@ function connectRTMGate(timeout) {
     });
 
     this._baseClient.on('error', function(err) {
-        
         self.emit('error', err);
     });
 
