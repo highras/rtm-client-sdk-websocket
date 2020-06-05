@@ -100,13 +100,14 @@ class RTMClient {
      * @param {bool} ipv6 
      */
     login(endpoint, ipv6) {
-
+        if (this._endpoint !== null) {
+            return;
+        }
         this._endpoint = endpoint || null;
         this._ipv6 = ipv6 || false;
         this._isClose = false;
 
         if (this._endpoint) {
-
             connectRTMGate.call(this);
             return;
         }
@@ -116,12 +117,10 @@ class RTMClient {
         getRTMGate.call(this, 'rtmGated', function(err, data) {
 
             if (data) {
-                
                 self.login(data.endpoint, self._ipv6);
             }
 
             if (err) {
-
                 onClose.call(self, true);
                 self.emit('error', err);
             }
@@ -2365,7 +2364,6 @@ function getRTMGate(service, callback, timeout) {
 	let self = this;
 
     if (this._dispatchClient == null) {
-
         this._dispatchClient = new fpnn.FPClient({
             endpoint: buildEndpoint.call(this, this._dispatch),
             autoReconnect: false,
@@ -2464,7 +2462,6 @@ function connectRTMGate(timeout) {
     let self = this;
 
     this._baseClient.on('close', function() {
-
         self._endpoint = null;
         onClose.call(self, true);
     });
@@ -2565,24 +2562,20 @@ function onClose(reconnect) {
 function reConnect() {
 
     if (!this._autoReconnect) {
-
         return;
     }
 
     if (this._reconnectTimeout) {
-
         return;
     }
 
     if (this._isClose) {
-
         return;
     }
 
     let self = this;
 
     this._reconnectTimeout = setTimeout(function() {
-
         self.login(self._endpoint, self._ipv6);
     }, 100);
 }
