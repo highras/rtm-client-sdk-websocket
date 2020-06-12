@@ -1,5 +1,8 @@
 'use strict'
 
+const API_VERSION = '2.1.0';
+const SDK_VERSION = '1.0.7'
+
 const ERROR_CODE = {
 	RTM_EC_INVALID_PROJECT_ID_OR_USER_ID: 200001,
 	RTM_EC_INVALID_PROJECT_ID_OR_SIGN: 200002,
@@ -109,6 +112,14 @@ class RTMConfig {
 	static get MID_TTL() {
 
 		return 5 * 1000;
+	}
+
+	static get API_VERSION() {
+		return API_VERSION;
+	}
+
+	static get SDK_VERSION() {
+		return SDK_VERSION;
 	}
 }
 

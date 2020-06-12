@@ -1131,7 +1131,7 @@ class RTMClient {
      * @param {Error} err
      * @param {object<stext:string, src:string, dtext:string, dst:string>} data 
      */
-    translate(originalMessage, originalLanguage, targetLanguage, type, profanity, postProfanity, timeout, callback) {
+    translate(originalMessage, originalLanguage, targetLanguage, type, profanity, timeout, callback) {
 
         let payload = {
             text: originalMessage,
@@ -1151,11 +1151,6 @@ class RTMClient {
         if (profanity !== undefined) {
 
             payload.profanity = profanity;
-        }
-
-        if (postProfanity !== undefined) {
-
-            payload.postProfanity = postProfanity;
         }
 
         let options = {
@@ -1962,6 +1957,105 @@ class RTMClient {
         };
 
         sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    /**
+     *  
+     * 
+     * @param {array<Int64>} blacks 
+     * @param {number} timeout 
+     * @param {function} callback 
+     * 
+     * @callback
+     * @param {Error} err
+     * @param {object} data
+     */
+    addBlacks(blacks, timeout, callback) {
+
+        let payload = {
+            blacks: blacks
+        };
+
+        let options = {
+            flag: 1,
+            method: 'addblacks',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    /**
+     *  
+     * 
+     * @param {array<Int64>} blacks 
+     * @param {number} timeout 
+     * @param {function} callback 
+     * 
+     * @callback
+     * @param {Error} err
+     * @param {object} data
+     */
+    deleteBlacks(blacks, timeout, callback) {
+
+        let payload = {
+            blacks: blacks
+        };
+
+        let options = {
+            flag: 1,
+            method: 'delblacks',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    /**
+     *  
+     * 
+     * @param {number} timeout 
+     * @param {function} callback 
+     * 
+     * @callback
+     * @param {Error} err
+     * @param {array<Int64>} data
+     */
+    getBlacks(timeout, callback) {
+
+        let payload = {};
+
+        let options = {
+            flag: 1,
+            method: 'getblacks',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, function(err, data) {
+
+            if (err) {
+
+                callback && callback(err, null);
+                return;
+            }
+
+            let uids = data['uids'];
+
+            if (uids) {
+
+                let buids = [];
+
+                uids.forEach(function(item, index) {
+
+                    buids[index] = new RTMConfig.Int64(item);
+                });
+
+                callback && callback(null, buids);
+                return;
+            }
+
+            callback && callback(null, data);
+        }, timeout);
     }
 
     /**

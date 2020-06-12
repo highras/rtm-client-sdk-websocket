@@ -623,13 +623,12 @@ client.login();
         * `err`: **(Error)** 
         * `data`: **(object)** 
 
-* `translate(originalMessage, originalLanguage, targetLanguage, type, profanity, postProfanity, timeout, callback)`: 翻译消息
+* `translate(originalMessage, originalLanguage, targetLanguage, type, profanity, timeout, callback)`: 翻译消息
     * `originalMessage`: **(Required | stirng)** 待翻译的原始消息
     * `originalLanguage`: **(Optional | string)** 待翻译的消息的语言类型, 可为 `undefined`
     * `targetLanguage`: **(Required | string)** 本次翻译的目标语言类型
     * `type`: **(Required | string)** 可选值为chat或mail。如未指定，则默认使用chat
     * `profanity`: **(Required | string)** 敏感语过滤。设置为以下3项之一: off, stop, censor，默认：off
-    * `postProfanity`: **(Required | bool)** 是否把翻译后的文本过滤
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
         * `err`: **(Error)** 
@@ -881,3 +880,23 @@ client.login();
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
         * `err`: **(object[mid:Int64, error:Error])** 
         * `data`: **(object)** 
+
+* `addBlacks(blacks, timeout, callback)`: 添加黑名单，每次最多添加100人，拉黑后对方不能给自己发消息，自己可以给对方发，双方能正常获取session及历史消息
+    * `blacks`: **(Required | array[Int64])** 多个用户id
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)**
+        * `data`: **(object)**
+
+* `deleteBlacks(blacks, timeout, callback)`: 解除拉黑，每次最多解除100人
+    * `friends`: **(Required | array[Int64])** 多个用户id
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)**
+        * `data`: **(object)**
+
+* `getBlacks(timeout, callback)`: 获取被我拉黑的用户列表
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)**
+        * `data`: **(array[Int64])**
