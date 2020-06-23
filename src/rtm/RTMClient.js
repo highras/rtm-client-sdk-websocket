@@ -2497,7 +2497,8 @@ function which(service, callback, timeout) {
         uid: this._uid,
         what: service,
         addrType: this._ipv6 ? 'ipv6' : 'ipv4',
-        version: this._version
+        version: this._version,
+        sdk_version: RTMConfig.SDK_VERSION
     };
 
     let options = {
