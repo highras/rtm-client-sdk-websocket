@@ -85,6 +85,7 @@ class RTMClient {
 
             let endpoint = buildEndpoint.call(this, this._proxyEndpoint);
             this._proxy = new RTMProxy(endpoint);
+            this._dispatchProxy = new RTMProxy(endpoint);
             this._fileProxy = new RTMProxy(endpoint);
         }
     }
@@ -137,6 +138,11 @@ class RTMClient {
         if (this._proxy) {
 
             this._proxy = null;
+        }
+
+        if (this._dispatchProxy) {
+
+            this._dispatchProxy = null;
         }
 
         if (this._processor) {
@@ -2462,7 +2468,7 @@ function getRTMGate(service, callback, timeout) {
             endpoint: buildEndpoint.call(this, this._dispatch),
             autoReconnect: false,
             connectionTimeout: this._connectionTimeout,
-            proxy: this._proxy
+            proxy: this._dispatchProxy
         });
 
         this._dispatchClient.on('close', function() {
