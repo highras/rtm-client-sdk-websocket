@@ -95,15 +95,16 @@ class RTMClient {
         return this._processor;
     }
 
+    updateToken(token) {
+        this._token = token;
+    }
+
     /**
      * 
      * @param {string} endpoint
      * @param {bool} ipv6 
      */
     login(endpoint, ipv6) {
-        if (this._endpoint !== null) {
-            return;
-        }
         this._endpoint = endpoint || null;
         this._ipv6 = ipv6 || false;
         this._isClose = false;
@@ -207,7 +208,6 @@ class RTMClient {
         sendQuest.call(this, this._baseClient, options, function(err, data) {
 
             if (err) {
-
                 callback && callback({ mid: payload.mid, error: err }, null);
                 return;
             }

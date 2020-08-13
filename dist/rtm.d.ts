@@ -2,6 +2,7 @@ declare module rtm {
     export class RTMClient {
         constructor(options);
         processor;
+        updateToken(token);
         login(endpoint, ipv6);
         destroy();
         sendMessage(to, mtype, msg, attrs, mid, timeout, callback);
