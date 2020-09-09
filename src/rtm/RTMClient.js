@@ -36,6 +36,7 @@ class RTMClient {
         this._ssl = options.ssl !== undefined ? options.ssl : true;
         this._autoReconnect = options.autoReconnect !== undefined ? options.autoReconnect : true;
         this._connectionTimeout = options.connectionTimeout || 30 * 1000;
+        this._reconnectErrorCount = 0;
 
         if (this._ssl) {
 
@@ -2619,6 +2620,7 @@ function auth(timeout) {
             }
 
             self.emit('login', { endpoint: self._endpoint });
+            self._reconnectErrorCount = 0;
             return;
         }
 
@@ -2676,9 +2678,19 @@ function reConnect() {
 
     let self = this;
 
+    self._reconnectErrorCount += 1;
+
+    let reconnectInterval = 100;
+    if (self._reconnectErrorCount > 5) {
+        reconnectInterval = 1000;
+    }
+    if (self._reconnectErrorCount > 20) {
+        reconnectInterval = 60000;
+    }
+
     this._reconnectTimeout = setTimeout(function() {
         self.login(self._endpoint, self._ipv6);
-    }, 100);
+    }, reconnectInterval);
 }
 
 function md5_encode(str) {
