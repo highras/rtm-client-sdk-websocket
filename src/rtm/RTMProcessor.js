@@ -87,6 +87,11 @@ class RTMProcessor {
                     } catch (err) {
                         payload.msg = undefined;
                     }
+
+                    try {
+                        payload.attrs = new TextDecoder("utf-8", {"fatal":true}).decode(payload.attrs);
+                    } catch (err) {
+                    }
                 }
             } else {
                 payload = RTMConfig.MsgPack.decode(data.payload, this._msgOptions);
