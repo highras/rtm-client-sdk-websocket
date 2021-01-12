@@ -383,6 +383,86 @@ class RTMClient {
         }, timeout);
     }
 
+    getP2PUnreadMessageNum(uids, mtime, mtypes, timeout, callback) {
+
+        let payload = {
+            uids: uids
+        };
+
+        if (mtime !== undefined) {
+            payload.mtime = mtime;
+        }
+
+        if (mtypes !== undefined) {
+            payload.mtypes = mtypes;
+        }
+
+        let options = {
+            flag: 1,
+            method: 'getp2punread',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, function(err, data) {
+
+            if (err) {
+
+                callback && callback(err, null);
+                return;
+            }
+
+            let result = {};
+            let p2p = data['p2p'];
+            if (p2p) {
+                for (var key in p2p) {
+                    result[new RTMConfig.Int64(key)] = p2p[key];
+                }
+            }
+
+            callback && callback(null, result);
+        }, timeout);
+    }
+
+    getGroupUnreadMessageNum(gids, mtime, mtypes, timeout, callback) {
+
+        let payload = {
+            gids: gids
+        };
+
+        if (mtime !== undefined) {
+            payload.mtime = mtime;
+        }
+
+        if (mtypes !== undefined) {
+            payload.mtypes = mtypes;
+        }
+
+        let options = {
+            flag: 1,
+            method: 'getgroupunread',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, function(err, data) {
+
+            if (err) {
+
+                callback && callback(err, null);
+                return;
+            }
+
+            let result = {};
+            let group = data['group'];
+            if (group) {
+                for (var key in group) {
+                    result[new RTMConfig.Int64(key)] = group[key];
+                }
+            }
+
+            callback && callback(null, result);
+        }, timeout);
+    }
+
     /**
      *  
      * rtmGate (6)

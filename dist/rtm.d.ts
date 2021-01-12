@@ -9,6 +9,8 @@ declare module rtm {
         sendGroupMessage(gid, mtype, msg, attrs, mid, timeout, callback);
         sendRoomMessage(rid, mtype, msg, attrs, mid, timeout, callback);
         getUnreadMessage(clear, timeout, callback);
+        getP2PUnreadMessageNum(uids, mtime, mtypes, timeout, callback);
+        getGroupUnreadMessageNum(gids, mtime, mtypes, timeout, callback);
         cleanUnreadMessage(timeout, callback);
         getSession(timeout, callback);
         getGroupMessage(gid, desc, num, begin, end, lastid, mtypes, timeout, callback);
