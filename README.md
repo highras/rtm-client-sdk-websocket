@@ -396,6 +396,24 @@ client.login();
         * `err`: **(Error)** 
         * `data`: **(object)** 
 
+* `getP2PUnreadMessageNum(uids, mtime, mtypes, timeout, callback)`: 获取未读P2P消息数目
+    * `uids`: **(Required | [int64])** uid列表
+    * `mtime`: **(Required | int64)** 毫秒级时间戳，获取这个时间戳之后的未读消息，如果mtime 为空，则获取上一次logout后的未读消息
+    * `mtypes`: **(Required | [number])** 获取指定mtype的未读消息，为空或undefined，则获取聊天相关未读消息
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)** 
+        * `data`: **(object[p2p:array(Int64), group:array(Int64)])** 对应值为未读消息数目
+
+* `getGroupUnreadMessageNum(gids, mtime, mtypes, timeout, callback)`: 获取未读Group消息数目
+    * `gids`: **(Required | [int64])** gid列表
+    * `mtime`: **(Required | int64)** 毫秒级时间戳，获取这个时间戳之后的未读消息，如果mtime 为空，则获取上一次logout后的未读消息
+    * `mtypes`: **(Required | [number])** 获取指定mtype的未读消息，为空或undefined，则获取聊天相关未读消息
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)** 
+        * `data`: **(object[p2p:array(Int64), group:array(Int64)])** 对应值为未读消息数目
+
 * `getSession(timeout, callback)`: 获取所有会话
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
