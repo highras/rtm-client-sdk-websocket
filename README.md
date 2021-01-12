@@ -403,7 +403,7 @@ client.login();
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
         * `err`: **(Error)** 
-        * `data`: **(object[p2p:array(Int64), group:array(Int64)])** 对应值为未读消息数目
+        * `data`: **({ uid  => num })** 对应值为未读消息数目
 
 * `getGroupUnreadMessageNum(gids, mtime, mtypes, timeout, callback)`: 获取未读Group消息数目
     * `gids`: **(Required | [int64])** gid列表
@@ -412,7 +412,7 @@ client.login();
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
         * `err`: **(Error)** 
-        * `data`: **(object[p2p:array(Int64), group:array(Int64)])** 对应值为未读消息数目
+        * `data`: **({ gid  => num })** 对应值为未读消息数目
 
 * `getSession(timeout, callback)`: 获取所有会话
     * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
