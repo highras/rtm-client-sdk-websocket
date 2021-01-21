@@ -736,7 +736,8 @@ client.login();
         * `err`: **(Error)** 
         * `data`: **(array[Int64])** 
 
-* `deleteMessage(mid, xid, type, timeout, callback)`: 删除消息
+* `deleteMessage(from, mid, xid, type, timeout, callback)`: 删除消息
+    * `from`: **(Required | Int64)** 发送者用户 id
     * `mid`: **(Required | Int64)** 消息 id
     * `xid`: **(Required | Int64)** 消息接收方 id (userId/RoomId/GroupId)
     * `type`: **(Required | number)** 接收方类型 (1:p2p, 2:group, 3:room)
@@ -745,7 +746,8 @@ client.login();
         * `err`: **(Error)** 
         * `data`: **(object)** 
 
-* `deleteChat(mid, xid, type, timeout, callback)`: 删除消息
+* `deleteChat(from, mid, xid, type, timeout, callback)`: 删除消息
+    * `from`: **(Required | Int64)** 发送者用户 id
     * `mid`: **(Required | Int64)** 消息 id
     * `xid`: **(Required | Int64)** 消息接收方 id (userId/RoomId/GroupId)
     * `type`: **(Required | number)** 接收方类型 (1:p2p, 2:group, 3:room)
@@ -754,7 +756,8 @@ client.login();
         * `err`: **(Error)** 
         * `data`: **(object)** 
 
-* `getMessage(mid, xid, type, timeout, callback)`: 获取消息
+* `getMessage(frrom, mid, xid, type, timeout, callback)`: 获取消息
+    * `from`: **(Required | Int64)** 发送者用户 id
     * `mid`: **(Required | Int64)** 消息 id
     * `xid`: **(Required | Int64)** 消息接收方 id (userId/RoomId/GroupId)
     * `type`: **(Required | number)** 接收方类型 (1:p2p, 2:group, 3:room)
@@ -763,7 +766,8 @@ client.login();
         * `err`: **(Error)** 
         * `data`: **(object[id: Int64, mtype: number, msg: string, attrs: string, mtime: Int64])** 
 
-* `getChat(mid, xid, type, timeout, callback)`: 获取聊天
+* `getChat(from, mid, xid, type, timeout, callback)`: 获取聊天
+    * `from`: **(Required | Int64)** 发送者用户 id
     * `mid`: **(Required | Int64)** 消息 id
     * `xid`: **(Required | Int64)** 消息接收方 id (userId/RoomId/GroupId)
     * `type`: **(Required | number)** 接收方类型 (1:p2p, 2:group, 3:room)
@@ -918,3 +922,75 @@ client.login();
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
         * `err`: **(Error)**
         * `data`: **(array[Int64])**
+
+* `textCheck(text, timeout, callback)`: 文本审核
+    * `text`: **(Required | string)** 文本
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)**
+        * `data`: **({ result: int32, ?text: string,?tags:list<int32>,?wlist:list<string> })**
+            * `result`: 0: 通过，2，不通过
+            * `text`: 敏感词过滤后的文本内容，含有的敏感词会被替换为*，如果没有被标星，则无此字段
+            * `tags`: 触发的分类，比如涉黄涉政等等，具体见文本审核分类
+            * `wlist`: 敏感词列表
+
+* `imageCheck(image, type, timeout, callback)`: 图片审核
+    * `image`: **(Required | string)**  图片的url 或者内容
+    * `type`: **(Required | number)**  1, url, 2, 内容
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)**
+        * `data`: **({ result: int32, ?tags:list<int32> })**
+            * `result`: 0: 通过，2，不通过
+            * `tags`: 触发的分类，比如涉黄涉政等等，具体见文本审核分类
+
+* `audioCheck(audio, type, lang, codec, srate, timeout, callback)`: 音频审核
+    * `audio`: **(Required | string)**  音频的url 或者内容
+    * `type`: **(Required | number)**  1, url, 2, 内容
+    * `lang`: **(Required | string)**  音频语言
+    * `codec`: **(Optional | string)**  音频b编码, 默认AMR_WB
+    * `srate`: **(Optional | number)**  音频采样率, 16000
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)**
+        * `data`: **({ result: int32, ?tags:list<int32> })**
+            * `result`: 0: 通过，2，不通过
+            * `tags`: 触发的分类，比如涉黄涉政等等，具体见文本审核分类
+
+* `videoCheck(video, type, videoName, timeout, callback)`: 视频审核
+    * `video`: **(Required | string)**  视频的url 或者内容
+    * `type`: **(Required | number)**  1, url, 2, 内容
+    * `videoName`: **(Required | string)**  音频文件名
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)**
+        * `data`: **({ result: int32, ?tags:list<int32> })**
+            * `result`: 0: 通过，2，不通过
+            * `tags`: 触发的分类，比如涉黄涉政等等，具体见文本审核分类
+
+* `speech2Text(audio, type, lang, codec, srate, timeout, callback)`: 语音转文字
+    * `audio`: **(Required | string)**  音频的url 或者内容
+    * `type`: **(Required | number)**  1, url, 2, 内容
+    * `lang`: **(Required | string)**  音频语言
+    * `codec`: **(Optional | string)**  音频b编码, 默认AMR_WB
+    * `srate`: **(Optional | number)**  音频采样率, 16000
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)**
+        * `data`: **({ text: string, lang: string })**
+            * `text`: 识别的结果
+            * `lang`: 识别的语言
+
+* `getRoomMembers(rid, timeout, callback)`: 获取房间成员
+    * `rid`: **(Required | int64)** RoomID
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)** 
+        * `data`: **(uids: [int64])** 成员列表
+    
+* `getRoomCount(rids, timeout, callback)`: 获取房间成员数量
+    * `rids`: **(Required | [int64])** RoomID列表
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)** 
+        * `data`: **(cn: [string => int])** 房间人数

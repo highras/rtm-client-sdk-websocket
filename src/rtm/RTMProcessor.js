@@ -175,7 +175,7 @@ class RTMProcessor {
         }
 
         if (data.mtype == RTMConfig.CHAT_TYPE.audio) {
-            this.emit(RTMConfig.SERVER_PUSH.recvAudio, data);
+            this.emit(RTMConfig.SERVER_PUSH.recvFile, data);
             return;
         }
 
@@ -237,7 +237,7 @@ class RTMProcessor {
         }
 
         if (data.mtype == RTMConfig.CHAT_TYPE.audio) {
-            this.emit(RTMConfig.SERVER_PUSH.recvGroupAudio, data);
+            this.emit(RTMConfig.SERVER_PUSH.recvGroupFile, data);
             return;
         }
 
@@ -299,7 +299,7 @@ class RTMProcessor {
         }
 
         if (data.mtype == RTMConfig.CHAT_TYPE.audio) {
-            this.emit(RTMConfig.SERVER_PUSH.recvRoomAudio, data);
+            this.emit(RTMConfig.SERVER_PUSH.recvRoomFile, data);
             return;
         }
 
@@ -355,7 +355,7 @@ class RTMProcessor {
         }
 
         if (data.mtype == RTMConfig.CHAT_TYPE.audio) {
-            this.emit(RTMConfig.SERVER_PUSH.recvBroadcastAudio, data);
+            this.emit(RTMConfig.SERVER_PUSH.recvBroadcastFile, data);
             return;
         }
 

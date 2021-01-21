@@ -1269,6 +1269,225 @@ class RTMClient {
         sendQuest.call(this, this._baseClient, options, callback, timeout);
     }
 
+    textCheck(text, timeout, callback) {
+
+        let payload = {
+            text: text
+        };
+
+        let options = {
+            flag: 1,
+            method: 'tcheck',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    imageCheck(image, type, timeout, callback) {
+
+        let payload = {
+            image: image,
+            type: type
+        };
+
+        let options = {
+            flag: 1,
+            method: 'icheck',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    audioCheck(audio, type, lang, codec, srate, timeout, callback) {
+
+        let payload = {
+            audio: audio,
+            type: type,
+            lang: lang
+        };
+
+        if (codec !== undefined) {
+
+            payload.codec = codec;
+        }
+
+        if (srate !== undefined) {
+
+            payload.srate = srate;
+        }
+
+        let options = {
+            flag: 1,
+            method: 'acheck',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    videoCheck(video, type, videoName, timeout, callback) {
+
+        let payload = {
+            video: video,
+            type: type,
+            videoName: videoName
+        };
+
+        let options = {
+            flag: 1,
+            method: 'vcheck',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    speech2Text(audio, type, lang, codec, srate, timeout, callback) {
+
+        let payload = {
+            audio: audio,
+            type: type,
+            lang: lang
+        };
+
+        if (codec !== undefined) {
+
+            payload.codec = codec;
+        }
+
+        if (srate !== undefined) {
+
+            payload.srate = srate;
+        }
+
+        let options = {
+            flag: 1,
+            method: 'speech2text',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    getGroupsOpenInfo(gids, timeout, callback) {
+
+        let payload = {
+            gids: gids
+        };
+
+        let options = {
+            flag: 1,
+            method: 'getgroupsopeninfo',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    getRoomsOpenInfo(rids, timeout, callback) {
+
+        let payload = {
+            rids: rids
+        };
+
+        let options = {
+            flag: 1,
+            method: 'getroomsopeninfo',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    getRoomMembers(rid, timeout, callback) {
+
+        let payload = {
+            rid: rid
+        };
+
+        let options = {
+            flag: 1,
+            method: 'getroommembers',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    getRoomCount(rids, timeout, callback) {
+
+        let payload = {
+            rids: rids
+        };
+
+        let options = {
+            flag: 1,
+            method: 'getroomcount',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    addDevicePushOption(type, xid, mtypes, timeout, callback) {
+
+        let payload = {
+            type: type,
+            xid: xid
+        };
+
+        if (mtypes !== undefined) {
+
+            payload.mtypes = mtypes;
+        }
+
+        let options = {
+            flag: 1,
+            method: 'addoption',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    removeDevicePushOption(type, xid, mtypes, timeout, callback) {
+
+        let payload = {
+            type: type,
+            xid: xid
+        };
+
+        if (mtypes !== undefined) {
+
+            payload.mtypes = mtypes;
+        }
+
+        let options = {
+            flag: 1,
+            method: 'removeoption',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    getDevicePushOption(timeout, callback) {
+
+        let payload = {
+          
+        };
+
+        let options = {
+            flag: 1,
+            method: 'getoption',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
     /**
      *  
      * rtmGate (21)
@@ -1694,9 +1913,10 @@ class RTMClient {
      * @param {Error} err
      * @param {object} data
      */
-    deleteMessage(mid, xid, type, timeout, callback) {
+    deleteMessage(from, mid, xid, type, timeout, callback) {
 
         let payload = {
+            from: from,
             mid: mid,
             xid: xid,
             type: type
@@ -1724,9 +1944,10 @@ class RTMClient {
      * @param {Error} err
      * @param {object} data
      */
-    getMessage(mid, xid, type, timeout, callback) {
+    getMessage(from, mid, xid, type, timeout, callback) {
         
         let payload = {
+            from: from,
             mid: mid,
             xid: xid,
             type: type
@@ -1837,12 +2058,12 @@ class RTMClient {
         this.getBroadcastMessage.call(this, desc, num, begin, end, lastid, [RTMConfig.CHAT_TYPE.text, RTMConfig.CHAT_TYPE.audio, RTMConfig.CHAT_TYPE.cmd], timeout, callback);
     }
 
-    deleteChat(mid, xid, type, timeout, callback) {
-        this.deleteMessage(this, mid, xid, type, timeout, callback);
+    deleteChat(from, mid, xid, type, timeout, callback) {
+        this.deleteMessage(this, from, mid, xid, type, timeout, callback);
     }
 
-    getChat(mid, xid, type, timeout, callback) {
-        this.getChat(this, mid, xid, type, timeout, callback);
+    getChat(from, mid, xid, type, timeout, callback) {
+        this.getChat(this, from, mid, xid, type, timeout, callback);
     }
 
     setUserInfo(oinfo, pinfo, timeout, callback) {

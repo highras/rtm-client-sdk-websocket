@@ -1,7 +1,7 @@
 'use strict'
 
-const API_VERSION = '2.1.0';
-const SDK_VERSION = '1.1.3';
+const API_VERSION = '2.6.1';
+const SDK_VERSION = '1.1.4';
 
 const ERROR_CODE = {
 	RTM_EC_INVALID_PROJECT_ID_OR_USER_ID: 200001,
