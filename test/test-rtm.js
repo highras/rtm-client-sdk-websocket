@@ -9,11 +9,12 @@ function baseTest(endpoint, pid, token, from, to) {
         uid: from,
         token: token,
         autoReconnect: true,
-        connectionTimeout: 20 * 1000,
+        connectionTimeout: 60 * 1000,
         pid: pid,
         attrs: { user: 'test user attrs' },
-        ssl: true,
-        proxyEndpoint: 'rtm-wss-test-nx.livedata.top:13556'
+        /*ssl: true,
+        proxyEndpoint: 'rtm-wss-test-nx.livedata.top:13556'*/
+        ssl: false
     }, from, to);
 
     tester.test();
@@ -27,10 +28,10 @@ function asyncStressTest() {
         uid: 1,
         token: '',
         autoReconnect: true,
-        connectionTimeout: 30 * 1000,
+        connectionTimeout: 60 * 1000,
         pid: 0,
         ssl: true,
-        proxyEndpoint: 'rtm-wss-test-nx.livedata.top:13556'
+        proxyEndpoint: 'rtm-intl-frontgate.ilivedata.com:13556'
     }, '10.63.2.47:13013');
 
     tester.buildTesters(1, 150);

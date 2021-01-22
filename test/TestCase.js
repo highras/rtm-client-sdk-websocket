@@ -41,6 +41,7 @@ function TestCase (options, from, to) {
                         return;
                     }
 
+                    console.log("error:\n");
                     console.error('\n ', err);
 
                 }
@@ -52,7 +53,7 @@ function TestCase (options, from, to) {
                         console.log('\n mid:' + data.mid.toString(), data.payload);
                         return;
                     }
-
+                    console.log("ok:\n");
                     console.log('\n ', data);
                 }
             };
@@ -67,16 +68,16 @@ function TestCase (options, from, to) {
     };
 
     return {
+        options: options,
         client: client,
         test: function (){
-
+            console.log(rtm.RTMConfig.SDK_VERSION);
             client.on('error', function(err) {
-
+                console.error("on error");
                 console.error(err);
             });
 
             client.on('close', function(retry) {
-
                 console.log('closed!', retry);
             });
 
@@ -99,12 +100,19 @@ function TestCase (options, from, to) {
                 console.log('\n[PUSH] ' + pushName3 + ':\n', data);
             });
 
+            let pushName4 = rtm.RTMConfig.SERVER_PUSH.recvAudio;
+            client.processor.on(pushName4, function(data) {
+
+                console.log('\n[PUSH Audio] ' + pushName4 + ':\n', data);
+            });
+
             //send to server
             client.on('login', function(data) {
 
                 if (data.error) {
-
-                    console.error(data.error);
+                    console.error("on login error and update token");
+                    client.updateToken("xxx");
+                    client.login();
                     return;
                 }
 
@@ -115,6 +123,52 @@ function TestCase (options, from, to) {
 
                     console.log('---------------begin!-----------------')
                 });
+
+
+                client.getP2PUnreadMessageNum([new rtm.RTMConfig.Int64(123), new rtm.RTMConfig.Int64(789)], new rtm.RTMConfig.Int64(1610424000000), [90], 3000, function(err, data){
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        console.log(data);
+                    }
+                });
+
+
+                
+
+                /*setInterval(function(){ 
+                    client.sendMessage(to, 51, "hello", "", new rtm.RTMConfig.Int64(0), 10000, function(err, data){
+                        if (err)
+                            console.log(err);
+                    });
+                }, 1000);*/
+
+
+                /*client.getGroupMessage(10127, true, 20, 0, 0, 0, undefined, 10, function(err, data) {
+                    if (err) {
+                        console.log("error: ");
+                        console.log(err);
+                    } else {
+                        console.log("ok:");
+                        console.log(data);
+                    }
+                });*/
+
+				/*t.call(self, function(name, cb) {
+                    client[name].call(client, [new rtm.RTMConfig.Int64(8888)], timeout, cb);
+                }, 'addBlacks');
+
+                t.call(self, function(name, cb) {
+                    client[name].call(client, timeout, function(err, data)
+                    {
+                        console.log(data);
+                        cb && cb(err, data); 
+                    });
+                }, 'getBlacks');
+
+                t.call(self, function(name, cb) {
+                    client[name].call(client, [new rtm.RTMConfig.Int64(8888)], timeout, cb);
+                }, 'deleteBlacks');
 
                 t.call(self, function(name, cb) {
 
@@ -128,6 +182,12 @@ function TestCase (options, from, to) {
                         cb && cb(err, data); 
                     });
                 }, 'sendChat');
+
+                t.call(self, function(name, cb) {
+
+                    client[name].call(client, 111, true, 20, 0, 0, 0, timeout, cb);
+                }, 'getP2PChat');
+                
 
                 t.call(self, function(name, cb) {
 
@@ -356,7 +416,7 @@ function TestCase (options, from, to) {
                 t.call(self, function(name, cb) {
 
                     console.log('---------------(' + index + ')end!-----------------');
-                });
+                });*/
             });
             
             //rtmGate (1)

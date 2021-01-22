@@ -5,14 +5,14 @@ GameGlobal.fpnn = require('./js/libs/fpnn.min.js')
 GameGlobal.rtm = require('./js/libs/rtm.min.js')
 
 let client = new rtm.RTMClient({
-    dispatch: '35.167.185.139:13325',
+    dispatch: 'rtm-intl-frontgate.ilivedata.com:13325',
     uid: new rtm.RTMConfig.Int64(654321),
     token: '609C0728A2D9115280E1A00ACE4873B3',
     autoReconnect: true,
     connectionTimeout: 20 * 1000,
     pid: 1000012,
     ssl: true,
-    proxyEndpoint: 'infra-dev.ifunplus.cn:13556',
+    proxyEndpoint: 'rtm-intl-frontgate.ilivedata.com:13556',
     platformImpl: new fpnn.WechatImpl()
 });
 

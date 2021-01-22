@@ -36,14 +36,14 @@ yarn run build
 
 ```javascript
 let client = new rtm.RTMClient({ 
-    dispatch: 'rtm-nx-front.ifunplus.cn:13325',
+    dispatch: 'rtm-intl-frontgate.ilivedata.com:13325',
     uid: new rtm.RTMConfig.Int64(654321),
     token: '5C65CD872903AAB37211EC468B4A1364',
     autoReconnect: false,
     connectionTimeout: 10 * 1000,
     pid: 1000012,
     ssl: true,
-    proxyEndpoint: 'highras.ifunplus.cn:13556',
+    proxyEndpoint: 'rtm-intl-frontgate.ilivedata.com:13556',
 });
 
 client.on('error', function(err) {
