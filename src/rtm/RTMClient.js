@@ -412,10 +412,19 @@ class RTMClient {
             }
 
             let result = {};
+            result['p2p'] = {};
+            result['ltime'] = {};
             let p2p = data['p2p'];
             if (p2p) {
                 for (var key in p2p) {
-                    result[new RTMConfig.Int64(key)] = p2p[key];
+                    result['p2p'][new RTMConfig.Int64(key)] = p2p[key];
+                }
+            }
+
+            let ltime = data['ltime'];
+            if (ltime) {
+                for (var key in ltime) {
+                    result['ltime'][new RTMConfig.Int64(key)] = new RTMConfig.Int64(ltime[key]);
                 }
             }
 
@@ -452,10 +461,19 @@ class RTMClient {
             }
 
             let result = {};
+            result['group'] = {};
+            result['ltime'] = {};
             let group = data['group'];
             if (group) {
                 for (var key in group) {
-                    result[new RTMConfig.Int64(key)] = group[key];
+                    result['group'][new RTMConfig.Int64(key)] = group[key];
+                }
+            }
+
+            let ltime = data['ltime'];
+            if (ltime) {
+                for (var key in ltime) {
+                    result['ltime'][new RTMConfig.Int64(key)] = new RTMConfig.Int64(ltime[key]);
                 }
             }
 
@@ -1660,11 +1678,15 @@ class RTMClient {
      * @param {Error} err
      * @param {array<Int64>} data
      */
-    getGroupMembers(gid, timeout, callback) {
+    getGroupMembers(gid, online, timeout, callback) {
 
         let payload = {
             gid: gid
         };
+
+        if (online !== undefined) {
+            payload.online = online;
+        }
 
         let options = {
             flag: 1,
@@ -1683,17 +1705,53 @@ class RTMClient {
             let uids = data['uids'];
 
             if (uids) {
-
                 let buids = [];
                 uids.forEach(function(item, index) {
 
                     buids[index] = new RTMConfig.Int64(item);
                 });
 
-                callback && callback(null, buids);
-                return;
+                data['uids'] = buids;
             }
 
+            let onlines = data['onlines'];
+            if (onlines) {
+                let ouids = [];
+                onlines.forEach(function(item, index) {
+
+                    ouids[index] = new RTMConfig.Int64(item);
+                });
+
+                data['onlines'] = ouids;
+            }
+
+            callback && callback(null, data);
+        }, timeout);
+    }
+
+    getGroupCount(gid, online, timeout, callback) {
+
+        let payload = {
+            gid: gid
+        };
+
+        if (online !== undefined) {
+            payload.online = online;
+        }
+
+        let options = {
+            flag: 1,
+            method: 'getgroupcount',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, function(err, data) {
+
+            if (err) {
+
+                callback && callback(err, null);
+                return;
+            }
             callback && callback(null, data);
         }, timeout);
     }
@@ -1977,33 +2035,6 @@ class RTMClient {
 
             callback && callback(null, data);
         }, timeout, true);
-    }
-
-    /**
-     *  
-     * rtmGate (33)
-     * 
-     * @param {string} ce
-     * @param {number} timeout
-     * @param {function} callback
-     * 
-     * @callback
-     * @param {Error} err
-     * @param {object} data
-     */
-    kickout(ce, timeout, callback) {
-
-        let payload = {
-            ce: ce
-        };
-
-        let options = {
-            flag: 1,
-            method: 'kickout',
-            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
-        };
-
-        sendQuest.call(this, this._baseClient, options, callback, timeout);
     }
 
     sendChat(to, msg, attrs, mid, timeout, callback) {
@@ -2926,14 +2957,6 @@ function auth(timeout) {
         }
 
         if (data && !data.ok) {
-
-            if (data.gate) {
-                
-                self._endpoint = data.gate;
-                onClose.call(self, true);
-                return;
-            }
-
             self.emit('error', new Error('token error!'));
             self.emit('login', { error: data });
         }

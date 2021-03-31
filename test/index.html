@@ -85,13 +85,13 @@
                 inputFrom.to.disabled = true;
                 inputFrom.login.disabled = true;
             
-                tester = baseTest(inputFrom.endpoint.value, pid, inputFrom.token.value, from, to);
+                tester = baseTest(inputFrom.endpoint.value, pid, inputFrom.token.value, new rtm.RTMConfig.Int64(from), to);
             }
         </script>
             
         <form id="rtmInfoFrom">
-            RTM Dispatch Endpoint: <input type="text" name="endpoint" value="52.82.27.68:13325">&nbsp;&nbsp;&nbsp;&nbsp; Project ID: <input type="text" name="pid" value="11000002"><br>
-            Login token: <input type="text" name="token" value="914A4D882A9C1236BD8DB810671E5CFB">&nbsp;&nbsp;&nbsp;&nbsp; From ID: <input type="text" name="from" value="654321">&nbsp;&nbsp;&nbsp;&nbsp; To ID: <input type="text" name="to" value="123789"><br>
+            RTM Dispatch Endpoint: <input type="text" name="endpoint" value="rtm-intl-frontgate.ilivedata.com:13325">&nbsp;&nbsp;&nbsp;&nbsp; Project ID: <input type="text" name="pid" value="80000048"><br>
+            Login token: <input type="text" name="token" value="2FF04853A5CA6D2335D74E2273CF7A15">&nbsp;&nbsp;&nbsp;&nbsp; From ID: <input type="text" name="from" value="53631033">&nbsp;&nbsp;&nbsp;&nbsp; To ID: <input type="text" name="to" value="123456"><br>
             <input type="button" name="login" value="login" onclick="checkInput()">
         </form>
 
@@ -136,7 +136,7 @@
 
                             if (err) {
 
-                                console.error('\n[ERR] sendFile:\n', err)
+                                console.error('\n[ERR] sendFile:\n', err);
                             }
                         });
 

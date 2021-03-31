@@ -44,7 +44,8 @@ declare module rtm {
         getFriends(timeout, callback);
         addGroupMembers(gid, uids, timeout, callback);
         deleteGroupMembers(gid, uids, timeout, callback);
-        getGroupMembers(gid, timeout, callback);
+        getGroupMembers(gid, online, timeout, callback);
+        getGroupCount(gid, online, timeout, callback);
         getUserGroups(timeout, callback);
         enterRoom(rid, timeout, callback);
         leaveRoom(rid, timeout, callback);
@@ -52,7 +53,6 @@ declare module rtm {
         getOnlineUsers(uids, timeout, callback);
         deleteMessage(mid, xid, type, timeout, callback);
 		getMessage(mid, xid, type, timeout, callback);
-        kickout(ce, timeout, callback);
 		sendChat(to, msg, attrs, mid, timeout, callback);
 		sendAudio(to, msg, attrs, mid, timeout, callback);
 		sendCmd(to, msg, attrs, mid, timeout, callback);

@@ -108,7 +108,7 @@ function TestCase (options, from, to) {
 
             //send to server
             client.on('login', function(data) {
-
+                console.log(data);
                 if (data.error) {
                     console.error("on login error and update token");
                     client.updateToken("xxx");
@@ -125,14 +125,24 @@ function TestCase (options, from, to) {
                 });
 
 
-                client.getP2PUnreadMessageNum([new rtm.RTMConfig.Int64(123), new rtm.RTMConfig.Int64(789)], new rtm.RTMConfig.Int64(1610424000000), [90], 3000, function(err, data){
+                /*client.getP2PUnreadMessageNum([new rtm.RTMConfig.Int64(123), new rtm.RTMConfig.Int64(789)], new rtm.RTMConfig.Int64(1610424000000), [90], 3000, function(err, data){
                     if (err) {
                         console.log(err);
                     } else {
                         console.log(data);
                     }
-                });
+                });*/
 
+
+                setInterval(function(){ 
+                    client.getGroupMembers(666, true, 3000, function(err, data){
+                        if (err) {
+                            console.log(err);
+                        } else {
+                            console.log(data);
+                        }
+                    });
+                }, 1000);
 
                 
 
