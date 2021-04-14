@@ -1,14 +1,16 @@
 'use strict'
 
 const RTMConfig = require('./RTMConfig');
+const RTMClient = require('./RTMClient');
 
 class RTMProcessor {
 
-    constructor() {
+    constructor(client) {
 
         fpnn.FPEvent.assign(this);
 
         this._map = {};
+        this._client = client;
 
         this._msgOptions = {
 
@@ -373,7 +375,7 @@ class RTMProcessor {
      * @param {object} data 
      */
     ping(data) {
-
+        this._client._lastPingTime = parseInt(Date.now() / 1000);
         this.emit(RTMConfig.SERVER_PUSH.recvPing, data);
     }
 }

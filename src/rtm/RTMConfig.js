@@ -1,7 +1,7 @@
 'use strict'
 
 const API_VERSION = '2.7.0';
-const SDK_VERSION = '1.1.5';
+const SDK_VERSION = '2.0.0';
 
 const ERROR_CODE = {
 	RTM_EC_INVALID_PROJECT_ID_OR_USER_ID: 200001,
@@ -19,6 +19,7 @@ const ERROR_CODE = {
 	RTM_EC_AUTH_DENIED: 200024,
 	RTM_EC_ADMIN_LOGIN: 200025,
 	RTM_EC_ADMIN_ONLY: 200026,
+	RTM_EC_INVALID_AUTH_TOEKN: 200027,
 
 	RTM_EC_LARGE_MESSAGE_OR_ATTRS: 200030,
 	RTM_EC_LARGE_FILE_OR_ATTRS: 200031,
@@ -56,6 +57,8 @@ const CHAT_TYPE = {
 	cmd: 32
 };
 
+const MAX_PING_SECONDS = 60;
+
 const SERVER_PUSH = {
 	kickOut: 'kickout',
 	kickOutRoom: 'kickoutroom',
@@ -83,6 +86,10 @@ const SERVER_PUSH = {
 };
 
 class RTMConfig {
+
+	static get ERROR_CODE() {
+		return ERROR_CODE;
+	}
 
 	static get Int64() {
 
@@ -125,6 +132,10 @@ class RTMConfig {
 
 	static get SDK_VERSION() {
 		return SDK_VERSION;
+	}
+
+	static get MAX_PING_SECONDS() {
+		return MAX_PING_SECONDS;
 	}
 }
 

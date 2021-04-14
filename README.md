@@ -32,64 +32,45 @@ yarn run build
 <script src="../libs/rtm.min.js"></script>
 ```
 
-## 注意： 如果没有ssl连接需求， 请将ssl参数设置为false，同时不需要传proxyEndpoint参数，这样有助于提高性能 ##
-
 ```javascript
 let client = new rtm.RTMClient({ 
-    dispatch: 'rtm-intl-frontgate.ilivedata.com:13325',
-    uid: new rtm.RTMConfig.Int64(654321),
-    token: '5C65CD872903AAB37211EC468B4A1364',
+    endpoint: 'rtm-intl-frontgate.ilivedata.com:13321',
+    //ssl_endpoint: 'rtm-intl-frontgate.ilivedata.com:13322',
     autoReconnect: false,
     connectionTimeout: 10 * 1000,
-    pid: 1000012,
-    ssl: true,
-    proxyEndpoint: 'rtm-intl-frontgate.ilivedata.com:13556',
+    pid: 1000012
 });
 
-client.on('error', function(err) {
-
+client.on('ErrorRecorder', function(err) {
+    console.error("on ErrorRecorder");
     console.error(err);
 });
 
-client.on('close', function() {
-
-    console.log('closed!');
+client.on('ReloginCompleted', function(successful ,retryAgain, errorCode, retriedCount) {
+    console.log("ReloginCompleted, successful: " + successful + " retryAgain: " + retryAgain + " errorCode: " + errorCode + " retriedCount: " + retriedCount);
 });
 
-client.on('login', function(data) {
-
-    if (data.error) {
-
-        console.error(data.error);
-        // need to get new token
-        return;
+client.on('SessionClosed', function(errorCode) {
+    console.log("SessionClosed, errorCode: " + errorCode);
+    if (errorCode == rtm.RTMConfig.ERROR_CODE.RTM_EC_INVALID_AUTH_TOEKN) {
+        // token error, need to get a new token and login again.
     }
+});
 
-    //send to server
-    client.sendMessage(new rtm.RTMConfig.Int64(123789), 8, 'hello !', '', new rtm.RTMConfig.Int64(0), 10 * 1000, function(err, data) {
+client.login(uid, token, function(ok, errorCode) {
 
-        if (err) {
+    if (errorCode == fpnn.FPConfig.ERROR_CODE.FPNN_EC_OK) {
 
-            if (err.hasOwnProperty('mid')) {
-
-                console.error('\n mid:' + err.mid.toString(), err.error);
-                return;
-            }
-
-            console.error('\n ', err);
+        if (!ok) {
+            // token error, need to get a new token
+            return;
+        } else {
+            // login successfully
         }
 
-        if (data) {
-
-            if (data.hasOwnProperty('mid')) {
-
-                console.log('\n mid:' + data.mid.toString(), data.payload);
-                return;
-            }
-
-            console.log('\n ', data);
-        }
-    });
+    } else {
+        // login error
+    }
 });
 
 //push service
@@ -100,7 +81,31 @@ client.processor.on(pushName, function(data) {
     // console.log(data.mid.toString());
 });
 
-client.login();
+//send message 
+client.sendMessage(new rtm.RTMConfig.Int64(123789), 8, 'hello !', '', new rtm.RTMConfig.Int64(0), 10 * 1000, function(err, data) {
+
+    if (err) {
+
+        if (err.hasOwnProperty('mid')) {
+
+            console.error('\n mid:' + err.mid.toString(), err.error);
+            return;
+        }
+
+        console.error('\n ', err);
+    }
+
+    if (data) {
+
+        if (data.hasOwnProperty('mid')) {
+
+            console.log('\n mid:' + data.mid.toString(), data.payload);
+            return;
+        }
+
+        console.log('\n ', data);
+    }
+});
 
 // destroy
 // client.destroy();
@@ -110,37 +115,47 @@ client.login();
 [Wechat Version](README-WECHAT.md)
 
 #### Events ####
+
 * `event`:
-    * `login`: 登陆
-        * `data.endpoint`: **(string)** 当前连接的RTMGate地址, 可在本地缓存, 下次登陆可使用该地址以加速登陆过程, **每次登陆成功需更新本地缓存**
-        * `data.error`: **(object)** auth失败, token失效需重新获取
+    * `ErrorRecorder`: 内部异常信息输出
+        * `err`: **(FPError)** 异常错误结构
+    
+ErrorRecorder事件只用于异常信息的记录，可将SDK内部产生的一些异常状态和流程输出用于问题排查，请勿在该事件中进行任何其他操作，如重连等。
 
-    * `error`: 异常
-        * `err`: **(Error)**
+* `ReloginCompleted`: 重连完成事件
+    * `successful`: **(Bool)** 重连是否成功
+    * `retryAgain`: **(Bool)** 是否会进行下一次重连尝试
+    * `errorCode`: **(Int))** 本次重连收到的错误码
+    * `retriedCount`: **(Int)** 已经尝试重连了多少次
 
-    * `close`: 连接关闭
-        * `retry`: **(bool)** 是否自动重连
+在进行自动重连时，每次重连完成都会触发ReloginCompleted事件。
+
+* `SessionClosed`: 连接关闭事件
+    * `errorCode`: **(Int)** 造成连接关闭的错误码
 
 #### API ####
 * `constructor(options)`: 构造RTMClient
-    * `options.dispatch`: **(Optional | string)** Dispatch服务地址, RTM提供
+    * `options.endpoint`: **(Optional | string)** rtmGated服务地址, RTM提供
+    * `options.ssl_endpoint`: **(Optional | string)** ssl加密rtmGated服务地址, RTM提供
     * `options.pid`: **(Required | number)** 应用编号, RTM提供
-    * `options.uid`: **(Required | Int64)** 用户ID
-    * `options.token`: **(Required | string)** 用户登录Token, RTM提供
-    * `options.autoReconnect`: **(Optional | bool)** 是否自动重连, 默认: `false`
+    * `options.autoReconnect`: **(Optional | bool)** 是否自动重连, 默认: `true`
     * `options.connectionTimeout`: **(Optional | number)** 超时时间(ms), 默认: `30 * 1000`
-    * `options.version`: **(Optional | string)** 服务器版本号, RTM提供
+    * `options.maxPingIntervalSeconds`: **(Optional | number)** 心跳检查时间，超过多少秒没收到心跳既认为连接断开, 默认: `60`
     * `options.attrs`: **(Optional | object[string, string])** 设置用户端信息, 保存在当前链接中, 客户端可以获取到
-    * `options.ssl`: **(Optional | string)** 是否开启SSL加密, 若开启需设置代理地址 默认: `true`
     * `options.platformImpl`: **(Optional | Object)** 平台相关接口注入, 默认: `new BrowserImpl()`
-    * `options.proxyEndpoint`: **(Optional | string)** 若开启SSL加密, 需设置代理地址, 测试代理: `highras.ifunplus.cn:13550`
     * `options.md5`: **(Optional | function)** `md5`字符串加密方法
+    * `options.regressiveStrategy`: **(Optional | Object)** 退行性重连策略
+
+参数endpoint和ssl_endpoint必须至少存在一个
+
+* `options.regressiveStrategy`: 退行性重连策略
+    * `startConnectFailedCount`: 连接失败多少次后，开始退行性处理,默认3
+    * `maxIntervalSeconds`: 退行性重连最大时间间隔,默认8
+    * `linearRegressiveCount`: 从第一次退行性连接开始，到最大链接时间，允许尝试几次连接，每次时间间隔都会增大,默认4
 
 * `processor`: **(RTMProcessor)** 监听PushService的句柄
 
-* `login(endpoint, ipv6)`: 连接并登陆 
-    * `endpoint`: **(Optional | string)** RTMGate服务地址, 由Dispatch服务获取, 或由RTM提供
-    * `ipv6`: **(Optional | bool)** 是否为IPV6地址格式, 默认: `false`
+* `login(uid, token)`: 连接并登陆 
 
 * `destroy()`: 断开连接并开始销毁
 

@@ -7,7 +7,7 @@
   "author": "Dixun",
   "license": "MIT",
   "scripts": {
-    "build": "webpack"
+    "build": "webpack --mode production"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",

@@ -2,19 +2,15 @@
 
 function baseTest(endpoint, pid, token, from, to) {
 
-    console.log('connect to dispatch: ', endpoint);
-
     let tester = TestCase({
-        dispatch: endpoint,
+        endpoint: endpoint,
+        //ssl_endpoint: endpoint,
         uid: from,
         token: token,
         autoReconnect: true,
-        connectionTimeout: 60 * 1000,
+        connectionTimeout: 10 * 1000,
         pid: pid,
-        attrs: { user: 'test user attrs' },
-        /*ssl: true,
-        proxyEndpoint: 'rtm-wss-test-nx.livedata.top:13556'*/
-        ssl: false
+        attrs: { user: 'test user attrs' }
     }, from, to);
 
     tester.test();
@@ -30,8 +26,8 @@ function asyncStressTest() {
         autoReconnect: true,
         connectionTimeout: 60 * 1000,
         pid: 0,
-        ssl: true,
-        proxyEndpoint: 'rtm-intl-frontgate.ilivedata.com:13556'
+        //ssl: true,
+        //proxyEndpoint: 'rtm-intl-frontgate.ilivedata.com:13556'
     }, '10.63.2.47:13013');
 
     tester.buildTesters(1, 150);

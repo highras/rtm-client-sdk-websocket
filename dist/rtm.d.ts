@@ -2,8 +2,7 @@ declare module rtm {
     export class RTMClient {
         constructor(options);
         processor;
-        updateToken(token);
-        login(endpoint, ipv6);
+        login(uid, token, callback, timeout);
         destroy();
         sendMessage(to, mtype, msg, attrs, mid, timeout, callback);
         sendGroupMessage(gid, mtype, msg, attrs, mid, timeout, callback);
@@ -19,6 +18,8 @@ declare module rtm {
         getP2PMessage(ouid, desc, num, begin, end, lastid, mtypes, timeout, callback);
         fileToken(cmd, tos, to, rid, gid, timeout, callback);
         close();
+        startAutoReconnect();
+        bye();
         addAttrs(attrs, timeout, callback);
         getAttrs(timeout, callback);
         addDebugLog(msg, attrs, timeout, callback);
@@ -113,12 +114,5 @@ declare module rtm {
         on(type, callback);
         emit();
         removeEvent();
-    }
-
-    export class RTMProxy {
-        constructor(endpoint);
-        endpoint;
-        targetEndpoint;
-        buildProxyData(data);
     }
 }
