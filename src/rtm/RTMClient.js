@@ -277,7 +277,11 @@ function fileSendProcess(ops, file, mid, callback, timeout) {
             });
 
             fileClient.on('error', function(err) {
-                onErrorRecorder.call(self, new fpnn.FPError(RTMConfig.ERROR_CODE.RTM_EC_UNKNOWN_ERROR, err));
+                let errorCode = RTMConfig.ERROR_CODE.RTM_EC_UNKNOWN_ERROR;
+                if (err.code !== undefined) {
+                    errorCode = err.code;
+                }
+                onErrorRecorder.call(self, new fpnn.FPError(errorCode, err));
             });
 
             fileClient.connect();
@@ -409,8 +413,11 @@ function isException(isAnswerErr, data) {
     }
 
     if (data instanceof Error) {
-
-        return new fpnn.FPError(RTMConfig.ERROR_CODE.RTM_EC_UNKNOWN_ERROR, data);
+        let errorCode = RTMConfig.ERROR_CODE.RTM_EC_UNKNOWN_ERROR;
+        if (data.code !== undefined) {
+            errorCode = data.code;
+        }
+        return new fpnn.FPError(errorCode, data);
     }
 
     if (isAnswerErr) {
@@ -429,7 +436,7 @@ function sendQuest(client, options, callback, timeout, hasBinary = false) {
 
     if (!client) {
 
-        callback && callback(new Error('client has been destroyed!'), null);
+        callback && callback(new fpnn.FPError(fpnn.FPConfig.ERROR_CODE.FPNN_EC_CORE_INVALID_CONNECTION, Error('invalid connection')), null);
         return;
     }
 

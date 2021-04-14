@@ -71,7 +71,7 @@ client.login(uid, token, function(ok, errorCode) {
     } else {
         // login error
     }
-});
+}, 60);
 
 //push service
 let pushName = rtm.RTMConfig.SERVER_PUSH.recvMessage;
@@ -146,7 +146,7 @@ ErrorRecorder事件只用于异常信息的记录，可将SDK内部产生的一�
     * `options.md5`: **(Optional | function)** `md5`字符串加密方法
     * `options.regressiveStrategy`: **(Optional | Object)** 退行性重连策略
 
-参数endpoint和ssl_endpoint必须至少存在一个
+参数endpoint和ssl_endpoint必须至少存在一个, ssl_endpoint代表加密连接方式，当存在ssl_endpoint时忽略endpoint
 
 * `options.regressiveStrategy`: 退行性重连策略
     * `startConnectFailedCount`: 连接失败多少次后，开始退行性处理,默认3
