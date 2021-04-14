@@ -71,7 +71,7 @@ client.login(uid, token, function(ok, errorCode) {
     } else {
         // login error
     }
-}, 60);
+}, 60 * 1000);
 
 //push service
 let pushName = rtm.RTMConfig.SERVER_PUSH.recvMessage;
@@ -155,7 +155,7 @@ ErrorRecorder事件只用于异常信息的记录，可将SDK内部产生的一�
 
 * `processor`: **(RTMProcessor)** 监听PushService的句柄
 
-* `login(uid, token)`: 连接并登陆 
+* `login(uid, token, callback, timeout)`: 连接并登陆 
 
 * `destroy()`: 断开连接并开始销毁
 
