@@ -93,11 +93,17 @@ declare module rtm {
     }
 
     export class RTMConfig {
+        static ERROR_CODE;
         static Int64;
+        static Uint64;
         static MsgPack;
         static FILE_TYPE;
+        static CHAT_TYPE;
         static SERVER_PUSH;
         static MID_TTL;
+        static API_VERSION;
+        static SDK_VERSION;
+        static MAX_PING_SECONDS;
     }
 
     export class RTMProcessor {
