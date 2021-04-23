@@ -38,7 +38,8 @@ let client = new rtm.RTMClient({
     //ssl_endpoint: 'rtm-intl-frontgate.ilivedata.com:13322',
     autoReconnect: false,
     connectionTimeout: 10 * 1000,
-    pid: 1000012
+    pid: 1000012,
+    //platformImpl: new fpnn.WechatImpl()
 });
 
 client.on('ErrorRecorder', function(err) {
