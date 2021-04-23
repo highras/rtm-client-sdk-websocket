@@ -24,7 +24,8 @@ function connectRTMGate(callback, timeout) {
     this._baseClient = new fpnn.FPClient({ 
         endpoint: buildEndpoint.call(this, this._endpoint), 
         autoReconnect: false,
-        connectionTimeout: this._connectionTimeout
+        connectionTimeout: this._connectionTimeout,
+        platformImpl: this._platformImpl
     });
 
     let self = this;
@@ -269,7 +270,8 @@ function fileSendProcess(ops, file, mid, callback, timeout) {
 
                 endpoint: buildEndpoint.call(self, endpoint),
                 autoReconnect: false,
-                connectionTimeout: timeout
+                connectionTimeout: timeout,
+                platformImpl: self._platformImpl
             });
 
             fileClient.on('close', function(){
@@ -501,6 +503,7 @@ class RTMClient {
         this._autoReconnect = options.autoReconnect !== undefined ? options.autoReconnect : true;
         this._connectionTimeout = options.connectionTimeout || 30 * 1000;
         this._maxPingIntervalSeconds = RTMConfig.MAX_PING_SECONDS;
+        this._platformImpl = undefined;
 
         if (options.maxPingIntervalSeconds !== undefined) {
             this._maxPingIntervalSeconds = options.maxPingIntervalSeconds;
@@ -536,6 +539,10 @@ class RTMClient {
         if (options.ssl_endpoint != undefined) {
             this._endpoint = options.ssl_endpoint;
             this._ssl = true;
+        }
+
+        if (options.platformImpl !== undefined) {
+            this._platformImpl = options.platformImpl;
         }
 
         this._md5 = options.md5 || null;
