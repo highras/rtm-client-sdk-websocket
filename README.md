@@ -143,7 +143,7 @@ ErrorRecorder事件只用于异常信息的记录，可将SDK内部产生的一�
     * `options.connectionTimeout`: **(Optional | number)** 超时时间(ms), 默认: `30 * 1000`
     * `options.maxPingIntervalSeconds`: **(Optional | number)** 心跳检查时间，超过多少秒没收到心跳既认为连接断开, 默认: `60`
     * `options.attrs`: **(Optional | object[string, string])** 设置用户端信息, 保存在当前链接中, 客户端可以获取到
-    * `options.platformImpl`: **(Optional | Object)** 平台相关接口注入, 默认: `new BrowserImpl()`
+    * `options.platformImpl`: **(Optional | Object)** 平台相关接口注入, 默认: `new fpnn.BrowserImpl()`, 微信小程序： `new fpnn.WechatImpl()`
     * `options.md5`: **(Optional | function)** `md5`字符串加密方法
     * `options.regressiveStrategy`: **(Optional | Object)** 退行性重连策略
 
