@@ -77,4 +77,3 @@ client.processor.on(pushName, function (data) {
     console.log('\n[PUSH] ' + pushName, data);
 });
 
-client.login();
