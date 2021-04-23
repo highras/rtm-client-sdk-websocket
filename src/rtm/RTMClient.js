@@ -247,7 +247,7 @@ function fileSendProcess(ops, file, mid, callback, timeout) {
 
         if (!token || !endpoint) {
 
-            callback && callback({ mid: mid, error: new Error(JSON.stringify(data)) }, null);
+            callback && callback({ mid: mid, error: new fpnn.FPError(RTMConfig.ERROR_CODE.RTM_EC_UNKNOWN_ERROR, new Error(JSON.stringify(data))) }, null);
             return;
         }
 
@@ -259,7 +259,7 @@ function fileSendProcess(ops, file, mid, callback, timeout) {
 
             if (!content) {
 
-                callback && callback({ mid: mid, error: new Error('no file content!') }, null);
+                callback && callback({ mid: mid, error: new fpnn.FPError(RTMConfig.ERROR_CODE.RTM_EC_UNKNOWN_ERROR, new Error('no file content!')) }, null);
                 return;
             }
 
