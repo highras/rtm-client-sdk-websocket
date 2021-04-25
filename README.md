@@ -59,7 +59,7 @@ client.on('SessionClosed', function(errorCode) {
     }
 });
 
-client.login(uid, token, function(ok, errorCode) {
+client.login(new rtm.RTMConfig.Int64(uid), token, function(ok, errorCode) {
 
     if (errorCode == fpnn.FPConfig.ERROR_CODE.FPNN_EC_OK) {
 
