@@ -42,6 +42,7 @@ let client = new rtm.RTMClient({
     //platformImpl: new fpnn.WechatImpl()
 });
 
+// ErrorRecorder仅用于异常信息的收集调试，请勿在该事件回调中进行重连等相关操作
 client.on('ErrorRecorder', function(err) {
     console.error("on ErrorRecorder");
     console.error(err);
