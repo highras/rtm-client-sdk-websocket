@@ -36,7 +36,7 @@ yarn run build
 let client = new rtm.RTMClient({ 
     endpoint: 'rtm-intl-frontgate.ilivedata.com:13321',
     //ssl_endpoint: 'rtm-intl-frontgate.ilivedata.com:13322',
-    autoReconnect: false,
+    autoReconnect: true,
     connectionTimeout: 10 * 1000,
     pid: 1000012,
     //platformImpl: new fpnn.WechatImpl()
