@@ -229,7 +229,6 @@ function fileSendProcess(ops, file, mid, callback, timeout) {
     filetoken.call(self, ops, function(err, data) {
 
         if (err) {
-
             callback && callback({ mid: mid, error: err }, null);
             return;
         }
@@ -238,11 +237,13 @@ function fileSendProcess(ops, file, mid, callback, timeout) {
         let endpoint = data["endpoint"];
 
         let ext = null;
-        let index = file.name.lastIndexOf('.');
+        if (file != undefined && file.name !== undefined) {
+            let index = file.name.lastIndexOf('.');
 
-        if (index != -1) {
+            if (index != -1) {
 
-            ext = file.name.slice(index + 1);
+                ext = file.name.slice(index + 1);
+            }
         }
 
         if (!token || !endpoint) {
@@ -263,12 +264,18 @@ function fileSendProcess(ops, file, mid, callback, timeout) {
                 return;
             }
 
-            let md5_content = md5_encode.call(self, content);
-            let sign = md5_encode.call(self, md5_content + ':' + token);
+            let md5_content = md5_encode.call(self, content).toLowerCase();
+            let sign = md5_encode.call(self, md5_content + ':' + token).toLowerCase();
+
+            let ep = self._endpoint.split(':');
+            
+            var fileEndpoint = "ws://fileproxy-" + ep[0] + ":13461/service/websocket";
+            if (self._ssl) {
+                fileEndpoint = "wss://fileproxy-" + ep[0] + ":13462/service/websocket";
+            }
 
             let fileClient = new fpnn.FPClient({ 
-
-                endpoint: buildEndpoint.call(self, endpoint),
+                endpoint: fileEndpoint,
                 autoReconnect: false,
                 connectionTimeout: timeout,
                 platformImpl: self._platformImpl
@@ -286,21 +293,25 @@ function fileSendProcess(ops, file, mid, callback, timeout) {
                 onErrorRecorder.call(self, new fpnn.FPError(errorCode, err));
             });
 
+            fileClient.on('connect', function() {
+                let options = {
+                    token: token,
+                    sign: sign,
+                    ext: ext,
+                    file: content,
+                    endpoint: endpoint
+                };
+
+                for (let key in ops) {
+
+                    options[key] = ops[key];
+                }
+
+                sendFileCommon.call(self, fileClient, options, mid, callback, timeout);
+
+            });
+
             fileClient.connect();
-
-            let options = {
-                token: token,
-                sign: sign,
-                ext: ext,
-                file: content
-            };
-
-            for (let key in ops) {
-
-                options[key] = ops[key];
-            }
-
-            sendFileCommon.call(self, fileClient, options, mid, callback, timeout);
         };
         
         reader.readAsArrayBuffer(file);
@@ -335,14 +346,14 @@ function sendFileCommon(fileClient, ops, mid, callback, timeout) {
     let payload = {
         pid: this._pid,
         from: this._uid,
-        mid: mid
+        mid: mid,
+        endpoint: ops.endpoint
     };
 
     for (let key in ops) {
 
         if (key == 'sign') {
-
-            payload.attrs = JSON.stringify({ sign: ops.sign, ext: ops.ext });
+            payload.attrs = JSON.stringify({ rtm: {sign: ops.sign, ext: ops.ext } });
             continue;
         }
 
