@@ -258,6 +258,9 @@ function fileSendProcess(ops, file, mid, callback, timeout) {
 
             let content = Buffer.from(e.target.result);
 
+            console.log("content:");
+            console.log(content.length);
+
             if (!content) {
 
                 callback && callback({ mid: mid, error: new fpnn.FPError(RTMConfig.ERROR_CODE.RTM_EC_UNKNOWN_ERROR, new Error('no file content!')) }, null);
@@ -388,7 +391,7 @@ function sendFileCommon(fileClient, ops, mid, callback, timeout) {
 
         if (data.mtime !== undefined) {
 
-            data.mtime = new RTMConfig.Int64(data.mtime);
+            data.mtime = new RTMConfig.Int64('' + data.mtime);
         }
 
         callback && callback(null, { mid: payload.mid, payload: data });
@@ -806,7 +809,7 @@ class RTMClient {
             if (p2p) {
                 let bp2p = [];
                 p2p.forEach(function(item, index) {
-                    bp2p[index] = new RTMConfig.Int64(item);
+                    bp2p[index] = new RTMConfig.Int64('' + item);
                 });
                 data.p2p = p2p;
             }
@@ -815,7 +818,7 @@ class RTMClient {
             if (group) {
                 let bgroup = [];
                 group.forEach(function(item, index) {
-                    bgroup[index] = new RTMConfig.Int64(item);
+                    bgroup[index] = new RTMConfig.Int64('' + item);
                 });
                 data.group = group;
             }
@@ -858,14 +861,14 @@ class RTMClient {
             let p2p = data['p2p'];
             if (p2p) {
                 for (var key in p2p) {
-                    result['p2p'][new RTMConfig.Int64(key)] = p2p[key];
+                    result['p2p'][new RTMConfig.Int64('' + key)] = p2p[key];
                 }
             }
 
             let ltime = data['ltime'];
             if (ltime) {
                 for (var key in ltime) {
-                    result['ltime'][new RTMConfig.Int64(key)] = new RTMConfig.Int64(ltime[key]);
+                    result['ltime'][new RTMConfig.Int64('' + key)] = new RTMConfig.Int64('' + ltime[key]);
                 }
             }
 
@@ -907,14 +910,14 @@ class RTMClient {
             let group = data['group'];
             if (group) {
                 for (var key in group) {
-                    result['group'][new RTMConfig.Int64(key)] = group[key];
+                    result['group'][new RTMConfig.Int64('' + key)] = group[key];
                 }
             }
 
             let ltime = data['ltime'];
             if (ltime) {
                 for (var key in ltime) {
-                    result['ltime'][new RTMConfig.Int64(key)] = new RTMConfig.Int64(ltime[key]);
+                    result['ltime'][new RTMConfig.Int64('' + key)] = new RTMConfig.Int64('' + ltime[key]);
                 }
             }
 
@@ -957,7 +960,7 @@ class RTMClient {
             if (p2p) {
                 let bp2p = [];
                 p2p.forEach(function(item, index) {
-                    bp2p[index] = new RTMConfig.Int64(item);
+                    bp2p[index] = new RTMConfig.Int64('' + item);
                 });
                 data.p2p = p2p;
             }
@@ -966,7 +969,7 @@ class RTMClient {
             if (group) {
                 let bgroup = [];
                 group.forEach(function(item, index) {
-                    bgroup[index] = new RTMConfig.Int64(item);
+                    bgroup[index] = new RTMConfig.Int64('' + item);
                 });
                 data.group = group;
             }
@@ -1037,15 +1040,15 @@ class RTMClient {
                     } catch (err) {}
 
                     msgs[index] = {
-                        id: new RTMConfig.Int64(item[0]),
-                        from: new RTMConfig.Int64(item[1]),
+                        id: new RTMConfig.Int64('' + item[0]),
+                        from: new RTMConfig.Int64(''+ item[1]),
                         mtype: Number(item[2]),
-                        mid: new RTMConfig.Int64(item[3]),
+                        mid: new RTMConfig.Int64('' + item[3]),
                         deleted: item[4],
                         msg: msg,
                         binary: binary,
                         attrs: attrs,
-                        mtime: new RTMConfig.Int64(item[7])
+                        mtime: new RTMConfig.Int64('' + item[7])
                     };
                 });
             }
@@ -1116,15 +1119,15 @@ class RTMClient {
                     } catch (err) {}
 
                     msgs[index] = {
-                        id: new RTMConfig.Int64(item[0]),
-                        from: new RTMConfig.Int64(item[1]),
+                        id: new RTMConfig.Int64('' + item[0]),
+                        from: new RTMConfig.Int64('' + item[1]),
                         mtype: Number(item[2]),
-                        mid: new RTMConfig.Int64(item[3]),
+                        mid: new RTMConfig.Int64('' + item[3]),
                         deleted: item[4],
                         msg: msg,
                         binary: binary,
                         attrs: attrs,
-                        mtime: new RTMConfig.Int64(item[7])
+                        mtime: new RTMConfig.Int64('' + item[7])
                     };
                 });
             }
@@ -1194,15 +1197,15 @@ class RTMClient {
                     } catch (err) {}
 
                     msgs[index] = {
-                        id: new RTMConfig.Int64(item[0]),
-                        from: new RTMConfig.Int64(item[1]),
+                        id: new RTMConfig.Int64('' + item[0]),
+                        from: new RTMConfig.Int64('' + item[1]),
                         mtype: Number(item[2]),
-                        mid: new RTMConfig.Int64(item[3]),
+                        mid: new RTMConfig.Int64('' + item[3]),
                         deleted: item[4],
                         msg: msg,
                         binary: binary,
                         attrs: attrs,
-                        mtime: new RTMConfig.Int64(item[7])
+                        mtime: new RTMConfig.Int64('' + item[7])
                     };
                 });
             }
@@ -1273,15 +1276,15 @@ class RTMClient {
                     } catch (err) {}
 
                     msgs[index] = {
-                        id: new RTMConfig.Int64(item[0]),
+                        id: new RTMConfig.Int64('' + item[0]),
                         direction: Number(item[1]),
                         mtype: Number(item[2]),
-                        mid: new RTMConfig.Int64(item[3]),
+                        mid: new RTMConfig.Int64('' + item[3]),
                         deleted: item[4],
                         msg: msg,
                         binary: binary,
                         attrs: item[6],
-                        mtime: new RTMConfig.Int64(item[7])
+                        mtime: new RTMConfig.Int64('' + item[7])
                     };
                 });
             }
@@ -2041,11 +2044,11 @@ class RTMClient {
             }
 
             if (data.id !== undefined) {
-                data.id = new RTMConfig.Int64(data.id);
+                data.id = new RTMConfig.Int64('' + data.id);
             }
 
             if (data.mtime !== undefined) {
-                data.mtime = new RTMConfig.Int64(data.mtime);
+                data.mtime = new RTMConfig.Int64('' + data.mtime);
             }
 
             callback && callback(null, data);
@@ -2369,7 +2372,7 @@ class RTMClient {
 
                 uids.forEach(function(item, index) {
 
-                    buids[index] = new RTMConfig.Int64(item);
+                    buids[index] = new RTMConfig.Int64('' + item);
                 });
 
                 callback && callback(null, buids);
