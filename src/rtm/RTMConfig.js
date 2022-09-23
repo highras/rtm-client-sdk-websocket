@@ -1,7 +1,7 @@
 'use strict'
 
 const API_VERSION = '2.7.0';
-const SDK_VERSION = '2.7.3';
+const SDK_VERSION = '2.7.4';
 
 const ERROR_CODE = {
 	RTM_EC_INVALID_PROJECT_ID_OR_USER_ID: 200001,
@@ -91,15 +91,15 @@ class RTMConfig {
 		return ERROR_CODE;
 	}
 
-	static get Int64() {
+	/*static get Int64() {
 
 		return Int64BE;
-	}
+	}*/
 
-	static get Uint64() {
+	/*static get Uint64() {
 
 		return Uint64BE;
-	}
+	}*/
 
 	static get MsgPack() {
 
@@ -137,6 +137,14 @@ class RTMConfig {
 	static get MAX_PING_SECONDS() {
 		return MAX_PING_SECONDS;
 	}
+}
+
+RTMConfig.Int64 = function(param) {
+	return new Int64BE('' + param);
+}
+
+RTMConfig.Uint64 = function(param) {
+	return new Uint64BE('' + param);
 }
 
 module.exports = RTMConfig;
