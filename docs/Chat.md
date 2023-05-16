@@ -207,3 +207,70 @@
     * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
         * `err`: **(Error)** 
         * `data`: **(object)** 
+
+* `getP2PConversationList(mtime, mtypes, timeout, callback)`: 获取所有p2p会话列表
+    * `mtime`: **(Optional | int64)** 毫秒级时间戳，大于该时间戳的消息被计为未读消息，未读消息的最后一条作为会话的最后一条消息。不传则默认取上次离线时间。
+    * `mtypes`: **(Optional | set<int8>)** 消息类型列表，不传则默认查询mtype为30-50的消息
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)** 
+        * `data`: **(object)** 
+            * conversations参数为会话id列表，为p2p会话中对方的uid
+            * unreads参数为未读数量列表
+            * msgs参数为最后一条消息列表
+
+* `getP2PUnreadConversationList(mtime, mtypes, timeout, callback)`: 获取所有p2p会话列表
+    * `mtime`: **(Optional | int64)** 毫秒级时间戳，大于该时间戳的消息被计为未读消息，未读消息的最后一条作为会话的最后一条消息。不传则默认取上次离线时间。
+    * `mtypes`: **(Optional | set<int8>)** 消息类型列表，不传则默认查询mtype为30-50的消息
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)** 
+        * `data`: **(object)** 
+            * conversations参数为会话id列表，为p2p会话中对方的uid
+            * unreads参数为未读数量列表
+            * msgs参数为最后一条消息列表
+
+* `getGroupConversationList(mtime, mtypes, timeout, callback)`: 获取所有群组会话列表
+    * `mtime`: **(Optional | int64)** 毫秒级时间戳，大于该时间戳的消息被计为未读消息，未读消息的最后一条作为会话的最后一条消息。不传则默认取上次离线时间。
+    * `mtypes`: **(Optional | set<int8>)** 消息类型列表，不传则默认查询mtype为30-50的消息
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)** 
+        * `data`: **(object)** 
+            * conversations参数为会话id列表，为p2p会话中对方的uid
+            * unreads参数为未读数量列表
+            * msgs参数为最后一条消息列表
+
+* `getGroupUnreadConversationList(mtime, mtypes, timeout, callback)`: 获取所有群组未读会话列表
+    * `mtime`: **(Optional | int64)** 毫秒级时间戳，大于该时间戳的消息被计为未读消息，未读消息的最后一条作为会话的最后一条消息。不传则默认取上次离线时间。
+    * `mtypes`: **(Optional | set<int8>)** 消息类型列表，不传则默认查询mtype为30-50的消息
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)** 
+        * `data`: **(object)** 
+            * conversations参数为会话id列表，为p2p会话中对方的uid
+            * unreads参数为未读数量列表
+            * msgs参数为最后一条消息列表
+
+* `getUnreadConversationList(clear, mtime, mtypes, timeout, callback)`: 获取所有群组未读会话列表
+    * `clear`: **(Optional | bool)** 是否清除会话未读状态
+    * `mtime`: **(Optional | int64)** 毫秒级时间戳，大于该时间戳的消息被计为未读消息，未读消息的最后一条作为会话的最后一条消息。不传则默认取上次离线时间。
+    * `mtypes`: **(Optional | set<int8>)** 消息类型列表，不传则默认查询mtype为30-50的消息
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(Error)** 
+        * `data`: **(object)** 
+            * groupConversations参数为群组会话id列表，为群组id
+            * groupUnreads参数为群组会话未读数量列表
+            * groupMsgs参数为群组会话最后一条消息列表
+            * p2pConversations参数为P2P会话id列表，为p2p会话中对方的uid
+            * p2pUnreads参数为P2P会话未读数量列表
+            * p2pMsgs参数为P2P会话最后一条消息列表
+
+* `removeSession(to, timeout, callback)`: 删除p2p会话
+    * `to`: **(Required | Int64)** p2p会话中对方的uid
+    * `timeout`: **(Optional | number)** 超时时间(ms), 默认: `20 * 1000`
+    * `callback`: **(Optional | function)** 回调方法, `callback(err, data)`
+        * `err`: **(object[mid:Int64, error:Error])** 
+        * `data`: **(object)** 
+

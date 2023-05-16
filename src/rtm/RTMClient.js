@@ -1463,11 +1463,15 @@ class RTMClient {
         sendQuest.call(this, this._baseClient, options, callback, timeout);
     }
 
-    textCheck(text, timeout, callback) {
+    textCheck(text, strategyId, timeout, callback) {
 
         let payload = {
-            text: text
+            text: text,
         };
+
+        if (strategyId !== undefined) {
+            payload.strategyId = strategyId;
+        }
 
         let options = {
             flag: 1,
@@ -1478,12 +1482,16 @@ class RTMClient {
         sendQuest.call(this, this._baseClient, options, callback, timeout);
     }
 
-    imageCheck(image, type, timeout, callback) {
+    imageCheck(image, type, strategyId, timeout, callback) {
 
         let payload = {
             image: image,
-            type: type
+            type: type,
         };
+
+        if (strategyId !== undefined) {
+            payload.strategyId = strategyId;
+        }
 
         let options = {
             flag: 1,
@@ -1494,7 +1502,7 @@ class RTMClient {
         sendQuest.call(this, this._baseClient, options, callback, timeout);
     }
 
-    audioCheck(audio, type, lang, codec, srate, timeout, callback) {
+    audioCheck(audio, type, lang, codec, srate, strategyId, timeout, callback) {
 
         let payload = {
             audio: audio,
@@ -1512,6 +1520,10 @@ class RTMClient {
             payload.srate = srate;
         }
 
+        if (strategyId !== undefined) {
+            payload.strategyId = strategyId;
+        }
+
         let options = {
             flag: 1,
             method: 'acheck',
@@ -1521,13 +1533,17 @@ class RTMClient {
         sendQuest.call(this, this._baseClient, options, callback, timeout);
     }
 
-    videoCheck(video, type, videoName, timeout, callback) {
+    videoCheck(video, type, videoName, strategyId, timeout, callback) {
 
         let payload = {
             video: video,
             type: type,
             videoName: videoName
         };
+
+        if (strategyId !== undefined) {
+            payload.strategyId = strategyId;
+        }
 
         let options = {
             flag: 1,
@@ -2415,6 +2431,135 @@ class RTMClient {
 
         fileSendProcess.call(this, ops, file, mid, callback, timeout);
     }
+
+    getP2PConversationList(mtime, mtypes, timeout, callback) {
+        let payload = {
+
+        };
+
+        if (mtime !== undefined) {
+            payload.mtime = mtime;
+        }
+
+        if (mtypes !== undefined) {
+            payload.mtypes = mtypes;
+        }
+
+        let options = {
+            flag: 1,
+            method: 'getp2pconversationlist',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    getP2PUnreadConversationList(mtime, mtypes, timeout, callback) {
+        let payload = {
+
+        };
+
+        if (mtime !== undefined) {
+            payload.mtime = mtime;
+        }
+
+        if (mtypes !== undefined) {
+            payload.mtypes = mtypes;
+        }
+
+        let options = {
+            flag: 1,
+            method: 'getp2punreadconversationlist',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    getGroupConversationList(mtime, mtypes, timeout, callback) {
+        let payload = {
+
+        };
+
+        if (mtime !== undefined) {
+            payload.mtime = mtime;
+        }
+
+        if (mtypes !== undefined) {
+            payload.mtypes = mtypes;
+        }
+
+        let options = {
+            flag: 1,
+            method: 'getgroupconversationlist',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    getGroupUnreadConversationList(mtime, mtypes, timeout, callback) {
+        let payload = {
+
+        };
+
+        if (mtime !== undefined) {
+            payload.mtime = mtime;
+        }
+
+        if (mtypes !== undefined) {
+            payload.mtypes = mtypes;
+        }
+
+        let options = {
+            flag: 1,
+            method: 'getgroupunreadconversationlist',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    getUnreadConversationList(clear, mtime, mtypes, timeout, callback) {
+        let payload = {
+
+        };
+
+        if (clear !== undefined) {
+            payload.clear = clear;
+        }
+
+        if (mtime !== undefined) {
+            payload.mtime = mtime;
+        }
+
+        if (mtypes !== undefined) {
+            payload.mtypes = mtypes;
+        }
+
+        let options = {
+            flag: 1,
+            method: 'getunreadconversationlist',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+
+    removeSession(to, timeout, callback) {
+        let payload = {
+          to: to,
+        };
+
+        let options = {
+            flag: 1,
+            method: 'removesession',
+            payload: RTMConfig.MsgPack.encode(payload, this._msgOptions)
+        };
+
+        sendQuest.call(this, this._baseClient, options, callback, timeout);
+    }
+    
 }
 
 module.exports = RTMClient;
