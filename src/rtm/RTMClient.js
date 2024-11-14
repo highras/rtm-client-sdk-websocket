@@ -602,6 +602,9 @@ class RTMClient {
     login(uid, token, callback, timeout) {
         this._uid = uid;
         this._token = token;
+	if (this._processor) {
+        	this._processor.uid = this._uid;
+	}
         connectRTMGate.call(this, callback, timeout);
     }
 

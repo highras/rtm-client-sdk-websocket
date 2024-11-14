@@ -11,6 +11,7 @@ class RTMProcessor {
 
         this._map = {};
         this._client = client;
+	this.uid = 0;
 
         this._msgOptions = {
 
@@ -101,7 +102,16 @@ class RTMProcessor {
         }
 
         if (payload) {
-
+            if (payload.attrs !== undefined) {
+		try {
+			const attrsJson = JSON.parse(payload.attrs);
+			if (attrsJson && attrsJson.excludedUids !== undefined && Array.isArray(attrsJson.excludedUids) && attrsJson.excludedUids.includes(this.uid.toString())) {
+				return;	
+			}
+		} catch (error) {
+			console.log("parse error: ", error);
+		}
+	    }
             this[data.method].call(this, payload);
         }
     }
