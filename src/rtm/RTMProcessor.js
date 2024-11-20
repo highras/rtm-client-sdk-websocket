@@ -109,7 +109,7 @@ class RTMProcessor {
 				return;	
 			}
 		} catch (error) {
-			console.log("parse error: ", error);
+			//console.log("parse error: ", error);
 		}
 	    }
             this[data.method].call(this, payload);
